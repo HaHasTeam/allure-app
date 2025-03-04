@@ -1,159 +1,73 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { AxiosError } from "axios";
-import { jwtDecode } from "jwt-decode";
-import { useCallback } from "react";
+import { type ApiError } from "@/utils/error-handler";
 
-import { DELETE, GET, PATCH, POST, PUT } from "../../utils/api.caller";
+import { useState, useCallback } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { safeApiCall } from "@/utils/api.caller";
 
-import { useSession } from "../useSession";
-import { CommonErrorResponse } from "@/types";
-import {
-  TServerResponse,
-  TServerResponseError,
-  TServerResponseSuccess,
-} from "@/types/request";
-export interface IUser {
-  role: string;
-  iat: number;
-  exp: number;
-  name: string;
-  sub: string;
-}
-export interface IApiOptions {
-  method: "get" | "post" | "put" | "delete" | "patch";
-  endpoint: string;
-  headers?: object;
-  params?: object;
-  body?: object;
-}
+/**
+ * Hook for making API calls with built-in loading state and error handling
+ */
+export function useApi() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<ApiError | null>(null);
+  const navigation = useNavigation();
 
-const useApi = () => {
-  const { accessToken, logout, refreshToken, setToken } = useSession();
+  /**
+   * Execute an API call with loading state and error handling
+   */
+  const execute = useCallback(
+    async <T>(
+      apiCallFn: () => Promise<T>,
+      options: {
+        showError?: boolean;
+        onSuccess?: (data: T) => void;
+        onError?: (error: ApiError) => void;
+      } = {}
+    ): Promise<T | null> => {
+      const { showError = true, onSuccess, onError } = options;
 
-  const handleError = useCallback(
-    async (error: unknown) => {
-      const headersDefault = {
-        Accept: "application/json",
-        Authorization: `Bearer ${refreshToken}`,
-      };
-      let message = "";
-      if (error instanceof AxiosError) {
-        const errorStatusCode = error.response?.status;
-        if (errorStatusCode === 401) {
-          if (accessToken && refreshToken) {
-            const decodedAccessToken = jwtDecode(accessToken) as IUser;
-            const decodedRefreshToken = jwtDecode(refreshToken) as IUser;
+      setIsLoading(true);
+      setError(null);
 
-            const accessTokenExpiration = decodedAccessToken.exp;
-            const refreshTokenExpiration = decodedRefreshToken.exp;
+      try {
+        const result = await safeApiCall(apiCallFn(), {
+          showError,
+          retryAction: () => execute(apiCallFn, options),
+          goBackAction: () => navigation.goBack(),
+        });
 
-            const currentTimestamp = Math.floor(new Date().getTime() / 1000);
-            if (currentTimestamp > accessTokenExpiration) {
-              if (currentTimestamp > refreshTokenExpiration) {
-                await logout();
-              } else {
-                try {
-                  const { data } = await POST(
-                    "auth/refresh",
-                    {},
-                    {},
-                    headersDefault
-                  );
-                  setToken(
-                    data.data.accessToken as string,
-                    data.data.refreshToken
-                  );
-                } catch (error) {
-                  await logout();
-                }
-              }
-            }
-          } else {
-            await logout();
-          }
+        if (onSuccess) {
+          onSuccess(result);
         }
-        if (errorStatusCode === 403) {
-          message = "Không có quyền truy cập";
+
+        return result;
+      } catch (err) {
+        const apiError = err as ApiError;
+        setError(apiError);
+
+        if (onError) {
+          onError(apiError);
         }
-      }
-      if (message) {
-        return message;
-      } else {
-        throw error;
+
+        return null;
+      } finally {
+        setIsLoading(false);
       }
     },
-    [accessToken, logout, refreshToken, setToken]
+    [navigation]
   );
 
   /**
-   * This function makes an API call based on the provided options.
-   * It's wrapped in a useCallback to prevent unnecessary re-renders.
-   *
-   * @async
-   * @function callApi
-   * @template T
-   * @param {string} method - The HTTP method for the API call.
-   * @param {string} endpoint - The endpoint for the API call.
-   * @param {Object} [headers={}] - The headers for the API call.
-   * @param {Object} [params={}] - The parameters for the API call.
-   * @param {Object} [body={}] - The body of the request for the API call.
-   * @returns {Promise<{ data: T }>} - Returns a promise that resolves with the data from the response.
-   * @throws Will throw an error if the API call fails.
+   * Reset the error state
    */
-  const callApi = useCallback(
-    async <T>(
-      method: string,
-      endpoint: string,
-      headers = {},
-      params = {},
-      body = {}
-    ): Promise<TServerResponse<T>> => {
-      try {
-        const headersDefault = {
-          Accept: "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          ...headers,
-        };
-        let response;
-        switch (method) {
-          case "post": {
-            response = await POST(endpoint, body, params, headersDefault);
-            break;
-          }
-          case "put": {
-            response = await PUT(endpoint, body, params, headersDefault);
-            break;
-          }
-          case "delete": {
-            response = await DELETE(endpoint, body, params, headersDefault);
-            break;
-          }
-          case "patch": {
-            response = await PATCH(endpoint, body, params, headersDefault);
-            break;
-          }
-          default: {
-            response = await GET(endpoint, params, headersDefault);
-          }
-        }
-        return {
-          data: response.data,
-          error: null,
-          message: response.data,
-        } as TServerResponseSuccess<T>;
-      } catch (error) {
-        const message = await handleError(error);
-        return {
-          data: null,
-          error: "API Error",
-          message,
-        } as TServerResponseError;
-      }
-    },
-    [accessToken, handleError]
-  );
+  const resetError = useCallback(() => {
+    setError(null);
+  }, []);
 
-  return callApi;
-};
-
-export default useApi;
+  return {
+    isLoading,
+    error,
+    execute,
+    resetError,
+  };
+}

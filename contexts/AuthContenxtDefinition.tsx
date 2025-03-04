@@ -12,7 +12,7 @@ const AuthContext = createContext<{
     firebaseToken: string
   ) => Promise<boolean | string | undefined>;
   removeFirebaseToken: () => Promise<boolean | string | undefined>;
-  fetchRoles: () => Promise<void>;
+  fetchRoles: () => Promise<TRoleResponse[]>;
   accessToken?: string | null;
   refreshToken?: string | null;
   firebaseToken?: string | null;
@@ -20,13 +20,16 @@ const AuthContext = createContext<{
   roles: TRoleResponse[];
   mappedRoles: GetRoleByEnumResponse;
   isLoadingRoles: boolean;
+  getRoleByEnum?: (roleEnum: string) => TRoleResponse | undefined;
+  getRoleNameByEnum?: (roleEnum: string) => string;
+  isRolesLoaded?: () => boolean;
 }>({
   login: () => Promise.resolve(false),
   logout: () => Promise.resolve(""),
   saveFirebaseToken: () => Promise.resolve(false),
   removeFirebaseToken: () => Promise.resolve(false),
   accessToken: null,
-  fetchRoles: async () => {},
+  fetchRoles: async () => [],
   refreshToken: null,
   firebaseToken: null,
   setToken: () => {},

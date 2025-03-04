@@ -18,6 +18,7 @@ import { getItem, removeItem, setItem } from "@/utils/asyncStorage";
 
 import type { TRoleResponse, GetRoleByEnumResponse } from "@/types/role";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useRole from "@/hooks/api/useRole";
 
 export { useSession } from "../hooks/useSession";
 
@@ -25,42 +26,18 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [accessToken, setAccessToken] = useState<string | undefined>();
   const [refreshToken, setRefreshToken] = useState<string | undefined>();
   const [firebaseToken, setFirebaseToken] = useState<string | undefined>();
-  const [roles, setRolesData] = useState<TRoleResponse[]>([]);
-  const [mappedRoles, setMappedRoles] = useState<GetRoleByEnumResponse>({});
-  const [isLoadingRoles, setIsLoadingRoles] = useState<boolean>(false);
+
   const navigation = useNavigation();
-
-  // Function to fetch all roles - doesn't require authentication
-  const fetchRoles = useCallback(async () => {
-    try {
-      setIsLoadingRoles(true);
-      const { data: res } = await GET("/role/");
-
-      if (res.data && Array.isArray(res.data)) {
-        setRolesData(res.data);
-
-        // Map roles when fetching
-        const mappedRoles = res.data.reduce(
-          (acc: GetRoleByEnumResponse, roleItem: TRoleResponse) => {
-            const key = roleItem.role;
-            acc[key] = roleItem;
-            return acc;
-          },
-          {}
-        );
-
-        setMappedRoles(mappedRoles);
-      }
-
-      log.info("Roles fetched and mapped successfully");
-    } catch (error) {
-      log.error("Error fetching roles:", error);
-      resolveError(error);
-    } finally {
-      setIsLoadingRoles(false);
-    }
-  }, []);
-
+  // Use the useRole hook instead of managing role state directly
+  const {
+    fetchRoles,
+    getRoleByEnum,
+    getRoleNameByEnum,
+    isRolesLoaded,
+    rolesData: roles,
+    mappedRoles,
+    isLoading: isLoadingRoles,
+  } = useRole();
   useEffect(() => {
     (async () => {
       try {
@@ -68,6 +45,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
 
         // Fetch roles on initial load - doesn't depend on authentication
         fetchRoles();
+        console.log("roles", roles);
 
         const storedToken = await Promise.all([
           getItem("accessToken"),
@@ -167,6 +145,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
           await setItem("refreshToken", refreshToken);
         },
         fetchRoles,
+        getRoleByEnum,
+        getRoleNameByEnum,
+        isRolesLoaded,
         accessToken,
         refreshToken,
         firebaseToken,

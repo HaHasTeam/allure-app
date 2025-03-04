@@ -5,7 +5,8 @@ import axios, {
   type Method,
 } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { handleApiError } from "./error-handler";
+import { Alert } from "react-native";
+import { getItem } from "./asyncStorage";
 
 // Create a custom axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -15,15 +16,16 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Token key in AsyncStorage
+// Token keys in AsyncStorage
 export const ACCESS_TOKEN = "accessToken";
+export const REFRESH_TOKEN = "refreshToken";
 
-// Request interceptor for adding token and handling request errors
+// Request interceptor for adding token
 apiClient.interceptors.request.use(
   async (config) => {
     try {
       // Get token from AsyncStorage
-      const token = await AsyncStorage.getItem(ACCESS_TOKEN);
+      const token = await getItem(ACCESS_TOKEN);
 
       // If token exists, add it to the headers
       if (token) {
@@ -40,40 +42,195 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor for handling response errors
+// Response interceptor for handling errors
 apiClient.interceptors.response.use(
   (response) => {
-    // Any status code within the range of 2xx causes this function to trigger
     return response;
   },
   async (error: AxiosError) => {
-    return Promise.reject(error);
+    const originalRequest = error.config;
+
+    // Handle 401 Unauthorized errors (token expired)
+    if (error.response?.status === 401 && originalRequest) {
+      // Prevent infinite loops
+      if (!(originalRequest as any)._retry) {
+        try {
+          (originalRequest as any)._retry = true;
+
+          // Get the refresh token
+          const refreshToken = await AsyncStorage.getItem(REFRESH_TOKEN);
+
+          if (!refreshToken) {
+            // No refresh token available, handle unauthorized
+            await handleUnauthorized();
+            return Promise.reject(createApiError(error));
+          }
+
+          // Call refresh token endpoint
+          const response = await axios.post(
+            `${process.env.EXPO_PUBLIC_API_URL}/auth/refresh`,
+            { refreshToken }
+          );
+
+          if (response.data?.data?.accessToken) {
+            const newToken = response.data.data.accessToken;
+
+            // Save the new token
+            await AsyncStorage.setItem(ACCESS_TOKEN, newToken);
+
+            // Update the Authorization header
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+            // Retry the original request
+            return apiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          // If refresh token fails, handle unauthorized
+          await handleUnauthorized();
+          return Promise.reject(createApiError(refreshError as AxiosError));
+        }
+      }
+    }
+
+    // For all other errors, return a standardized error object
+    return Promise.reject(createApiError(error));
   }
 );
 
-// Handle unauthorized errors (401)
+// Handle unauthorized errors (clear tokens)
 const handleUnauthorized = async () => {
   try {
-    // Clear token from storage
-    await AsyncStorage.removeItem(ACCESS_TOKEN);
-
-    // You might want to redirect to login screen or refresh token
-    // For example, if using React Navigation:
-    // navigation.reset({ index: 0, routes: [{ name: "Login" }] });
+    // Clear all auth tokens
+    await AsyncStorage.multiRemove([
+      ACCESS_TOKEN,
+      REFRESH_TOKEN,
+      "firebaseToken",
+    ]);
+    console.log("User session expired. Redirect to login required.");
   } catch (error) {
     console.error("Error handling unauthorized status:", error);
   }
 };
 
+// Create a standardized API error object
+export interface ApiError {
+  status: number;
+  message: string;
+  code?: string;
+  originalError?: any;
+}
+
+const createApiError = (error: AxiosError): ApiError => {
+  if (error.response) {
+    // The server responded with an error status
+    const status = error.response.status;
+    const responseData = error.response.data as any;
+
+    return {
+      status,
+      message: responseData?.message || getDefaultErrorMessage(status),
+      code: responseData?.code || `ERR_${status}`,
+      originalError: error,
+    };
+  } else if (error.request) {
+    // The request was made but no response was received
+    return {
+      status: 0,
+      message: "Network error. Please check your internet connection.",
+      code: "ERR_NETWORK",
+      originalError: error,
+    };
+  } else {
+    // Something happened in setting up the request
+    return {
+      status: 0,
+      message: error.message || "An unexpected error occurred",
+      code: "ERR_UNKNOWN",
+      originalError: error,
+    };
+  }
+};
+
+// Get user-friendly error messages
+const getDefaultErrorMessage = (status: number): string => {
+  switch (status) {
+    case 400:
+      return "The information provided is invalid. Please check and try again.";
+    case 401:
+      return "Your session has expired. Please log in again.";
+    case 403:
+      return "You don't have permission to access this feature.";
+    case 404:
+      return "The requested information could not be found.";
+    case 409:
+      return "There was a conflict with your request.";
+    case 422:
+      return "We couldn't process your request due to validation errors.";
+    case 429:
+      return "Too many requests. Please try again later.";
+    case 500:
+      return "Something went wrong on our end. Please try again later.";
+    case 503:
+      return "Service temporarily unavailable. Please try again later.";
+    default:
+      return "An unexpected error occurred. Please try again.";
+  }
+};
+
 /**
- * Creates a request using the configured Axios instance.
- *
- * @param {string} endpoint - The API endpoint to which the request should be made.
- * @param {string} method - The HTTP method for the request (e.g., 'GET', 'POST', 'PUT', 'DELETE').
- * @param {object} [headers={}] - An object containing custom headers for the request. Default is an empty object.
- * @param {object} [params={}] - An object containing URL parameters for the request. Default is an empty object.
- * @param {object} [body={}] - An object containing the request body. Default is an empty object.
- * @returns {Promise} - A Promise that resolves to the response of the HTTP request.
+ * Shows a user-friendly error alert with options to take action
+ */
+export const showErrorAlert = (
+  error: ApiError,
+  retryAction?: () => void,
+  goBackAction?: () => void
+) => {
+  const buttons = [];
+
+  // Add go back button if action provided
+  if (goBackAction) {
+    buttons.push({
+      text: "Go Back",
+      onPress: goBackAction,
+      style: "cancel" as const,
+    });
+  }
+
+  // Add retry button if action provided
+  if (retryAction) {
+    buttons.push({
+      text: "Try Again",
+      onPress: retryAction,
+    });
+  }
+
+  // Always have at least an OK button
+  if (buttons.length === 0) {
+    buttons.push({ text: "OK" });
+  }
+
+  // Show appropriate alert based on error type
+  if (error.status === 401) {
+    Alert.alert(
+      "Session Expired",
+      "Your session has expired. Please log in again to continue.",
+      buttons
+    );
+  } else if (error.status === 403) {
+    Alert.alert("Access Denied", error.message, buttons);
+  } else if (error.status === 0) {
+    Alert.alert(
+      "Connection Error",
+      "Please check your internet connection and try again.",
+      buttons
+    );
+  } else {
+    Alert.alert("Error", error.message, buttons);
+  }
+};
+
+/**
+ * Creates a request using the configured Axios instance
  */
 export const request = (
   endpoint: string,
@@ -92,12 +249,7 @@ export const request = (
 };
 
 /**
- * Sends a GET request to the specified endpoint.
- *
- * @param {string} endpoint - The API endpoint to which the GET request should be made.
- * @param {object} [params={}] - An object containing URL parameters for the request. Default is an empty object.
- * @param {object} [headers={}] - An object containing custom headers for the request. Default is an empty object.
- * @returns {Promise<AxiosResponse>} - A Promise that resolves to the response of the GET request.
+ * Sends a GET request to the specified endpoint
  */
 export const GET = (
   endpoint: string,
@@ -108,13 +260,7 @@ export const GET = (
 };
 
 /**
- * Sends a POST request to the specified endpoint.
- *
- * @param {string} endpoint - The API endpoint to which the POST request should be made.
- * @param {object} [body={}] - An object containing the request body. Default is an empty object.
- * @param {object} [params={}] - An object containing URL parameters for the request. Default is an empty object.
- * @param {object} [headers={}] - An object containing custom headers for the request. Default is an empty object.
- * @returns {Promise<AxiosResponse>} - A Promise that resolves to the response of the POST request.
+ * Sends a POST request to the specified endpoint
  */
 export const POST = (
   endpoint: string,
@@ -126,13 +272,7 @@ export const POST = (
 };
 
 /**
- * Sends a PUT request to the specified endpoint.
- *
- * @param {string} endpoint - The API endpoint to which the PUT request should be made.
- * @param {object} [body={}] - An object containing the request body. Default is an empty object.
- * @param {object} [params={}] - An object containing URL parameters for the request. Default is an empty object.
- * @param {object} [headers={}] - An object containing custom headers for the request. Default is an empty object.
- * @returns {Promise<AxiosResponse>} - A Promise that resolves to the response of the PUT request.
+ * Sends a PUT request to the specified endpoint
  */
 export const PUT = (
   endpoint: string,
@@ -144,13 +284,7 @@ export const PUT = (
 };
 
 /**
- * Sends a PATCH request to the specified endpoint.
- *
- * @param {string} endpoint - The API endpoint to which the PATCH request should be made.
- * @param {object} [body={}] - An object containing the request body. Default is an empty object.
- * @param {object} [params={}] - An object containing URL parameters for the request. Default is an empty object.
- * @param {object} [headers={}] - An object containing custom headers for the request. Default is an empty object.
- * @returns {Promise<AxiosResponse>} - A Promise that resolves to the response of the PATCH request.
+ * Sends a PATCH request to the specified endpoint
  */
 export const PATCH = (
   endpoint: string,
@@ -162,13 +296,7 @@ export const PATCH = (
 };
 
 /**
- * Sends a DELETE request to the specified endpoint.
- *
- * @param {string} endpoint - The API endpoint to which the DELETE request should be made.
- * @param {object} [body={}] - An object containing the request body. Default is an empty object.
- * @param {object} [params={}] - An object containing URL parameters for the request. Default is an empty object.
- * @param {object} [headers={}] - An object containing custom headers for the request. Default is an empty object.
- * @returns {Promise<AxiosResponse>} - A Promise that resolves to the response of the DELETE request.
+ * Sends a DELETE request to the specified endpoint
  */
 export const DELETE = (
   endpoint: string,
@@ -179,43 +307,28 @@ export const DELETE = (
   return request(endpoint, "DELETE", headers, params, body);
 };
 
-// Helper function to set the auth token
-export const setAuthToken = async (token: string): Promise<void> => {
-  try {
-    await AsyncStorage.setItem(ACCESS_TOKEN, token);
-  } catch (error) {
-    console.error("Error setting auth token:", error);
-  }
-};
-
-// Helper function to get the auth token
-export const getAuthToken = async (): Promise<string | null> => {
-  try {
-    return await AsyncStorage.getItem(ACCESS_TOKEN);
-  } catch (error) {
-    console.error("Error getting auth token:", error);
-    return null;
-  }
-};
-
-// Helper function to clear the auth token
-export const clearAuthToken = async (): Promise<void> => {
-  try {
-    await AsyncStorage.removeItem(ACCESS_TOKEN);
-  } catch (error) {
-    console.error("Error clearing auth token:", error);
-  }
-};
-
 /**
  * Utility function to safely use API calls with error handling
- * @param apiCall The API call function to execute
- * @returns A promise that resolves to the API response or rejects with a standardized error
  */
-export const safeApiCall = async <T>(apiCall: Promise<T>): Promise<T> => {
+export const safeApiCall = async <T>(
+  apiCall: Promise<T>,
+  options: {
+    showError?: boolean;
+    retryAction?: () => void;
+    goBackAction?: () => void;
+  } = {}
+): Promise<T> => {
+  const { showError = true, retryAction, goBackAction } = options;
+
   try {
     return await apiCall;
   } catch (error) {
-    throw handleApiError(error as AxiosError);
+    const apiError = error as ApiError;
+
+    if (showError) {
+      showErrorAlert(apiError, retryAction, goBackAction);
+    }
+
+    throw apiError;
   }
 };

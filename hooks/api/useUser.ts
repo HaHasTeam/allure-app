@@ -1,42 +1,65 @@
 import { useCallback } from "react";
 
-import useApi from "./useApi";
-
 import { resolveError } from "@/utils";
 import { IEditUserPayload, TUser } from "@/types/user";
+import { GET, PUT } from "@/utils/api.caller";
+import { useApi } from "./useApi";
+import { ApiError } from "@/utils/error-handler";
 
 const useUser = () => {
-  const callApi = useApi();
-
+  const { execute } = useApi();
   const rootEndpoint = "/accounts";
 
+  /**
+   * Get the current user's profile
+   * @returns User profile data or error message
+   */
   const getProfile = useCallback(async () => {
     try {
-      const result = await callApi<TUser>("get", rootEndpoint + "/me");
-      return result.data;
-    } catch (error) {
-      return resolveError(error);
-    }
-  }, [callApi]);
+      const result = await execute<{ data: TUser }>(
+        () => GET(`${rootEndpoint}/me`),
+        {
+          onError: (error: ApiError) => {
+            console.error("Failed to fetch profile:", error.message);
+          },
+        }
+      );
 
+      return result?.data;
+    } catch (error) {
+      console.error("Error in getProfile:", error);
+      return null;
+    }
+  }, [execute]);
+
+  /**
+   * Update the user's profile
+   * @param data Profile data to update
+   * @returns Success status or error message
+   */
   const editProfile = useCallback(
     async (data: IEditUserPayload) => {
       try {
-        const result = await callApi<{ success: boolean }>(
-          "put",
-          rootEndpoint,
-          {},
-          {},
-          data
+        const result = await execute<{ data: { success: boolean } }>(
+          () => PUT(rootEndpoint, data),
+          {
+            onSuccess: () => {
+              console.log("Profile updated successfully");
+            },
+            onError: (error: ApiError) => {
+              console.error("Failed to update profile:", error.message);
+            },
+          }
         );
-        return result.data?.success;
+
+        return result?.data || false;
       } catch (error) {
-        return resolveError(error);
+        console.error("Error in editProfile:", error);
+        return false;
       }
     },
-    [callApi]
+    [execute]
   );
-
   return { getProfile, editProfile };
 };
 

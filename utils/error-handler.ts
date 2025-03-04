@@ -1,90 +1,132 @@
-import { AxiosError } from "axios";
+import type { AxiosError } from "axios";
+import { log } from "./logger";
 
-// Custom error class for API errors
-export class ApiError extends Error {
+export interface ApiError {
   status: number;
-  data: any;
-
-  constructor(message: string, status: number, data: any) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-    this.data = data;
-  }
+  message: string;
+  code?: string;
+  details?: any;
 }
 
 /**
- * Handles API errors and returns a standardized error object
- * @param error The error object from axios
- * @returns A standardized error object
+ * Standardizes API error handling across the application
+ * @param error The axios error object
+ * @returns A standardized ApiError object
  */
 export const handleApiError = (error: AxiosError): ApiError => {
-  if (error.response) {
-    // The request was made and the server responded with a status code
-    // that falls out of the range of 2xx
-    const { status, data } = error.response;
-    const message = getErrorMessage(status, data);
+  // Log the error for debugging
+  log.error("API Error:", error);
 
-    return new ApiError(message, status, data);
+  if (error.response) {
+    // The server responded with a status code outside the 2xx range
+    const status = error.response.status;
+    const responseData = error.response.data as any;
+
+    return {
+      status,
+      message: responseData?.message || getDefaultErrorMessage(status),
+      code: responseData?.code || `ERR_${status}`,
+      details: responseData?.data || responseData,
+    };
   } else if (error.request) {
     // The request was made but no response was received
-    return new ApiError(
-      "No response received from server. Please check your internet connection.",
-      0,
-      null
-    );
+    return {
+      status: 0,
+      message: "Network error. Please check your internet connection.",
+      code: "ERR_NETWORK",
+    };
   } else {
     // Something happened in setting up the request
-    return new ApiError(
-      error.message || "An unexpected error occurred",
-      0,
-      null
-    );
+    return {
+      status: 0,
+      message: error.message || "An unexpected error occurred",
+      code: "ERR_UNKNOWN",
+    };
   }
 };
 
 /**
- * Gets a user-friendly error message based on the status code and response data
+ * Returns a default error message based on HTTP status code
  * @param status HTTP status code
- * @param data Response data
  * @returns A user-friendly error message
  */
-const getErrorMessage = (status: number, data: any): string => {
-  // Extract error message from response data if available
-  const serverMessage = data?.message || data?.error || JSON.stringify(data);
-
+const getDefaultErrorMessage = (status: number): string => {
   switch (status) {
     case 400:
-      return `Bad Request: ${serverMessage}`;
+      return "The information you provided is invalid or incomplete. Please check and try again.";
     case 401:
-      return "Your session has expired. Please log in again.";
+      return "Your session has expired. Please log in again to continue.";
     case 403:
-      return "You do not have permission to access this resource.";
+      return "You don't have permission to access this feature. Please contact support if you need access.";
     case 404:
-      return "The requested resource was not found.";
+      return "We couldn't find what you're looking for. It may have been moved or deleted.";
+    case 409:
+      return "There was a conflict with your request. Someone may have updated this information already.";
     case 422:
-      return `Validation Error: ${serverMessage}`;
+      return "We couldn't process your request due to validation errors. Please check your information.";
+    case 429:
+      return "You've made too many requests. Please wait a moment before trying again.";
     case 500:
-      return "An internal server error occurred. Please try again later.";
+      return "Something went wrong on our end. We're working to fix it. Please try again later.";
     case 503:
-      return "Service unavailable. Please try again later.";
+      return "Our service is temporarily unavailable. Please try again in a few minutes.";
     default:
-      return `Error (${status}): ${serverMessage}`;
+      return "Something unexpected happened. Please try again or contact support if the issue persists.";
   }
 };
 
 /**
- * Utility function to safely use API calls with error handling
- * @param apiCall The API call function to execute
- * @returns A promise that resolves to the API response or rejects with a standardized error
+ * Utility function to extract error message from various error formats
+ * @param error Any error object
+ * @returns A user-friendly error message string
  */
-export const safeApiCall = async <T>(apiCall: Promise<T>): Promise<T> => {
-  try {
-    return await apiCall;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      throw handleApiError(error);
-    }
-    throw error;
+export const resolveError = (error: any): string => {
+  if (!error) return "An unknown error occurred";
+
+  // Handle ApiError objects
+  if (error.status && error.message) {
+    return error.message;
+  }
+
+  // Handle Axios errors
+  if (error.isAxiosError) {
+    const apiError = handleApiError(error as AxiosError);
+    return apiError.message;
+  }
+
+  // Handle standard Error objects
+  if (error.message) {
+    return error.message;
+  }
+
+  // Handle string errors
+  if (typeof error === "string") {
+    return error;
+  }
+
+  // Default fallback
+  return "An unexpected error occurred";
+};
+
+// Add a new function to get user-friendly action suggestions based on error type
+export const getErrorActionSuggestion = (error: ApiError): string => {
+  switch (error.status) {
+    case 0: // Network error
+      return "Check your internet connection and try again.";
+    case 401:
+      return "Please log in again to continue.";
+    case 403:
+      return "You may need additional permissions to access this feature.";
+    case 404:
+      return "Try navigating back and searching for what you need.";
+    case 422:
+      return "Please review your information and correct any errors.";
+    case 429:
+      return "Please wait a moment before trying again.";
+    case 500:
+    case 503:
+      return "Try again later or contact support if the issue persists.";
+    default:
+      return "Try again or contact support if the issue continues.";
   }
 };
