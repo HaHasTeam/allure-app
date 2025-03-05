@@ -45,10 +45,13 @@ const ProfileScreen = () => {
       try {
         // Use the getProfile function from the useUser hook
         const userData = await getProfile();
+        console.log("userData", userData);
+
         if (typeof userData === "string") {
           throw new Error(userData);
+        } else if (userData) {
+          setUser(userData);
         }
-        setUser(userData);
       } catch (error) {
         log.error("Error fetching profile:", error);
         Alert.alert("Error", "Failed to load profile information");

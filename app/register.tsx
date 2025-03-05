@@ -52,10 +52,10 @@ const RegisterScreen = () => {
   } = useForm<z.infer<typeof formRegisterSchema>>({
     resolver: zodResolver(formRegisterSchema),
     defaultValues: {
+      username: "",
       email: "",
       password: "",
       passwordConfirmation: "",
-      username: "",
     },
   });
   const showErrorAlert = (message: string) => {
@@ -69,6 +69,7 @@ const RegisterScreen = () => {
       username: data.username,
       role: "72a09b1e-d6cf-4298-ac74-01cdc8afca0b",
     });
+    console.log("result 68", result);
 
     if (typeof result === "string") {
       setError("root", {

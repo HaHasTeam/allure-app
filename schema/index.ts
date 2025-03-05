@@ -7,7 +7,7 @@ export const formRegisterSchema = z
   .object({
     username: z
       .string()
-      .regex(new RegExp(`^.{1,""}$`), "Vui lòng nhập Họ và Tên")
+
       .min(1, "Tên người dùng phải có ít nhất 1 ký tự")
       .max(50, "Tên người dùng không được vượt quá 50 ký tự"),
 

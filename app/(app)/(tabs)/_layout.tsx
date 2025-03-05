@@ -16,7 +16,6 @@ import {
 import { FontAwesome5 } from "@expo/vector-icons";
 import MyText from "@/components/common/MyText";
 import useUser from "@/hooks/api/useUser";
-import { IUser } from "@/hooks/api/useApi";
 import { TUser } from "@/types/user";
 
 export default function TabLayout() {
@@ -114,7 +113,7 @@ export default function TabLayout() {
                   </TouchableOpacity>
                 </View>
               )}
-              title={`Xin chào người dùng ${user.email} 👋`}
+              title={`Xin chào 👋`}
               headerTitleStyle={{
                 fontFamily: myFontWeight.bold,
               }}

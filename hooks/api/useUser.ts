@@ -16,16 +16,17 @@ const useUser = () => {
    */
   const getProfile = useCallback(async () => {
     try {
-      const result = await execute<{ data: TUser }>(
-        () => GET(`${rootEndpoint}/me`),
-        {
-          onError: (error: ApiError) => {
-            console.error("Failed to fetch profile:", error.message);
-          },
-        }
-      );
+      const result = await execute<{
+        data: {
+          data: TUser;
+        };
+      }>(() => GET(`${rootEndpoint}/me`), {
+        onError: (error: ApiError) => {
+          console.error("Failed to fetch profile:", error.message);
+        },
+      });
 
-      return result?.data;
+      return result?.data.data;
     } catch (error) {
       console.error("Error in getProfile:", error);
       return null;

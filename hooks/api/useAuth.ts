@@ -10,7 +10,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/utils/api.caller";
 
 // Define types for auth payloads
 export interface IRegisterPayload {
-  name: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword?: string;
