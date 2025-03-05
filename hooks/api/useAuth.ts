@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback } from "react";
 import { useApi } from "./useApi";
 import { POST } from "@/utils/api.caller";
@@ -7,19 +5,10 @@ import type { ApiError } from "@/utils/api.caller";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/utils/api.caller";
+import { IRegisterFormPayload, IRegisterPayload } from "@/types/auth";
+import { ILoginPayload } from "@/app/login";
 
 // Define types for auth payloads
-export interface IRegisterPayload {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword?: string;
-}
-
-export interface ILoginPayload {
-  email: string;
-  password: string;
-}
 
 export interface IResendOtpPayload {
   email: string;

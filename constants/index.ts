@@ -13,12 +13,6 @@ export const myFontWeight = {
   semiBoldItalic: "Main-Font-SemiBoldItalic",
 };
 
-export enum LEVEL {
-  INTERMEDIATE = "INTERMEDIATE",
-  BASIC = "BASIC",
-  ADVANCED = "ADVANCED",
-}
-
 export const myTextColor = {
   primary: "#f16f90",
   caption: "#697B7A",

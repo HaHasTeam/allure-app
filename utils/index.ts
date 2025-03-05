@@ -4,10 +4,10 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isoWeek from "dayjs/plugin/isoWeek";
 import * as ImagePicker from "expo-image-picker";
-
-import { errorMessage } from "../constants/index";
+import type { ToastType } from "@/contexts/ToastContext";
+import { errorMessage } from "@/constants/index";
 import { CommonErrorResponse } from "@/types";
-import { LEVEL, SLOT_NUMBER, WEEKDAY } from "../constants/index";
+import { LEVEL, SLOT_NUMBER, WEEKDAY } from "@/constants/index";
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isoWeek);
@@ -163,3 +163,17 @@ export const resolveError = (error: unknown) => {
     return errorMessage.ERM033;
   }
 };
+
+// This is a global variable that will be set by the ToastProvider
+let globalShowToast: (
+  message: string,
+  type?: ToastType,
+  duration?: number
+) => void;
+
+// Function to set the global toast function
+export function setGlobalToast(
+  showToastFn: (message: string, type?: ToastType, duration?: number) => void
+) {
+  globalShowToast = showToastFn;
+}

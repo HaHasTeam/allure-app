@@ -17,6 +17,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import MyText from "@/components/common/MyText";
 import useUser from "@/hooks/api/useUser";
 import { TUser } from "@/types/user";
+import ShopHeader from "@/components/header/ShopHeader";
 
 export default function TabLayout() {
   const router = useRouter();
@@ -69,53 +70,12 @@ export default function TabLayout() {
         options={{
           title: "Home",
           header: () => (
-            <Header
-              headerTitle={({ children }) => (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    width: (width * 10.5) / 12,
-                    alignItems: "center",
-                  }}
-                >
-                  <View>
-                    <MyText
-                      text={children}
-                      styleProps={{
-                        fontSize: 20,
-                        fontFamily: myFontWeight.bold,
-                      }}
-                    />
-                    <View
-                      style={{ alignSelf: "flex-start", flexDirection: "row" }}
-                    >
-                      <MyText
-                        text="Hãy khám phá"
-                        styleProps={{ fontSize: 14, marginRight: 5 }}
-                      />
-                      <MyText
-                        text="Allure!"
-                        styleProps={{
-                          fontSize: 14,
-                          fontFamily: myFontWeight.bold,
-                          color: myTextColor.primary,
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() =>
-                      router.push({ pathname: "/(app)/(home)/notifications" })
-                    }
-                  >
-                    <Feather name="bell" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
-              )}
-              title={`Xin chào 👋`}
-              headerTitleStyle={{
-                fontFamily: myFontWeight.bold,
+            <ShopHeader
+              cartItemCount={3} // Replace with your actual cart count
+              notificationCount={5} // Replace with your actual notification count
+              onSearchChange={(text) => {
+                // Handle search text changes here
+                console.log("Search text:", text);
               }}
             />
           ),

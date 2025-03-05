@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { Appearance, Platform, StatusBar, StyleSheet } from "react-native";
 import { View } from "react-native-ui-lib";
 import * as Linking from "expo-linking";
+import { ToastProvider } from "@/contexts/ToastContext";
 // import { SessionProvider } from "@/contexts/AuthContext";
 // import QueryProvider from "@/provider/QueryProvider";
 // import { myFontWeight } from "@/contracts/constants";
@@ -52,80 +53,83 @@ export default function Root() {
             Appearance.getColorScheme() === "dark" ? "black" : "transparent"
           }
         />
+
         <QueryProvider>
           <SessionProvider>
-            <Stack>
-              <Stack.Screen
-                name="(app)"
-                options={{
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="welcome"
-                options={{
-                  title: "",
-                  headerShown: false,
-                }}
-              />
-              <Stack.Screen
-                name="login"
-                options={{
-                  header: () => (
-                    <Header
-                      headerLeft={() => (
-                        <HeaderBackButton
-                          label="Quay lại"
-                          labelStyle={{
-                            fontFamily: myFontWeight.regular,
-                          }}
-                          onPress={() => router.back()}
-                        />
-                      )}
-                      title="Đăng nhập"
-                      headerTitleStyle={{
-                        fontFamily: myFontWeight.bold,
-                      }}
-                    />
-                  ),
-                }}
-              />
-              <Stack.Screen
-                name="register"
-                options={{
-                  header: () => (
-                    <Header
-                      title="Tạo tài khoản"
-                      headerLeft={() => (
-                        <HeaderBackButton
-                          label="Quay lại"
-                          labelStyle={{
-                            fontFamily: myFontWeight.regular,
-                          }}
-                          onPress={() => router.back()}
-                        />
-                      )}
-                      headerTitleStyle={{
-                        fontFamily: myFontWeight.bold,
-                      }}
-                    />
-                  ),
-                }}
-              />
-              <Stack.Screen
-                name="verify"
-                options={{
-                  header: () => (
-                    <Header
-                      title="Xác minh tài khoản"
-                      headerTitleStyle={{
-                        fontFamily: myFontWeight.bold,
-                      }}
-                    />
-                  ),
-                }}
-              />
-            </Stack>
+            <ToastProvider>
+              <Stack>
+                <Stack.Screen
+                  name="(app)"
+                  options={{
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="welcome"
+                  options={{
+                    title: "",
+                    headerShown: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="login"
+                  options={{
+                    header: () => (
+                      <Header
+                        headerLeft={() => (
+                          <HeaderBackButton
+                            label="Quay lại"
+                            labelStyle={{
+                              fontFamily: myFontWeight.regular,
+                            }}
+                            onPress={() => router.back()}
+                          />
+                        )}
+                        title="Đăng nhập"
+                        headerTitleStyle={{
+                          fontFamily: myFontWeight.bold,
+                        }}
+                      />
+                    ),
+                  }}
+                />
+                <Stack.Screen
+                  name="register"
+                  options={{
+                    header: () => (
+                      <Header
+                        title="Tạo tài khoản"
+                        headerLeft={() => (
+                          <HeaderBackButton
+                            label="Quay lại"
+                            labelStyle={{
+                              fontFamily: myFontWeight.regular,
+                            }}
+                            onPress={() => router.back()}
+                          />
+                        )}
+                        headerTitleStyle={{
+                          fontFamily: myFontWeight.bold,
+                        }}
+                      />
+                    ),
+                  }}
+                />
+                <Stack.Screen
+                  name="verify"
+                  options={{
+                    header: () => (
+                      <Header
+                        title="Xác minh tài khoản"
+                        headerTitleStyle={{
+                          fontFamily: myFontWeight.bold,
+                        }}
+                      />
+                    ),
+                  }}
+                />
+              </Stack>
+            </ToastProvider>
           </SessionProvider>
         </QueryProvider>
       </View>

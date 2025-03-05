@@ -44,8 +44,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
         log.info("Checking stored token", process.env.EXPO_PUBLIC_API_URL);
 
         // Fetch roles on initial load - doesn't depend on authentication
-        fetchRoles();
-        console.log("roles", roles);
+        await fetchRoles();
 
         const storedToken = await Promise.all([
           getItem("accessToken"),

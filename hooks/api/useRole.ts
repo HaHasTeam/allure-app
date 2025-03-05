@@ -18,36 +18,37 @@ const useRole = () => {
    */
   const fetchRoles = useCallback(async () => {
     try {
-      const result = await execute<{ data: TRoleResponse[] }>(
-        () => GET("/role/"),
-        {
-          onSuccess: (response) => {
-            const roles = response.data;
+      const result = await execute<{
+        data: {
+          data: TRoleResponse[];
+        };
+      }>(() => GET("/role/"), {
+        onSuccess: (response) => {
+          const roles = response.data.data;
 
-            if (roles && Array.isArray(roles)) {
-              setRolesData(roles);
+          if (roles && Array.isArray(roles)) {
+            setRolesData(roles);
 
-              // Map roles by enum value for easier access
-              const mappedRoles = roles.reduce(
-                (acc: GetRoleByEnumResponse, roleItem: TRoleResponse) => {
-                  const key = roleItem.role;
-                  acc[key] = roleItem;
-                  return acc;
-                },
-                {}
-              );
+            // Map roles by enum value for easier access
+            const mappedRoles = roles.reduce(
+              (acc: GetRoleByEnumResponse, roleItem: TRoleResponse) => {
+                const key = roleItem.role;
+                acc[key] = roleItem;
+                return acc;
+              },
+              {}
+            );
 
-              setMappedRoles(mappedRoles);
-              log.info("Roles fetched and mapped successfully");
-            }
-          },
-          onError: (error) => {
-            log.error("Error fetching roles:", error);
-          },
-        }
-      );
+            setMappedRoles(mappedRoles);
+            log.info("Roles fetched and mapped successfully");
+          }
+        },
+        onError: (error) => {
+          log.error("Error fetching roles:", error);
+        },
+      });
 
-      return result?.data || [];
+      return result?.data.data || [];
     } catch (error) {
       log.error("Error in fetchRoles:", error);
       return [];

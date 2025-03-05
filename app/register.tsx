@@ -32,18 +32,18 @@ import { formRegisterSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "@/contexts/AuthContext";
 import { z } from "zod";
+import { useToast } from "@/contexts/ToastContext";
 
 const RegisterScreen = () => {
   const router = useRouter();
   const { register } = useAuth();
-  const { roles } = useSession();
-  console.log("roles 40", roles);
+  const { mappedRoles } = useSession();
 
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [isShowPasswordConfirmation, setIsShowPasswordConfirmation] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { showToast } = useToast();
   const {
     control,
     handleSubmit,
@@ -67,9 +67,8 @@ const RegisterScreen = () => {
       email: data.email,
       password: data.password,
       username: data.username,
-      role: "72a09b1e-d6cf-4298-ac74-01cdc8afca0b",
+      role: mappedRoles.CUSTOMER.id,
     });
-    console.log("result 68", result);
 
     if (typeof result === "string") {
       setError("root", {
@@ -77,7 +76,13 @@ const RegisterScreen = () => {
         message: result,
       });
     } else {
-      router.replace(`/(app)/(tabs)`);
+      // Show success toast notification
+      showToast("Registration successful! Please login.", "success", 4000);
+
+      // Navigate to login page after a short delay to ensure toast is visible
+      setTimeout(() => {
+        router.replace("/login");
+      }, 1500);
     }
     setIsLoading(false);
   };
