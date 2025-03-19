@@ -1,3 +1,5 @@
+import "@/i18n/i18n";
+
 import { Feather } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
