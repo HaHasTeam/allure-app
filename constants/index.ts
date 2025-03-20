@@ -20,13 +20,16 @@ export const myTextColor = {
 
 export const myTheme = {
   // primary: "#f16f90",
+  white: "#FFF",
+  black: "000",
   lighter: "#D5F3F0",
   lightGrey: "#f6faf9",
   lightPrimary: "#e5f7f7",
   grey: "#697B7A",
   primary: "#e62e68", // hsl(345, 82%, 69%)
   primaryForeground: "#ffffff", // hsl(0, 0%, 100%)
-  background: "#fbe7eb", // hsl(345, 60%, 98%)
+  // background: "#fbe7eb", // hsl(345, 60%, 98%)
+  background: "#faf3f4", // hsl(351, 77.80%, 98.20%)
   foreground: "#130003", // hsl(345, 57%, 0%)
   muted: "#e8c9d0", // hsl(345, 24%, 91%)
   mutedForeground: "#646464", // hsl(0, 0%, 39.22%)

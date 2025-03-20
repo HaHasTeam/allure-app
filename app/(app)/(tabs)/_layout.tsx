@@ -16,13 +16,13 @@ import {
 import { FontAwesome5 } from "@expo/vector-icons";
 import MyText from "@/components/common/MyText";
 import useUser from "@/hooks/api/useUser";
-import { TUser } from "@/types/user";
+import { TUserPa } from "@/types/user";
 import ShopHeader from "@/components/header/ShopHeader";
 
 export default function TabLayout() {
   const router = useRouter();
   const { getProfile } = useUser();
-  const [user, setUser] = useState<TUser>({
+  const [user, setUser] = useState<TUserPa>({
     email: "",
     id: "",
     username: "",
@@ -33,6 +33,7 @@ export default function TabLayout() {
     role: "",
     status: "",
     isEmailVerify: false,
+    password: "",
   });
   const style = StyleSheet.create({
     iconContainer: {

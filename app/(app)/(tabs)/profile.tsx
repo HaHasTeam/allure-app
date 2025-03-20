@@ -32,8 +32,10 @@ import { useSession } from "@/hooks/useSession";
 import { log } from "@/utils/logger";
 import { UserStatusEnum, UserGenderEnum, TUserPa } from "../../../types/user";
 import useUser from "@/hooks/api/useUser";
+import { useTranslation } from "react-i18next";
 
 const ProfileScreen = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { logout } = useSession();
   const { getProfile } = useUser();
@@ -108,6 +110,18 @@ const ProfileScreen = () => {
       ),
       onPress: () => router.push("/(app)/(profile)/updatepassword"),
       title: "Đổi mật khẩu",
+    },
+    {
+      icon: (
+        <MaterialIcons
+          name="language"
+          style={style.icon}
+          size={24}
+          color={myTheme.primary}
+        />
+      ),
+      onPress: () => router.push("/(app)/(language)/languageswitcher"),
+      title: t("language.title"),
     },
     {
       icon: (
@@ -328,7 +342,6 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           )}
         />
-
         {/* Other Menu */}
         <MyText
           text="Khác"

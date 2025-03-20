@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from "react-native";
 import { useTranslation } from "react-i18next";
 import { AntDesign } from "@expo/vector-icons";
+import { myTheme } from "@/constants";
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
@@ -17,50 +18,36 @@ const LanguageSwitcher = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={toggleModal}>
-        <Text style={styles.buttonText}>
-          {i18n.resolvedLanguage?.toUpperCase()}
-        </Text>
-        <AntDesign name="caretdown" size={24} color="black" />
-      </TouchableOpacity>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isModalVisible}
-        onRequestClose={toggleModal}
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={toggleModal}
       >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={toggleModal}
-        >
-          <View style={styles.modalContent}>
-            {supportedLngs
-              .filter((lng) => lng !== "cimode")
-              .map((lng) => (
-                <TouchableOpacity
-                  key={lng}
+        <View style={styles.languageContainer}>
+          {supportedLngs
+            .filter((lng) => lng !== "cimode")
+            .map((lng) => (
+              <TouchableOpacity
+                key={lng}
+                style={[
+                  styles.languageOption,
+                  i18n.resolvedLanguage === lng && styles.selectedLanguage,
+                ]}
+                onPress={() => handleChangeLanguage(lng)}
+              >
+                <Text
                   style={[
-                    styles.languageOption,
-                    i18n.resolvedLanguage === lng && styles.selectedLanguage,
+                    styles.languageText,
+                    i18n.resolvedLanguage === lng &&
+                      styles.selectedLanguageText,
                   ]}
-                  onPress={() => handleChangeLanguage(lng)}
                 >
-                  <Text
-                    style={[
-                      styles.languageText,
-                      i18n.resolvedLanguage === lng &&
-                        styles.selectedLanguageText,
-                    ]}
-                  >
-                    {lng.toUpperCase()}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+                  {lng.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            ))}
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -84,28 +71,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  modalContent: {
-    width: 200,
-    backgroundColor: "white",
-    borderRadius: 8,
-    padding: 16,
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+  languageContainer: {
+    width: "100%",
   },
   languageOption: {
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 4,
     marginBottom: 8,
+    width: "100%",
     backgroundColor: "#f5f5f5",
   },
   selectedLanguage: {
-    backgroundColor: "#1e88e5",
+    backgroundColor: myTheme.primary,
   },
   languageText: {
     fontSize: 16,

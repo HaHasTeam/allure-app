@@ -89,7 +89,13 @@
     "logoutError": "Đăng xuất không thành công",
     "noToken": "Bạn chưa đăng nhập",
     "errorLoading": "Đã xảy ra lỗi. Vui lòng thử lại sau",
-    "errorSubmit": "Gửi không thành công"
+    "notFoundTitle": "Không tìm thấy trang",
+    "forbiddenTitle": "Bị cấm",
+    "serverErrorTitle": "Lỗi máy chủ",
+    "errorSubmit": "Gửi không thành công",
+    "notFound": "Trang bạn đang tìm kiếm không tồn tại.",
+    "forbidden": "Bạn không có quyền truy cập vào tài nguyên này.",
+    "serverError": "Đã xảy ra lỗi máy chủ nội bộ. Vui lòng thử lại sau."
   },
   "errorNotification": "Rất tiếc, có sự cố xảy ra, vui lòng chờ một chút!",
   "loginRcm": "Đăng nhập để cập nhật kỹ năng của bạn!",
@@ -111,6 +117,7 @@
     "save": "Lưu",
     "submit": "Gửi",
     "backToHome": "Quay lại Trang chủ",
+    "goToHome": "Đến Trang chủ",
     "approved": "Phê duyệt",
     "rejected": "Từ chối",
     "submitAndShow": "Gửi và hiện sản phẩm",

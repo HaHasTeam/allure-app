@@ -1,19 +1,12 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Linking,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 
-import ImageWithFallback from "../image/ImageWithFallBack";
 import { myTheme } from "@/constants";
+import { Image } from "react-native";
 
 // Import images - in React Native, you need to require images
 const emptyInbox = require("@/assets/images/EmptyInbox.png");
-const fallBackImage = require("@/assets/images/fallBackImage.jpg");
 
 type EmptyProps = {
   title: string;
@@ -34,11 +27,7 @@ const Empty = ({ title, description, icon, linkText, link }: EmptyProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
-        <ImageWithFallback
-          source={icon ? icon : emptyInbox}
-          style={styles.image}
-          fallback={fallBackImage}
-        />
+        <Image source={icon ? icon : emptyInbox} style={styles.image} />
       </View>
       <View style={styles.contentContainer}>
         <View style={styles.textContainer}>

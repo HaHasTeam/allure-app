@@ -89,7 +89,13 @@
     "logoutError": "Logout unsuccessful",
     "noToken": "You are not logged in",
     "errorLoading": "An error occurred. Please try again later",
-    "errorSubmit": "Submission unsuccessful"
+    "errorSubmit": "Submission unsuccessful",
+    "notFoundTitle": "Page Not Found",
+    "forbiddenTitle": "Forbidden",
+    "serverErrorTitle": "Server Error",
+    "notFound": "The page you are looking for does not exist.",
+    "forbidden": "You do not have permission to access this resource.",
+    "serverError": "An internal server error occurred. Please try again later."
   },
   "errorNotification": "Oops, there was a problem, please wait a moment!",
   "loginRcm": "Log in to update your skills!",
@@ -111,6 +117,7 @@
     "save": "Save",
     "submit": "Submit",
     "backToHome": "Back to Home",
+    "goToHome": "Go to Home",
     "approved": "Approve",
     "rejected": "Reject",
     "submitAndShow": "Submit and Show",

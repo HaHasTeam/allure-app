@@ -3,19 +3,19 @@ import { Image, ImageProps } from "react-native";
 const fallBackImage = require("@/assets/images/fallBackImage.jpg");
 
 interface Props extends ImageProps {
+  src: string;
   fallback?: string;
 }
 
-const ImageWithFallback: React.FC<Props> = ({ fallback, source, ...props }) => {
-  const [imgSource, setImgSource] = useState<any>(source);
+const ImageWithFallback: React.FC<Props> = ({ fallback, src, ...props }) => {
+  const [imgSource, setImgSource] = useState<string>(src);
 
   const handleError = () => {
-    setImgSource(fallback);
+    setImgSource(fallback ?? fallBackImage);
   };
-
   return (
     <Image
-      source={imgSource || fallback || fallBackImage}
+      source={imgSource ? { uri: imgSource } : fallback || fallBackImage}
       onError={handleError}
       {...props}
     />
