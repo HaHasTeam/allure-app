@@ -1,30 +1,39 @@
 import { IClassification } from './classification'
-import { OrderEnum, PaymentMethod, ShippingStatusEnum } from './enum'
+import { PaymentMethod, RequestStatusEnum, ShippingStatusEnum } from './enum'
+import { IResponseFeedback } from './feedback'
+import { TFile, TServerFile } from './file'
 import { TUser } from './user'
 import { TVoucher } from './voucher'
 
-// Order detail interface
 export interface IOrderDetail {
+  platformVoucherDiscount: number
+  shopVoucherDiscount: number
   id: string
   createdAt: string
   updatedAt: string
-  unitPriceBeforeDiscount: number
-  unitPriceAfterDiscount: number
   subTotal: number
   totalPrice: number
   quantity: number
-  productName: string
-  classificationName: string
-  type: OrderEnum
+  type: string | null
   isFeedback: boolean
-  platformVoucherDiscount: number
-  shopVoucherDiscount: number
   productClassification: IClassification
   productClassificationPreOrder: null | IClassification
+  unitPriceAfterDiscount: number
+  unitPriceBeforeDiscount: number
+  feedback: IResponseFeedback | null
+}
+export interface IOrderFeedback extends IOrderItem {
+  account: TUser
+  productClassification: IClassification
+  quantity: number
+}
+export interface IOrderDetailFeedback extends IOrderDetail {
+  order: IOrderFeedback
 }
 
-// Order item interface
 export interface IOrderItem {
+  platformVoucherDiscount: number
+  shopVoucherDiscount: number
   id: string
   createdAt: string
   updatedAt: string
@@ -32,20 +41,20 @@ export interface IOrderItem {
   totalPrice: number
   shippingAddress: string
   phone: string
-  recipientName: string
   paymentMethod: PaymentMethod
   notes: string
-  message: string | null
-  type: OrderEnum
+  type: string
   status: ShippingStatusEnum
-  platformVoucherDiscount: number
-  shopVoucherDiscount: number
   orderDetails: IOrderDetail[]
-  voucher: TVoucher | null
+  voucher: null | TVoucher
+  message: string
+  recipientName: string
+  account: TUser
 }
 
-// Main order interface
-export interface IOrder {
+export type IOrder = {
+  platformVoucherDiscount: number
+  shopVoucherDiscount: number
   id: string
   createdAt: string
   updatedAt: string
@@ -53,43 +62,44 @@ export interface IOrder {
   totalPrice: number
   shippingAddress: string
   phone: string
-  recipientName: string
-  paymentMethod: PaymentMethod
+  paymentMethod: string
   notes: string
-  message: string | null
-  type: OrderEnum
-  status: ShippingStatusEnum
-  platformVoucherDiscount: number
-  shopVoucherDiscount: number
+  type: string
+  status: string
   account: TUser
   children: IOrderItem[]
+  orderDetails: IOrderItem[] // for requests
 }
 
-// Other interfaces (kept as they were, assuming they're still needed)
-export interface IOrderFilter {
+export type IOrderFilter = {
   search?: string
-  status?: string
+  statusList?: string[]
+}
+export type IRequestFilter = {
+  search?: string
+  types?: string[]
+  statusList?: string[]
 }
 
-export interface IOrderCheckoutItem {
+export type IOrderCheckoutItem = {
   productClassificationId: string
   quantity?: number
 }
 
-export interface ICreateOrderItem {
+export type ICreateOrderItem = {
   shopVoucherId?: string
   items: IOrderCheckoutItem[]
   message?: string
 }
 
-export interface ICreateOrder {
+export type ICreateOrder = {
   orders: ICreateOrderItem[]
   addressId: string
   paymentMethod: string
   platformVoucherId?: string
 }
 
-export interface ICreatePreOrder {
+export type ICreatePreOrder = {
   productClassificationId: string
   quantity: number
   addressId: string
@@ -97,7 +107,18 @@ export interface ICreatePreOrder {
   notes: string
 }
 
-export interface ICancelOrder {
+export type ICreateGroupOrder = {
+  groupBuyingId: string
+  items: IOrderCheckoutItem[]
+  addressId: string
+}
+export type IUpdateGroupOrder = {
+  orderId: string
+  items: IOrderCheckoutItem[]
+  addressId: string
+}
+
+export type ICancelOrder = {
   orderId: string
   reason: string
 }
@@ -107,6 +128,34 @@ export interface ICancelRequestOrder {
   createdAt: string
   updatedAt: string
   reason: string
-  status: string
+  status: RequestStatusEnum.APPROVED | RequestStatusEnum.REJECTED | RequestStatusEnum.PENDING
   order: IOrder
+}
+
+export interface IRequest {
+  id: string
+  createdAt: string
+  updatedAt: string
+  reason: string
+  status: RequestStatusEnum.APPROVED | RequestStatusEnum.REJECTED | RequestStatusEnum.PENDING
+  reasonRejected: string | null
+  type: string
+  mediaFiles: TFile[]
+  rejectedRefundRequest: IRejectReturnRequestOrder
+  order: IOrderItem
+}
+
+export interface IReturnRequestOrder extends ICancelRequestOrder {
+  mediaFiles: TServerFile[]
+  rejectedRefundRequest: IRejectReturnRequestOrder
+  reasonRejected: string | null
+}
+export interface IRejectReturnRequestOrder extends ICancelRequestOrder {
+  mediaFiles: TServerFile[]
+}
+
+export interface ICancelAndReturnRequest {
+  cancelRequest: ICancelRequestOrder
+  refundRequest: IReturnRequestOrder
+  complaintRequest: IReturnRequestOrder
 }

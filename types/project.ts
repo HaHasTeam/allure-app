@@ -7,5 +7,5 @@ export enum ProjectInformationEnum {
   website = 'https://allure.beauty.com',
   logo = 'allure-logo.png',
   facebook = 'https://www.facebook.com/allurebeauty',
-  twitter = 'https://www.twitter.com/allurebeauty'
+  twitter = 'https://www.twitter.com/allurebeauty',
 }

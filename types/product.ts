@@ -1,6 +1,8 @@
-import { IBrand } from './brand'
+import { IBrand, TBrand } from './brand'
 import { ICategory } from './category'
 import { IClassification } from './classification'
+import { ProductEnum } from './enum'
+import { TServerFile } from './file'
 import { IPreOrder } from './pre-order'
 import { IProductDiscount } from './product-discount'
 import { IImage } from './productImage'
@@ -9,17 +11,14 @@ import { TMetaData } from './request'
 // common starts
 export type TProduct = TMetaData & {
   name: string
-  brand?: IBrand
-  category?: ICategory
-  images: IImage[]
   description: string
-  status?: string
-  detail?: string
-  productClassifications?: IServerProductClassification[]
-  price?: number
-  quantity?: number
-  sku?: string
-  menu?: string
+  detail: string
+  brand: TBrand
+  images: IImage[]
+  status: ProductStatusEnum
+  productClassifications: IClassification[]
+  certificates: TServerFile[]
+  salesLast30Days: number
 }
 
 export type IProductDetail = {
@@ -53,22 +52,16 @@ export type IProductClassification = {
   status?: string
   type?: string
   sku?: string
-  color?: string
-  size?: string
-  other?: string
 }
 export type IServerProductClassification = {
   id?: string
   title?: string
   price?: number
   quantity?: number
-  images: IImage[]
+  images?: IImage[]
   status?: string
   type?: string
   sku?: string
-  color?: string
-  size?: string
-  other?: string
 }
 
 export type ICreateProduct = {
@@ -84,7 +77,6 @@ export type ICreateProduct = {
   price?: number
   quantity?: number
   sku?: string
-  certificate: File[]
 }
 export type IServerCreateProduct = {
   id?: string
@@ -99,25 +91,26 @@ export type IServerCreateProduct = {
   price?: number
   quantity?: number
   sku?: string
-  certificate?: string
 }
 export type IResponseProduct = {
-  id?: string
+  id: string
   name: string
-  brand?: IBrand
+  brand: IBrand
   category?: ICategory
   images: IImage[]
   description: string
-  status?: string
-  detail?: string
-  productClassifications: IServerProductClassification[]
-  price?: number
-  quantity?: number
+  status: string
+  detail: string
+  productClassifications: IClassification[]
+  price: number
+  quantity: number
   sku?: string
   menu?: string
-  updatedAt?: string
-  createdAt: string
-  certificate: string
+  updatedAt: string
+  certificates: TServerFile[]
+  average_rating: number
+  total_ratings: number
+  salesLast30Days: number
 }
 
 export type IProductTable = {
@@ -129,19 +122,24 @@ export type IProductTable = {
   status?: string
   updatedAt?: string
   description: string
-  productClassifications: IServerProductClassification[]
-  certificate: string
-
-  detail?: string
+  detail: string
   brand?: IBrand
   category?: ICategory
-  menu?: string
-  title?: string
-  images: IImage[]
-  type?: string
   sku?: string
-  createdAt: string
+  menu?: string
 }
+
+// common ends
+
+// components interface starts
+export interface ProductTableProps {
+  tableData: TProduct[]
+}
+// type IProductImage = {
+//   id: string
+//   image: string
+//   fileUrl?: string
+// }
 
 export type IProduct = {
   id: string
@@ -154,44 +152,61 @@ export type IProduct = {
   flashSale?: {
     productAmount: number
     soldAmount?: number
-  }
+  } | null
   rating: number
   ratingAmount: number
-  soldInPastMonth: number
+  salesLast30Days: number
   description: string
   classifications: IClassification[]
   createdAt?: string
   updatedAt?: string
   detail: string
   sku?: string
-  status?: string
+  status?: ProductEnum
   brand?: IBrand
   productClassifications?: IClassification[] // use for cart
   productDiscounts?: IProductDiscount[] | null // use for cart
   preOrderProducts?: IPreOrder[] | null // use for cart
   category?: ICategory // use for product details
+  certificates: TServerFile[]
 }
 
-// common ends
-
-// components interface starts
-export interface ProductTableProps {
-  tableData: TProduct[]
+export type IProductCart = {
+  image: string
+  name: string
+  classifications: IClassification[]
+  currentPrice: number
+  price: number
+  id: string
+  eventType: string
+  quantity: number
+  totalPrice?: number
+}
+export type IProductCard = {
+  id: string
+  name: string
+  tag?: string
+  price?: number
+  currentPrice?: number
+  images: IImage[]
+  deal?: number
+  flashSale?: {
+    productAmount: number
+    soldAmount?: number
+  }
+  rating: number
+  ratingAmount: number
+  soldInPastMonth: number
+  classifications?: IServerProductClassification[]
+  certificate: string
 }
 
 // components interface ends
 
 // enum starts
-export enum ProductEnum {
-  PRE_ORDER = 'PRE_ORDER',
-  FLASH_SALE = 'FLASH_SALE',
-  OFFICIAL = 'OFFICIAL',
-  OUT_OF_STOCK = 'OUT_OF_STOCK',
-  INACTIVE = 'INACTIVE'
-}
 export enum ProductClassificationTypeEnum {
   DEFAULT = 'DEFAULT',
-  CUSTOM = 'CUSTOM'
+  CUSTOM = 'CUSTOM',
 }
 export enum ProductStatusEnum {
   FLASH_SALE = 'FLASH_SALE',
@@ -199,6 +214,5 @@ export enum ProductStatusEnum {
   OUT_OF_STOCK = 'OUT_OF_STOCK',
   INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
-  PENDING = 'PENDING'
 }
 // enum ends

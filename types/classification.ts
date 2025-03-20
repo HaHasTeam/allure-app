@@ -1,8 +1,7 @@
 import { StatusEnum } from './enum'
-import { TFile } from './file'
 import { IImage } from './image'
 import { IPreOrder } from './pre-order'
-import { IProduct, ProductClassificationTypeEnum } from './product'
+import { IProduct } from './product'
 import { IProductDiscount } from './product-discount'
 import { TMetaData } from './request'
 
@@ -10,18 +9,10 @@ export type TClassification = TMetaData & {
   title: string
   price: number
   quantity: number
-  images: TFile[]
-  sku: string
-  type: ProductClassificationTypeEnum
+  image: string | null
   status: ClassificationStatusEnum
 }
 
-export enum ClassificationStatusEnum {
-  PENDING = 'PENDING',
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  BANNED = 'BANNED'
-}
 export interface IClassificationSelection {
   color: string | null
   size: string | null
@@ -44,4 +35,15 @@ export type IClassification = IClassificationSelection & {
   product: IProduct
   preOrderProduct?: IPreOrder | null
   productDiscount?: IProductDiscount | null
+}
+
+export interface IClassificationWithSecondLevel extends IClassification {
+  secondLevel: string | undefined
+}
+
+export enum ClassificationStatusEnum {
+  PENDING = 'PENDING',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  BANNED = 'BANNED',
 }

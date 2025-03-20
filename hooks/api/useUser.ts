@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
 import { resolveError } from "@/utils";
-import { IEditUserPayload, TUser } from "@/types/user";
+import { IEditUserPayload, TUserPa } from "@/types/user";
 import { GET, PUT } from "@/utils/api.caller";
 import { useApi } from "./useApi";
 import { ApiError } from "@/utils/error-handler";
@@ -18,7 +18,7 @@ const useUser = () => {
     try {
       const result = await execute<{
         data: {
-          data: TUser;
+          data: TUserPa;
         };
       }>(() => GET(`${rootEndpoint}/me`), {
         onError: (error: ApiError) => {

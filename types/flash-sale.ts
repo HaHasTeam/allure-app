@@ -1,23 +1,23 @@
 import { TBrand } from './brand'
-import { TClassification } from './classification'
-import { TFile } from './file'
-import { TProduct } from './product'
+import { IClassification } from './classification'
+import { IImage } from './image'
+import { IResponseProduct } from './product'
 import { TMetaData } from './request'
 
 export type TFlashSale = TMetaData & {
   startTime: string
   endTime: string
   discount: number
-  product: TProduct
+  product: IResponseProduct
   brand: TBrand
-  images: TFile[]
-  productClassifications: Partial<TClassification>[]
+  images: IImage[]
   status: FlashSaleStatusEnum
+  productClassifications: IClassification[]
 }
 
 export enum FlashSaleStatusEnum {
-  SOLD_OUT = 'SOLD_OUT',
-  WAITING = 'WAITING',
+  PENDING = 'PENDING',
   ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE'
+  INACTIVE = 'INACTIVE',
+  BANNED = 'BANNED',
 }

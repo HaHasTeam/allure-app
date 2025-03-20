@@ -9,13 +9,6 @@ export type TBrand = TMetaData & {
   phone: string
   address: string
   star?: number
-  businessTaxCode: string
-  businessRegistrationCode: string
-  establishmentDate: string
-  province: string
-  district: string
-  ward: string
-  businessRegistrationAddress: string
   status: BrandStatusEnum
 }
 
@@ -24,14 +17,14 @@ export enum BrandStatusEnum {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
-  DENIED = 'DENIED'
+  DENIED = 'DENIED',
 }
 export enum StatusEnum {
   PENDING = 'PENDING',
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
-  DENIED = 'DENIED'
+  DENIED = 'DENIED',
 }
 export type IBrand = {
   id: string
@@ -45,5 +38,25 @@ export type IBrand = {
   phone: string
   address: string
   star: number
-  status: BrandStatusEnum
+  status:
+    | BrandStatusEnum.ACTIVE
+    | BrandStatusEnum.BANNED
+    | BrandStatusEnum.INACTIVE
+    | BrandStatusEnum.PENDING
+    | BrandStatusEnum.DENIED
+}
+
+export type IBranch = {
+  id?: string
+  name: string
+  logo?: string
+  document: string
+  description?: string
+  email: string
+  phone?: string
+  address?: string
+  status?: StatusEnum
+  createdAt?: string
+  updatedAt?: string
+  star?: number
 }

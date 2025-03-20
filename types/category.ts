@@ -1,4 +1,12 @@
-import { TMetaData } from './request'
+// export interface ICategoryDetail {
+//   field1: {
+//     type: string
+//   }
+//   field2: {
+//     type: string
+//     options: string[]
+//   }
+// }
 
 type BaseCategoryField = {
   label: string
@@ -14,22 +22,22 @@ export enum CategoryTypeEnum {
   input = 'input',
   singleChoice = 'singleChoice',
   multipleChoice = 'multipleChoice',
-  date = 'date'
+  date = 'date',
 }
 
 export const categoryTypeOptions = Object.keys(CategoryTypeEnum).map((key) => ({
   label: key.toUpperCase(),
-  value: CategoryTypeEnum[key as keyof typeof CategoryTypeEnum]
+  value: CategoryTypeEnum[key as keyof typeof CategoryTypeEnum],
 }))
 
 export enum InputTypeEnum {
   text = 'text',
-  number = 'number'
+  number = 'number',
 }
 
 export const inputTypeOptions = Object.keys(InputTypeEnum).map((key) => ({
   label: key.toUpperCase(),
-  value: InputTypeEnum[key as keyof typeof InputTypeEnum]
+  value: InputTypeEnum[key as keyof typeof InputTypeEnum],
 }))
 
 export type CategoryType = BaseCategoryField &
@@ -49,9 +57,11 @@ export type CategoryType = BaseCategoryField &
 
 export type ICategoryDetail = Record<string, CategoryType>
 
-export interface ICategory extends TMetaData {
-  level: number
+export interface ICategory {
+  id: string
   name: string
+  createdAt?: string
+  updatedAt?: string
   detail?: ICategoryDetail
   parentCategory?: ICategory | null
   subCategories?: ICategory[]

@@ -50,3 +50,14 @@ export interface IStepper {
   title: string
   description: string
 }
+
+export type TBaseFilterRequestParams = {
+  search?: string
+  brandId?: string
+  categoryId?: string
+  status?: string
+  sortBy?: string
+  order?: string
+  page?: string | number
+  limit?: string | number
+}
