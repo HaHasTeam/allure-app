@@ -34,7 +34,6 @@ import {
   getCartByIdApi,
   getMyCartApi,
 } from "@/hooks/api/cart";
-import { useToast } from "@/hooks/useToast";
 import useHandleServerError from "@/hooks/useHandleServerError";
 import { useTranslation } from "react-i18next";
 import ImageWithFallback from "../image/ImageWithFallBack";
@@ -44,41 +43,28 @@ import { myFontWeight, myTheme } from "@/constants";
 import LoadingContentLayer from "../loading/LoadingContentLayer";
 import Empty from "../empty";
 import { Entypo } from "@expo/vector-icons";
+import { useToast } from "@/contexts/ToastContext";
 
 interface ClassificationChosenProps {
-  bottomSheetModalRef: React.RefObject<BottomSheetModal>;
-  snapPoints: Array<number | string> | SharedValue<Array<string | number>>;
-  handleSheetChanges: BottomSheetModalProps["onChange"];
-  handleModalDismiss: BottomSheetModalProps["onDismiss"];
-  renderBackdrop: FunctionComponent<BottomSheetBackdropProps>;
   classifications: IClassification[];
   productClassification: IClassification | null;
   cartItemId: string;
   cartItemQuantity?: number;
   preventAction?: boolean;
-  toggleModalVisibility: () => void;
 }
 
 const ClassificationChosen = ({
-  bottomSheetModalRef,
-  snapPoints,
-  handleSheetChanges,
-  handleModalDismiss,
-  renderBackdrop,
   classifications,
   productClassification,
   cartItemId,
   cartItemQuantity,
   preventAction,
-  toggleModalVisibility,
 }: ClassificationChosenProps) => {
   const { t } = useTranslation();
-  console.log(productClassification);
   const [currentSelectClassification, setCurrentSelectClassification] =
     useState<IClassification | null>(productClassification);
   const [chosenClassification, setChosenClassification] =
     useState<IClassification | null>(productClassification);
-  const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedValues, setSelectedValues] =
     useState<IClassificationSelection>({
@@ -86,7 +72,6 @@ const ClassificationChosen = ({
       size: productClassification?.size || null,
       other: productClassification?.other || null,
     });
-  console.log("test", productClassification);
 
   // const isProductClassificationActive = checkCurrentProductClassificationActive(productClassification, classifications)
   const titleShown =
@@ -97,17 +82,50 @@ const ClassificationChosen = ({
     ]
       .filter(Boolean)
       .join(", ") || t("productDetail.selectClassification");
-  const { successToast } = useToast();
+  const { showToast } = useToast();
   const handleServerError = useHandleServerError();
   const queryClient = useQueryClient();
+
+  // bottom sheet for classification
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = useMemo(() => ["40%", "60%", "100%"], []);
+  const toggleModalVisibility = () => {
+    if (isModalVisible) {
+      bottomSheetModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setIsModalVisible(!isModalVisible); // Toggle the state
+  };
+  const renderBackdrop = React.useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        opacity={0.9}
+        onPress={() => bottomSheetModalRef.current?.close()}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+      />
+    ),
+    []
+  );
+
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+  const handleModalDismiss = () => {
+    bottomSheetModalRef.current?.close();
+
+    setIsModalVisible(false);
+  };
 
   const { mutateAsync: deleteCartItemFn } = useMutation({
     mutationKey: [deleteCartItemApi.mutationKey, cartItemId as string],
     mutationFn: deleteCartItemApi.fn,
     onSuccess: () => {
-      successToast({
-        message: t("cart.updateClassificationSuccess"),
-      });
+      showToast(t("cart.updateClassificationSuccess"), "success", 4000);
       queryClient.invalidateQueries({
         queryKey: [getMyCartApi.queryKey],
       });
@@ -254,8 +272,6 @@ const ClassificationChosen = ({
     ) {
       handleClassificationUpdate(currentSelectClassification);
     }
-
-    setIsOpen(false);
   };
 
   const handleCancel = () => {
@@ -265,7 +281,6 @@ const ClassificationChosen = ({
       size: chosenClassification?.size || null,
       other: chosenClassification?.other || null,
     });
-    setIsOpen(false);
   };
 
   const renderOptions = (key: IClassificationKey, options: string[]) => {
@@ -435,8 +450,8 @@ export default ClassificationChosen;
 
 const styles = StyleSheet.create({
   buttonCancel: {
-    width: 60,
-    height: 30,
+    width: 70,
+    height: 35,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -447,11 +462,17 @@ const styles = StyleSheet.create({
   },
   buttonSaveText: { color: myTheme.white },
   buttonCancelText: { color: myTheme.primary },
-  selectedClassificationText: { color: myTheme.white },
-  nonSelectedClassificationText: { color: myTheme.accentForeground },
+  selectedClassificationText: {
+    color: myTheme.accentForeground,
+    fontWeight: 500,
+  },
+  nonSelectedClassificationText: {
+    color: myTheme.accentForeground,
+    fontWeight: 500,
+  },
   buttonSave: {
-    width: 60,
-    height: 30,
+    width: 70,
+    height: 35,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -513,12 +534,12 @@ const styles = StyleSheet.create({
   },
   nonSelectClassification: {
     backgroundColor: myTheme.white,
-    color: myTheme.secondaryForeground,
+    color: myTheme.accent,
     borderWidth: 1,
-    borderColor: myTheme.secondaryForeground,
+    borderColor: myTheme.accent,
   },
   selectedClassification: {
-    backgroundColor: myTheme.secondaryForeground,
+    backgroundColor: myTheme.accent,
     color: myTheme.white,
   },
   imageContainer: { borderRadius: 4, width: 30, height: 30 },

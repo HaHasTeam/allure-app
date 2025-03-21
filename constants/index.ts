@@ -41,7 +41,7 @@ export const myTheme = {
   input: "#e3bfc5", // hsl(345, 9%, 89%)
   secondary: "#e7bfc8", // hsl(345, 18%, 90%)
   secondaryForeground: "#66323d", // hsl(345, 18%, 30%)
-  accent: "#dc9db2", // hsl(345, 26%, 81%)
+  accent: "#dbc2c8", // hsl(345, 26%, 81%)
   accentForeground: "#49202c", // hsl(345, 26%, 21%)
   destructive: "#d70015", // hsl(7.08, 97.99%, 39.02%)
   destructiveForeground: "#f0ebef", // hsl(0, 19.05%, 94.3%)

@@ -60,6 +60,7 @@ import BottomSheet, {
   TouchableWithoutFeedback,
 } from "@gorhom/bottom-sheet";
 import ClassificationChosen from "../product-classification/ClassificationChosen";
+import Confirmation from "../confirmation/Confirmation";
 interface ProductCardLandscapeProps {
   cartItem: ICartItem;
   productImage: string;
@@ -104,7 +105,7 @@ const ProductCardLandscape = ({
   const [inputValue, setInputValue] = useState(
     productQuantity.toString() ?? ""
   );
-  const [openConfirmDelete, setOpenConfirmDelete] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { successToast, errorToast } = useToast();
   const { cartItems, setCartItems, selectedCartItem, setSelectedCartItem } =
@@ -112,10 +113,8 @@ const ProductCardLandscape = ({
   const handleServerError = useHandleServerError();
   const queryClient = useQueryClient();
 
-  // bottom sheet
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  // bottom sheet for delete cart items
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const snapPoints = useMemo(() => ["38%", "40%", "60%", "100%"], []);
   const toggleModalVisibility = () => {
     if (isModalVisible) {
       bottomSheetModalRef.current?.close(); // Close modal if it's visible
@@ -123,28 +122,6 @@ const ProductCardLandscape = ({
       bottomSheetModalRef.current?.present(); // Open modal if it's not visible
     }
     setIsModalVisible(!isModalVisible); // Toggle the state
-  };
-  const renderBackdrop = React.useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        opacity={0.9}
-        onPress={() => bottomSheetModalRef.current?.close()}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-      />
-    ),
-    []
-  );
-
-  // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
-  const handleModalDismiss = () => {
-    bottomSheetModalRef.current?.close();
-
-    setIsModalVisible(false);
   };
 
   const PRODUCT_STOCK_COUNT = productClassification?.quantity ?? 0;
@@ -259,7 +236,7 @@ const ProductCardLandscape = ({
 
   const decreaseQuantity = () => {
     if (quantity === 1) {
-      setOpenConfirmDelete(true);
+      toggleModalVisibility();
     }
     if (quantity > 1) {
       const newQuantity = quantity - 1;
@@ -489,17 +466,11 @@ const ProductCardLandscape = ({
               {productClassification?.type ===
                 ClassificationTypeEnum?.CUSTOM && (
                 <ClassificationChosen
-                  bottomSheetModalRef={bottomSheetModalRef}
-                  handleModalDismiss={handleModalDismiss}
-                  handleSheetChanges={handleSheetChanges}
-                  renderBackdrop={renderBackdrop}
-                  snapPoints={snapPoints}
                   classifications={classifications}
                   productClassification={productClassification}
                   cartItemId={cartItemId}
                   cartItemQuantity={quantity}
                   preventAction={PREVENT_ACTION}
-                  toggleModalVisibility={toggleModalVisibility}
                 />
               )}
             </View>
@@ -582,21 +553,23 @@ const ProductCardLandscape = ({
             size={24}
             style={styles.trashIcon}
             onClick={() => {
-              setOpenConfirmDelete(true);
+              toggleModalVisibility();
             }}
           />
         </View>
       </View>
-      {/* <DeleteConfirmationDialog
-        open={openConfirmDelete}
-        onOpenChange={setOpenConfirmDelete}
+      <Confirmation
+        action="delete"
+        setIsModalVisible={setIsModalVisible}
+        bottomSheetModalRef={bottomSheetModalRef}
+        toggleModalVisibility={toggleModalVisibility}
         onConfirm={() => {
           // Handle delete confirmation
           handleDeleteCartItem();
-          setOpenConfirmDelete(false);
+          setIsModalVisible(false);
         }}
         item="productCart"
-      /> */}
+      />
     </View>
   );
 };

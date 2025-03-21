@@ -1,37 +1,34 @@
-import { useCallback } from 'react'
-import { FieldValues, Path, UseFormReturn } from 'react-hook-form'
+import { useCallback } from "react";
+import { FieldValues, Path, UseFormReturn } from "react-hook-form";
 
-import { TServerError } from '@/types/request'
-
-import { useToast } from './useToast'
+import { TServerError } from "@/types/request";
+import { useToast } from "@/contexts/ToastContext";
 
 type Props = {
-  error: unknown
+  error: unknown;
   // eslint-disable-next-line
-  form?: UseFormReturn<any>
-}
+  form?: UseFormReturn<any>;
+};
 
 const useHandleServerError = () => {
-  const { errorToast } = useToast()
+  const { showToast } = useToast();
   const handleServerError = useCallback(
     ({ error, form }: Props) => {
-      errorToast({
-        message: (error as TServerError).message,
-      })
+      showToast((error as TServerError).message, "error", 4000);
 
-      const parsedTypeErrors = (error as TServerError<FieldValues>).errors
+      const parsedTypeErrors = (error as TServerError<FieldValues>).errors;
 
       if (form && parsedTypeErrors && form.setError) {
         Object.keys(parsedTypeErrors).map((key) => {
           form.setError(key as Path<FieldValues>, {
             message: parsedTypeErrors[key],
-          })
-        })
+          });
+        });
       }
     },
-    [errorToast],
-  )
-  return handleServerError
-}
+    [showToast]
+  );
+  return handleServerError;
+};
 
-export default useHandleServerError
+export default useHandleServerError;
