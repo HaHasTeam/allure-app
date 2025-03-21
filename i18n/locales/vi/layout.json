@@ -1,4 +1,5 @@
 {
+  "loading": "Đang tải",
   "format": {
     "number": "{{value, number}}",
     "customAmount": "Tự nhập",

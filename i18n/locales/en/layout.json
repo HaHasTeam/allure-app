@@ -1,4 +1,5 @@
 {
+  "loading": "Loading",
   "format": {
     "number": "{{value, number}}",
     "customAmount": "Own amount",

@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useSession } from "@/contexts/AuthContext";
 import { myFontWeight, myTheme } from "@/constants";
 import { useEffect, useState } from "react";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   Appearance,
   StatusBar,
@@ -48,105 +49,107 @@ function AppLayout() {
   }
   return (
     <GestureHandlerRootView>
-      <StatusBar
-        translucent={false}
-        backgroundColor={
-          Appearance.getColorScheme() === "dark" ? "black" : "transparent"
-        }
-      />
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(profile)/editprofile"
-          options={{
-            header: () => (
-              <Header
-                headerLeft={() => (
-                  <HeaderBackButton
-                    label="Quay lại"
-                    labelStyle={{
-                      fontFamily: myFontWeight.regular,
-                    }}
-                    onPress={() => router.back()}
-                  />
-                )}
-                title="Cập nhật tài khoản"
-                headerTitleStyle={{
-                  fontFamily: myFontWeight.bold,
-                }}
-              />
-            ),
-          }}
+      <BottomSheetModalProvider>
+        <StatusBar
+          translucent={false}
+          backgroundColor={
+            Appearance.getColorScheme() === "dark" ? "black" : "transparent"
+          }
         />
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(profile)/editprofile"
+            options={{
+              header: () => (
+                <Header
+                  headerLeft={() => (
+                    <HeaderBackButton
+                      label="Quay lại"
+                      labelStyle={{
+                        fontFamily: myFontWeight.regular,
+                      }}
+                      onPress={() => router.back()}
+                    />
+                  )}
+                  title="Cập nhật tài khoản"
+                  headerTitleStyle={{
+                    fontFamily: myFontWeight.bold,
+                  }}
+                />
+              ),
+            }}
+          />
 
-        <Stack.Screen
-          name="(profile)/updatepassword"
-          options={{
-            header: () => (
-              <Header
-                headerLeft={() => (
-                  <HeaderBackButton
-                    label="Quay lại"
-                    labelStyle={{
-                      fontFamily: myFontWeight.regular,
-                    }}
-                    onPress={() => router.back()}
-                  />
-                )}
-                title="Cập nhật Mật Khẩu"
-                headerTitleStyle={{
-                  fontFamily: myFontWeight.bold,
-                }}
-              />
-            ),
-          }}
-        />
+          <Stack.Screen
+            name="(profile)/updatepassword"
+            options={{
+              header: () => (
+                <Header
+                  headerLeft={() => (
+                    <HeaderBackButton
+                      label="Quay lại"
+                      labelStyle={{
+                        fontFamily: myFontWeight.regular,
+                      }}
+                      onPress={() => router.back()}
+                    />
+                  )}
+                  title="Cập nhật Mật Khẩu"
+                  headerTitleStyle={{
+                    fontFamily: myFontWeight.bold,
+                  }}
+                />
+              ),
+            }}
+          />
 
-        <Stack.Screen
-          name="(profile)/contact"
-          options={{
-            header: () => (
-              <Header
-                headerLeft={() => (
-                  <HeaderBackButton
-                    label="Quay lại"
-                    labelStyle={{
-                      fontFamily: myFontWeight.regular,
-                    }}
-                    onPress={() => router.back()}
-                  />
-                )}
-                title="Liên hệ"
-                headerTitleStyle={{
-                  fontFamily: myFontWeight.bold,
-                }}
-              />
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="(home)/notifications"
-          options={{
-            header: () => (
-              <Header
-                headerLeft={() => (
-                  <HeaderBackButton
-                    label="Quay lại"
-                    labelStyle={{
-                      fontFamily: myFontWeight.regular,
-                    }}
-                    onPress={() => router.back()}
-                  />
-                )}
-                title="Thông báo"
-                headerTitleStyle={{
-                  fontFamily: myFontWeight.bold,
-                }}
-              />
-            ),
-          }}
-        />
-      </Stack>
+          <Stack.Screen
+            name="(profile)/contact"
+            options={{
+              header: () => (
+                <Header
+                  headerLeft={() => (
+                    <HeaderBackButton
+                      label="Quay lại"
+                      labelStyle={{
+                        fontFamily: myFontWeight.regular,
+                      }}
+                      onPress={() => router.back()}
+                    />
+                  )}
+                  title="Liên hệ"
+                  headerTitleStyle={{
+                    fontFamily: myFontWeight.bold,
+                  }}
+                />
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="(home)/notifications"
+            options={{
+              header: () => (
+                <Header
+                  headerLeft={() => (
+                    <HeaderBackButton
+                      label="Quay lại"
+                      labelStyle={{
+                        fontFamily: myFontWeight.regular,
+                      }}
+                      onPress={() => router.back()}
+                    />
+                  )}
+                  title="Thông báo"
+                  headerTitleStyle={{
+                    fontFamily: myFontWeight.bold,
+                  }}
+                />
+              ),
+            }}
+          />
+        </Stack>
+      </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );
 }

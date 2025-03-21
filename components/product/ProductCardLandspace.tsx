@@ -1,5 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import React, {
+  useCallback,
+  Dispatch,
+  SetStateAction,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 
 import useHandleServerError from "@/hooks/useHandleServerError";
@@ -31,14 +38,28 @@ import {
 import ProductTag from "./ProductTag";
 import { Checkbox } from "react-native-ui-lib";
 import { myTheme } from "@/constants";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import IncreaseDecreaseButton from "./IncreaseDecreaseButton";
 import { Link } from "expo-router";
 import AlertMessage from "../alert/AlertMessage";
 import ImageWithFallback from "../image/ImageWithFallBack";
 
-const { dimensionWidth } = Dimensions.get("window");
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetView,
+  TouchableWithoutFeedback,
+} from "@gorhom/bottom-sheet";
+import ClassificationChosen from "../product-classification/ClassificationChosen";
 interface ProductCardLandscapeProps {
   cartItem: ICartItem;
   productImage: string;
@@ -58,6 +79,7 @@ interface ProductCardLandscapeProps {
   setIsTriggerTotal: Dispatch<SetStateAction<boolean>>;
   productStatus?: ProductEnum;
 }
+
 const ProductCardLandscape = ({
   cartItem,
   productImage,
@@ -89,6 +111,42 @@ const ProductCardLandscape = ({
     useCartStore();
   const handleServerError = useHandleServerError();
   const queryClient = useQueryClient();
+
+  // bottom sheet
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const snapPoints = useMemo(() => ["38%", "40%", "60%", "100%"], []);
+  const toggleModalVisibility = () => {
+    if (isModalVisible) {
+      bottomSheetModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setIsModalVisible(!isModalVisible); // Toggle the state
+  };
+  const renderBackdrop = React.useCallback(
+    (props: BottomSheetBackdropProps) => (
+      <BottomSheetBackdrop
+        {...props}
+        opacity={0.9}
+        onPress={() => bottomSheetModalRef.current?.close()}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+      />
+    ),
+    []
+  );
+
+  // callbacks
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log("handleSheetChanges", index);
+  }, []);
+  const handleModalDismiss = () => {
+    bottomSheetModalRef.current?.close();
+
+    setIsModalVisible(false);
+  };
+
   const PRODUCT_STOCK_COUNT = productClassification?.quantity ?? 0;
   const MAX_QUANTITY_IN_CART = productClassificationQuantity;
   const OUT_OF_STOCK = PRODUCT_STOCK_COUNT <= 0;
@@ -430,14 +488,19 @@ const ProductCardLandscape = ({
             <View style={styles.commonFlex}>
               {productClassification?.type ===
                 ClassificationTypeEnum?.CUSTOM && (
-                //   <ClassificationPopover
-                //     classifications={classifications}
-                //     productClassification={productClassification}
-                //     cartItemId={cartItemId}
-                //     cartItemQuantity={quantity}
-                //     preventAction={PREVENT_ACTION}
-                //   />
-                <Text>class</Text>
+                <ClassificationChosen
+                  bottomSheetModalRef={bottomSheetModalRef}
+                  handleModalDismiss={handleModalDismiss}
+                  handleSheetChanges={handleSheetChanges}
+                  renderBackdrop={renderBackdrop}
+                  snapPoints={snapPoints}
+                  classifications={classifications}
+                  productClassification={productClassification}
+                  cartItemId={cartItemId}
+                  cartItemQuantity={quantity}
+                  preventAction={PREVENT_ACTION}
+                  toggleModalVisibility={toggleModalVisibility}
+                />
               )}
             </View>
 
@@ -573,7 +636,7 @@ const styles = StyleSheet.create({
     height: 80,
   },
   fullWidth: { width: "100%" },
-  commonFlex: { flexDirection: "row", gap: 1, alignItems: "center" },
+  commonFlex: { flexDirection: "row", gap: 4, alignItems: "center" },
   container: {
     width: "100%",
     paddingVertical: 8,

@@ -1,6 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { View, Animated, StyleSheet } from "react-native";
+import {
+  View,
+  Animated,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import LoadingIcon from "./LoadingIcon";
+import { useTranslation } from "react-i18next";
+import { myFontWeight, myTheme } from "@/constants";
 
 type Props = {
   label?: string;
@@ -8,6 +16,7 @@ type Props = {
 };
 
 const LoadingContentLayer: React.FC<Props> = ({ label, style }) => {
+  const { t } = useTranslation();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -19,11 +28,12 @@ const LoadingContentLayer: React.FC<Props> = ({ label, style }) => {
   }, [fadeAnim]);
 
   return (
-    <Animated.View style={[styles.overlay, style, { opacity: fadeAnim }]}>
-      <View>
-        <LoadingIcon label={label} color="primaryBackground" />
-      </View>
-    </Animated.View>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" color={myTheme.primary} />
+      <Text style={{ marginTop: 10, fontFamily: myFontWeight.regular }}>
+        {label ? label : t("loading") + "..."}
+      </Text>
+    </View>
   );
 };
 

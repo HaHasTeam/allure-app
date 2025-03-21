@@ -161,7 +161,7 @@ const CartScreen = () => {
 
   useEffect(() => {
     if (cartItems) {
-      setCartByBrand(useMyCartData?.data);
+      setCartByBrand(cartItems);
 
       const selectedCartItemsMap = Object.keys(cartItems).reduce(
         (acc, brandName) => {
@@ -292,32 +292,43 @@ const CartScreen = () => {
 
   useEffect(() => {
     if (useMyCartData && useMyCartData?.data) {
-      setCartItems(useMyCartData?.data);
+      const filteredData: ICartByBrand = {};
+
+      Object.keys(useMyCartData.data).forEach((brandName) => {
+        const filteredItems = useMyCartData.data[brandName].filter(
+          (item) => item.groupBuying === null
+        );
+
+        if (filteredItems.length > 0) {
+          filteredData[brandName] = filteredItems;
+        }
+      });
+
+      setCartItems(filteredData);
     }
   }, [useMyCartData?.data]);
   console.log(cartItems);
   return (
     <SafeAreaView
       style={
-        useMyCartData?.data && Object.keys(useMyCartData.data)?.length > 0
+        cartItems && Object.keys(cartItems)?.length > 0
           ? styles.container
           : styles.emptyContainer
       }
     >
       {isFetching && <LoadingContentLayer />}
-      {!isFetching &&
-        useMyCartData?.data &&
-        Object.keys(useMyCartData?.data)?.length > 0 && (
-          <>
-            {/* Cart Header */}
-            <CartHeader
-              onCheckAll={handleSelectAll}
-              isAllSelected={isAllSelected}
-              totalCartItems={allCartItemIds?.length}
-            />
-            {/* Cart Item List */}
-            {/* {cartItems &&
-            Object.keys(cartItems).map((brandName, index) => {
+      {!isFetching && cartItems && Object.keys(cartItems)?.length > 0 && (
+        <>
+          {/* Cart Header */}
+          <CartHeader
+            onCheckAll={handleSelectAll}
+            isAllSelected={isAllSelected}
+            totalCartItems={allCartItemIds?.length}
+          />
+          {/* Cart Item List */}
+          <FlatList
+            showsHorizontalScrollIndicator={false}
+            data={Object.keys(cartItems).map((brandName, index) => {
               const brand =
                 cartItems[brandName]?.[0]?.productClassification
                   ?.productDiscount?.product?.brand ??
@@ -342,110 +353,65 @@ const CartScreen = () => {
                   quantity: cartItem.quantity ?? 0,
                 }))
                 ?.filter((item) => item.classificationId !== null);
-              return (
-                <CartItem
-                  key={`${brandName}_${index}`}
-                  brandName={brandName}
-                  cartBrandItem={cartBrandItem}
-                  selectedCartItems={selectedCartItems}
-                  onSelectBrand={handleSelectBrand}
-                  bestVoucherForBrand={bestVoucherForBrand}
-                  onVoucherSelect={handleVoucherSelection}
-                  brand={brand}
-                  checkoutItems={checkoutItems}
-                  selectedCheckoutItems={selectedCheckoutItems}
-                  setIsTriggerTotal={setIsTriggerTotal}
-                  isTriggerTotal={isTriggerTotal}
-                />
-              );
-            })} */}
-            <FlatList
-              data={Object.keys(useMyCartData?.data).map((brandName, index) => {
-                const brand =
-                  useMyCartData?.data[brandName]?.[0]?.productClassification
-                    ?.productDiscount?.product?.brand ??
-                  useMyCartData?.data[brandName]?.[0]?.productClassification
-                    ?.preOrderProduct?.product?.brand ??
-                  useMyCartData?.data[brandName]?.[0]?.productClassification
-                    ?.product?.brand;
-                const brandId = brand?.id ?? "";
-                const bestVoucherForBrand = voucherMap[brandId] || null;
-                const cartBrandItem = useMyCartData?.data[brandName];
-                const checkoutItems: ICheckoutItem[] = cartBrandItem
-                  ?.map((cartItem) => ({
-                    classificationId: cartItem.productClassification?.id ?? "",
-                    quantity: cartItem.quantity ?? 0,
-                  }))
-                  ?.filter((item) => item.classificationId !== null);
 
-                const selectedCheckoutItems: ICheckoutItem[] = cartBrandItem
-                  ?.filter((cart) => selectedCartItems?.includes(cart?.id))
-                  ?.map((cartItem) => ({
-                    classificationId: cartItem.productClassification?.id ?? "",
-                    quantity: cartItem.quantity ?? 0,
-                  }))
-                  ?.filter((item) => item.classificationId !== null);
-
-                return {
-                  key: `${brandName}_${index}`,
-                  brandName,
-                  cartBrandItem,
-                  brand,
-                  bestVoucherForBrand,
-                  checkoutItems,
-                  selectedCheckoutItems,
-                };
-              })}
-              renderItem={({ item }) => (
-                <CartItem
-                  key={item.key}
-                  brandName={item.brandName}
-                  cartBrandItem={item.cartBrandItem}
-                  selectedCartItems={selectedCartItems}
-                  onSelectBrand={handleSelectBrand}
-                  bestVoucherForBrand={item.bestVoucherForBrand}
-                  onVoucherSelect={handleVoucherSelection}
-                  brand={item.brand}
-                  checkoutItems={item.checkoutItems}
-                  selectedCheckoutItems={item.selectedCheckoutItems}
-                  setIsTriggerTotal={setIsTriggerTotal}
-                  isTriggerTotal={isTriggerTotal}
-                />
-              )}
-              keyExtractor={(item) => item.key}
-              style={styles.cartItemsContainer}
-            />
-            {/* Cart Footer */}
-            <CartFooter
-              cartItemCountAll={allCartItemIds?.length}
-              cartItemCount={selectedCartItems?.length}
-              setSelectedCartItems={setSelectedCartItems}
-              onCheckAll={handleSelectAll}
-              isAllSelected={isAllSelected}
-              totalOriginalPrice={totalOriginalPrice}
-              selectedCartItems={selectedCartItems}
-              totalProductDiscount={totalDirectProductsDiscount}
-              totalVoucherDiscount={totalVoucherDiscount}
-              savedPrice={savedPrice}
-              totalFinalPrice={totalFinalPrice}
-              platformChosenVoucher={platformChosenVoucher}
-              setPlatformChosenVoucher={setPlatformChosenVoucher}
-              platformVoucherDiscount={platformVoucherDiscount}
-              cartByBrand={useMyCartData?.data}
-              bestPlatformVoucher={bestPlatformVoucher}
-            />
-          </>
-        )}
-      {!isFetching &&
-        useMyCartData?.data &&
-        Object.keys(useMyCartData?.data)?.length === 0 && (
-          <Empty
-            title={t("empty.cart.title")}
-            description={t("empty.cart.description")}
-            link={"/"}
-            linkText={t("empty.cart.button")}
+              return {
+                key: `${brandName}_${index}`,
+                brandName,
+                cartBrandItem,
+                brand,
+                bestVoucherForBrand,
+                checkoutItems,
+                selectedCheckoutItems,
+              };
+            })}
+            renderItem={({ item }) => (
+              <CartItem
+                key={item.key}
+                brandName={item.brandName}
+                cartBrandItem={item.cartBrandItem}
+                selectedCartItems={selectedCartItems}
+                onSelectBrand={handleSelectBrand}
+                bestVoucherForBrand={item.bestVoucherForBrand}
+                onVoucherSelect={handleVoucherSelection}
+                brand={item.brand}
+                checkoutItems={item.checkoutItems}
+                selectedCheckoutItems={item.selectedCheckoutItems}
+                setIsTriggerTotal={setIsTriggerTotal}
+                isTriggerTotal={isTriggerTotal}
+              />
+            )}
+            keyExtractor={(item) => item.key}
+            style={styles.cartItemsContainer}
           />
-        )}
+          {/* Cart Footer */}
+          <CartFooter
+            cartItemCountAll={allCartItemIds?.length}
+            cartItemCount={selectedCartItems?.length}
+            setSelectedCartItems={setSelectedCartItems}
+            onCheckAll={handleSelectAll}
+            isAllSelected={isAllSelected}
+            totalOriginalPrice={totalOriginalPrice}
+            selectedCartItems={selectedCartItems}
+            totalProductDiscount={totalDirectProductsDiscount}
+            totalVoucherDiscount={totalVoucherDiscount}
+            savedPrice={savedPrice}
+            totalFinalPrice={totalFinalPrice}
+            platformChosenVoucher={platformChosenVoucher}
+            setPlatformChosenVoucher={setPlatformChosenVoucher}
+            platformVoucherDiscount={platformVoucherDiscount}
+            cartByBrand={cartItems}
+            bestPlatformVoucher={bestPlatformVoucher}
+          />
+        </>
+      )}
+      {!isFetching && cartItems && Object.keys(cartItems)?.length === 0 && (
+        <Empty
+          title={t("empty.cart.title")}
+          description={t("empty.cart.description")}
+          link={"/"}
+          linkText={t("empty.cart.button")}
+        />
+      )}
     </SafeAreaView>
   );
 };
