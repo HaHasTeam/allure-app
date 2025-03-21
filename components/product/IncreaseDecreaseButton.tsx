@@ -79,10 +79,12 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     justifyContent: "center",
+    fontWeight: "bold",
+    color: myTheme.secondaryForeground,
     alignItems: "center",
     backgroundColor: hexToRgba(myTheme.secondary, 0.3),
   },
-  icon: { fontWeight: "bold" },
+  icon: { fontWeight: "bold", color: myTheme.secondaryForeground },
   buttonDisabled: {
     borderColor: myTheme.gray[100],
     color: myTheme.gray[400],
@@ -90,6 +92,8 @@ const styles = StyleSheet.create({
   input: {
     width: 40,
     borderWidth: 1,
+    color: myTheme.secondaryForeground,
+    fontWeight: 600,
     borderColor: myTheme.gray[300],
     height: 30,
     borderRadius: 15,

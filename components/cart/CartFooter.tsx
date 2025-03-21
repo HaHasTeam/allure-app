@@ -17,6 +17,7 @@ import {
 } from "@/hooks/api/cart";
 import { useToast } from "@/hooks/useToast";
 import { useRouter } from "expo-router";
+import { hexToRgba } from "@/utils/color";
 
 interface CartFooterProps {
   cartItemCountAll: number;
@@ -260,8 +261,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     borderTopWidth: 1,
-    borderTopColor: "#e2e8f0",
-    backgroundColor: "#f1f5f9",
+    borderTopColor: myTheme.gray[200],
+    backgroundColor: myTheme.secondary,
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
   },
@@ -278,7 +279,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: hexToRgba(myTheme.primary, 0.2),
   },
   checkboxContainer: {
     flexDirection: "row",
@@ -308,6 +311,7 @@ const styles = StyleSheet.create({
   },
   rightSection: {
     width: "100%",
+    paddingTop: 4,
   },
   totalSection: {
     flexDirection: "row",

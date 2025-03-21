@@ -292,14 +292,14 @@ const CartScreen = () => {
 
   useEffect(() => {
     if (useMyCartData && useMyCartData?.data) {
-      setCartItems(useMyCartData.data);
+      setCartItems(useMyCartData?.data);
     }
-  }, []);
+  }, [useMyCartData?.data]);
   console.log(cartItems);
   return (
     <SafeAreaView
       style={
-        cartItems && Object.keys(cartItems)?.length > 0
+        useMyCartData?.data && Object.keys(useMyCartData.data)?.length > 0
           ? styles.container
           : styles.emptyContainer
       }
@@ -413,6 +413,7 @@ const CartScreen = () => {
                 />
               )}
               keyExtractor={(item) => item.key}
+              style={styles.cartItemsContainer}
             />
             {/* Cart Footer */}
             <CartFooter
@@ -457,8 +458,11 @@ const styles = StyleSheet.create({
     alignContent: "center",
     justifyContent: "flex-start",
     paddingHorizontal: 4,
-    paddingVertical: 20,
+    paddingVertical: 10,
     backgroundColor: myTheme.background,
+  },
+  cartItemsContainer: {
+    marginBottom: 100,
   },
   emptyContainer: {
     flex: 1,

@@ -31,13 +31,14 @@ import {
 import ProductTag from "./ProductTag";
 import { Checkbox } from "react-native-ui-lib";
 import { myTheme } from "@/constants";
-import { StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import IncreaseDecreaseButton from "./IncreaseDecreaseButton";
 import { Link } from "expo-router";
 import AlertMessage from "../alert/AlertMessage";
 import ImageWithFallback from "../image/ImageWithFallBack";
 
+const { dimensionWidth } = Dimensions.get("window");
 interface ProductCardLandscapeProps {
   cartItem: ICartItem;
   productImage: string;
@@ -291,179 +292,186 @@ const ProductCardLandscape = ({
   return (
     <View style={styles.container}>
       <View style={styles.childContainer}>
-        {/* product label */}
-        <View style={[PREVENT_ACTION && styles.opacity, styles.commonFlex]}>
-          {/* checkbox or text show hidden, inactive */}
-          {productStatus === ProductEnum.BANNED ? (
-            <ProductTag tag={ProductCartStatusEnum.BANNED} />
-          ) : productStatus === ProductEnum.INACTIVE ? (
-            <ProductTag tag={ProductCartStatusEnum.INACTIVE} />
-          ) : productStatus === ProductEnum.UN_PUBLISHED ? (
-            <ProductTag tag={ProductCartStatusEnum.UN_PUBLISHED} />
-          ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
-            <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
-          ) : IS_ACTIVE ? (
-            <Checkbox
-              size={20}
-              id={cartItemId}
-              value={isSelected}
-              style={styles.checkbox}
-              color={myTheme.primary}
-              onValueChange={() => onChooseProduct(cartItemId)}
-            />
-          ) : HIDDEN ? (
-            <ProductTag tag={ProductCartStatusEnum.HIDDEN} />
-          ) : OUT_OF_STOCK ? (
-            <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
-          ) : IN_STOCK_CLASSIFICATION ? (
-            <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
-          ) : null}
-
-          {/* product image */}
-          <Link
-            href={{
-              pathname: "/(app)/(products)/[id]",
-              params: { id: productId },
-            }}
-          >
-            <View style={styles.productImgContainer}>
-              <ImageWithFallback
-                src={productImage}
-                alt={productName}
-                resizeMode="cover"
-                style={styles.image}
+        <View style={styles.firstChild}>
+          {/* product label */}
+          <View style={[PREVENT_ACTION && styles.opacity, styles.commonFlex]}>
+            {/* checkbox or text show hidden, inactive */}
+            {productStatus === ProductEnum.BANNED ? (
+              <ProductTag tag={ProductCartStatusEnum.BANNED} />
+            ) : productStatus === ProductEnum.INACTIVE ? (
+              <ProductTag tag={ProductCartStatusEnum.INACTIVE} />
+            ) : productStatus === ProductEnum.UN_PUBLISHED ? (
+              <ProductTag tag={ProductCartStatusEnum.UN_PUBLISHED} />
+            ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
+              <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+            ) : IS_ACTIVE ? (
+              <Checkbox
+                size={20}
+                id={cartItemId}
+                value={isSelected}
+                style={styles.checkbox}
+                color={myTheme.primary}
+                onValueChange={() => onChooseProduct(cartItemId)}
               />
-            </View>
-          </Link>
-        </View>
+            ) : HIDDEN ? (
+              <ProductTag tag={ProductCartStatusEnum.HIDDEN} />
+            ) : OUT_OF_STOCK ? (
+              <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+            ) : IN_STOCK_CLASSIFICATION ? (
+              <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+            ) : null}
 
-        {/* product name, classification, price */}
-        <View
-          style={[
-            PREVENT_ACTION && styles.opacity,
-            styles.nameClassPriceContainer,
-          ]}
-        >
-          {/* product name */}
-          <View style={styles.commonFlex}>
-            <View style={styles.nameContainer}>
-              <Link
-                href={{
-                  pathname: "/(app)/(products)/[id]",
-                  params: { id: productId },
-                }}
-              >
-                <Text numberOfLines={2} style={styles.overFlowText}>
-                  {productName}
-                </Text>
-              </Link>
-              <View>
-                {eventType && eventType !== "" && (
-                  <ProductTag tag={eventType} size="small" />
-                )}
+            {/* product image */}
+            <Link
+              href={{
+                pathname: "/(app)/(products)/[id]",
+                params: { id: productId },
+              }}
+            >
+              <View style={styles.productImgContainer}>
+                <ImageWithFallback
+                  src={productImage}
+                  alt={productName}
+                  resizeMode="cover"
+                  style={styles.image}
+                />
               </View>
-              {productStatus === ProductEnum.BANNED ? (
-                <AlertMessage
-                  style={[styles.alertMessage, styles.danger]}
-                  textSize="small"
-                  color="danger"
-                  text="danger"
-                  message={t("cart.bannedMessage")}
-                />
-              ) : productStatus === ProductEnum.INACTIVE ? (
-                <AlertMessage
-                  style={[styles.alertMessage, styles.hidden]}
-                  textSize="small"
-                  color="black"
-                  message={t("cart.inactiveMessage")}
-                />
-              ) : productStatus === ProductEnum.UN_PUBLISHED ? (
-                <AlertMessage
-                  style={[styles.alertMessage, styles.danger]}
-                  textSize="small"
-                  color="danger"
-                  text="danger"
-                  message={t("cart.unPublishMessage")}
-                />
-              ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
-                <AlertMessage
-                  style={[styles.alertMessage, styles.danger]}
-                  textSize="small"
-                  color="danger"
-                  text="danger"
-                  message={t("cart.soldOutAllMessage")}
-                />
-              ) : HIDDEN ? (
-                <AlertMessage
-                  style={[styles.alertMessage, styles.hidden]}
-                  textSize="small"
-                  color="black"
-                  message={t("cart.hiddenMessage")}
-                />
-              ) : !IN_STOCK_CLASSIFICATION ? (
-                <AlertMessage
-                  style={[styles.alertMessage, styles.danger]}
-                  textSize="small"
-                  color="danger"
-                  text="danger"
-                  message={t("cart.soldOutAllMessage")}
-                />
-              ) : OUT_OF_STOCK ? (
-                <AlertMessage
-                  style={[styles.alertMessage, styles.danger]}
-                  textSize="small"
-                  color="danger"
-                  text="danger"
-                  message={t("cart.soldOutMessage")}
-                />
-              ) : null}
-            </View>
+            </Link>
           </View>
-          {/* product classification */}
-          <View style={styles.commonFlex}>
-            {productClassification?.type === ClassificationTypeEnum?.CUSTOM && (
-              //   <ClassificationPopover
-              //     classifications={classifications}
-              //     productClassification={productClassification}
-              //     cartItemId={cartItemId}
-              //     cartItemQuantity={quantity}
-              //     preventAction={PREVENT_ACTION}
-              //   />
-              <View></View>
+
+          {/* product name, classification, price */}
+          <View
+            style={[
+              PREVENT_ACTION && styles.opacity,
+              styles.nameClassPriceContainer,
+            ]}
+          >
+            {/* product name */}
+            <View style={[styles.commonFlex, styles.fullWidth]}>
+              <View style={[styles.nameContainer, styles.fullWidth]}>
+                <Link
+                  href={{
+                    pathname: "/(app)/(products)/[id]",
+                    params: { id: productId },
+                  }}
+                  style={styles.linkStyle}
+                >
+                  <Text
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                    style={styles.overFlowText}
+                  >
+                    {productName}
+                  </Text>
+                </Link>
+                <View>
+                  {eventType && eventType !== "" ? (
+                    <ProductTag tag={eventType} size="small" />
+                  ) : null}
+                </View>
+                {productStatus === ProductEnum.BANNED ? (
+                  <AlertMessage
+                    style={[styles.alertMessage, styles.danger]}
+                    textSize="small"
+                    color="danger"
+                    text="danger"
+                    message={t("cart.bannedMessage")}
+                  />
+                ) : productStatus === ProductEnum.INACTIVE ? (
+                  <AlertMessage
+                    style={[styles.alertMessage, styles.hidden]}
+                    textSize="small"
+                    color="black"
+                    message={t("cart.inactiveMessage")}
+                  />
+                ) : productStatus === ProductEnum.UN_PUBLISHED ? (
+                  <AlertMessage
+                    style={[styles.alertMessage, styles.danger]}
+                    textSize="small"
+                    color="danger"
+                    text="danger"
+                    message={t("cart.unPublishMessage")}
+                  />
+                ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
+                  <AlertMessage
+                    style={[styles.alertMessage, styles.danger]}
+                    textSize="small"
+                    color="danger"
+                    text="danger"
+                    message={t("cart.soldOutAllMessage")}
+                  />
+                ) : HIDDEN ? (
+                  <AlertMessage
+                    style={[styles.alertMessage, styles.hidden]}
+                    textSize="small"
+                    color="black"
+                    message={t("cart.hiddenMessage")}
+                  />
+                ) : !IN_STOCK_CLASSIFICATION ? (
+                  <AlertMessage
+                    style={[styles.alertMessage, styles.danger]}
+                    textSize="small"
+                    color="danger"
+                    text="danger"
+                    message={t("cart.soldOutAllMessage")}
+                  />
+                ) : OUT_OF_STOCK ? (
+                  <AlertMessage
+                    style={[styles.alertMessage, styles.danger]}
+                    textSize="small"
+                    color="danger"
+                    text="danger"
+                    message={t("cart.soldOutMessage")}
+                  />
+                ) : null}
+              </View>
+            </View>
+            {/* product classification */}
+            <View style={styles.commonFlex}>
+              {productClassification?.type ===
+                ClassificationTypeEnum?.CUSTOM && (
+                //   <ClassificationPopover
+                //     classifications={classifications}
+                //     productClassification={productClassification}
+                //     cartItemId={cartItemId}
+                //     cartItemQuantity={quantity}
+                //     preventAction={PREVENT_ACTION}
+                //   />
+                <Text>class</Text>
+              )}
+            </View>
+
+            {/* product price */}
+            {discount &&
+            discount > 0 &&
+            (discountType === DiscountTypeEnum.AMOUNT ||
+              discountType === DiscountTypeEnum.PERCENTAGE) ? (
+              <View>
+                <View style={styles.commonFlex}>
+                  <Text style={styles.highlighText}>
+                    {t("productCard.currentPrice", { price: discountPrice })}
+                  </Text>
+                  <Text style={styles.disabled}>
+                    {t("productCard.price", { price: price })}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={styles.highlighText}>
+                    {t("voucher.off.numberPercentage", {
+                      percentage: discount * 100,
+                    })}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.commonFlex}>
+                <Text>{t("productCard.price", { price: price })}</Text>
+              </View>
             )}
           </View>
-
-          {/* product price */}
-          {discount &&
-          discount > 0 &&
-          (discountType === DiscountTypeEnum.AMOUNT ||
-            discountType === DiscountTypeEnum.PERCENTAGE) ? (
-            <View>
-              <View style={styles.commonFlex}>
-                <Text style={styles.highlighText}>
-                  {t("productCard.currentPrice", { price: discountPrice })}
-                </Text>
-                <Text style={styles.disabled}>
-                  {t("productCard.price", { price: price })}
-                </Text>
-              </View>
-              <View>
-                <Text style={styles.highlighText}>
-                  {t("voucher.off.numberPercentage", {
-                    percentage: discount * 100,
-                  })}
-                </Text>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.commonFlex}>
-              <Text>{t("productCard.price", { price: price })}</Text>
-            </View>
-          )}
         </View>
-
         {/* product quantity */}
-        <View style={[PREVENT_ACTION && styles.opacity]}>
+        <View style={[PREVENT_ACTION && styles.opacity, styles.secondChild]}>
           {IS_ACTIVE &&
           (productStatus === ProductEnum.OFFICIAL ||
             productStatus === ProductEnum.FLASH_SALE) ? (
@@ -533,6 +541,7 @@ const ProductCardLandscape = ({
 export default ProductCardLandscape;
 
 const styles = StyleSheet.create({
+  linkStyle: { maxWidth: "100%", flexShrink: 1, fontSize: 12 },
   disabled: { color: myTheme.gray[400] },
   highlighText: { color: myTheme.red[500] },
   nameContainer: {
@@ -540,30 +549,42 @@ const styles = StyleSheet.create({
     gap: 1,
     flexDirection: "column",
   },
+  secondChild: {
+    width: "13%",
+  },
   image: {
     borderRadius: 4,
     width: "100%",
     height: "100%",
   },
   overFlowText: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    flexShrink: 1,
+    flexWrap: "wrap",
+    maxWidth: "100%",
   },
   nameClassPriceContainer: {
     flexDirection: "column",
     gap: 2,
     paddingHorizontal: 2,
+    width: "60%",
   },
   productImgContainer: {
     width: 80,
     height: 80,
   },
+  fullWidth: { width: "100%" },
   commonFlex: { flexDirection: "row", gap: 1, alignItems: "center" },
   container: {
     width: "100%",
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: myTheme.gray[200],
+  },
+  firstChild: {
+    width: "80%",
+    flex: 1,
+    flexDirection: "row",
+    gap: 2,
   },
   childContainer: {
     width: "100%",
@@ -603,7 +624,6 @@ const styles = StyleSheet.create({
   },
   trashContainer: {
     width: "7%",
-    flex: 1,
     justifyContent: "center",
     flexDirection: "row",
   },

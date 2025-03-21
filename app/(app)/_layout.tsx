@@ -4,7 +4,7 @@ import { Redirect, Stack, useGlobalSearchParams, useRouter } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { useSession } from "@/contexts/AuthContext";
-import { myFontWeight } from "@/constants";
+import { myFontWeight, myTheme } from "@/constants";
 import { useEffect, useState } from "react";
 import {
   Appearance,
@@ -34,7 +34,7 @@ function AppLayout() {
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={myTheme.primary} />
         <Text style={{ marginTop: 10, fontFamily: myFontWeight.regular }}>
           Đang tải...
         </Text>
