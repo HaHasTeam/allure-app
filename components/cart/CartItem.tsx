@@ -99,6 +99,7 @@ const CartItem = ({
           brandName={brand.name}
           isBrandSelected={isBrandSelected}
           handleBrandSelect={handleBrandSelect}
+          brandLogo={brand.logo}
         />
       )}
       {/* Product Cards */}
@@ -226,7 +227,7 @@ export default CartItem;
 
 const styles = StyleSheet.create({
   cartItemContainer: {
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
   },
   voucherContainer: {
     flexDirection: "row",

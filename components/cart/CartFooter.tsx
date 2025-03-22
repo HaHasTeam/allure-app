@@ -9,7 +9,12 @@ import { Feather } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import TotalPriceDetail from "./TotalPriceDetail";
 import { myTheme } from "@/constants";
-import { Checkbox, View } from "react-native-ui-lib";
+import {
+  Checkbox,
+  FloatingButton,
+  FloatingButtonLayouts,
+  View,
+} from "react-native-ui-lib";
 import {
   getMyCartApi,
   removeAllCartItemApi,
@@ -42,31 +47,23 @@ export default function CartFooter({
   cartItemCount,
   onCheckAll,
   isAllSelected,
-  totalOriginalPrice,
-  selectedCartItems,
   setSelectedCartItems,
-  totalProductDiscount,
-  totalVoucherDiscount,
-  savedPrice,
   platformChosenVoucher,
   setPlatformChosenVoucher,
   totalFinalPrice,
   platformVoucherDiscount,
   cartByBrand,
+  totalOriginalPrice,
+  selectedCartItems,
+  totalProductDiscount,
+  totalVoucherDiscount,
+  savedPrice,
   bestPlatformVoucher,
 }: CartFooterProps) {
   const { t } = useTranslation();
-  const handleServerError = useHandleServerError();
-  const { successToast } = useToast();
-  const queryClient = useQueryClient();
   const router = useRouter();
-  const [openConfirmDeleteAllCartDialog, setOpenConfirmDeleteAllCartDialog] =
-    useState(false);
-  const [
-    openConfirmDeleteMultipleCartDialog,
-    setOpenConfirmDeleteMultipleCartDialog,
-  ] = useState(false);
   const [openWarningDialog, setOpenWarningDialog] = useState(false);
+
   const insufficientStockItems = useMemo(() => {
     return Object.values(cartByBrand)
       .flat()
@@ -89,62 +86,10 @@ export default function CartFooter({
           cartItem.productClassification.quantity === 0
       );
   }, [cartByBrand, selectedCartItems]);
-  // handle remove cart items api starts
-  const { mutateAsync: removeAllCartItemFn } = useMutation({
-    mutationKey: [removeAllCartItemApi.mutationKey],
-    mutationFn: removeAllCartItemApi.fn,
-    onSuccess: () => {
-      successToast({
-        message: t("delete.cart.success", { amount: t("delete.cart.All") }),
-      });
-      queryClient.invalidateQueries({
-        queryKey: [getMyCartApi.queryKey],
-      });
-    },
-  });
-  const { mutateAsync: removeMultipleCartItemFn } = useMutation({
-    mutationKey: [removeMultipleCartItemApi.mutationKey],
-    mutationFn: removeMultipleCartItemApi.fn,
-    onSuccess: () => {
-      successToast({
-        message: t("delete.cart.success", {
-          amount: selectedCartItems?.length,
-        }),
-      });
-      setSelectedCartItems((prevSelectedCartItems) =>
-        prevSelectedCartItems.filter(
-          (itemId) => !selectedCartItems.includes(itemId)
-        )
-      );
-      queryClient.invalidateQueries({
-        queryKey: [getMyCartApi.queryKey],
-      });
-    },
-  });
+
   // handle remove cart items api ends
   // handle remove cart items function starts
-  async function handleRemoveAllCartItem() {
-    try {
-      await removeAllCartItemFn();
-    } catch (error) {
-      console.log(error);
-      handleServerError({
-        error,
-      });
-    }
-  }
-  async function handleRemoveMultipleCartItem() {
-    try {
-      if (selectedCartItems && selectedCartItems?.length > 0) {
-        await removeMultipleCartItemFn({ itemIds: selectedCartItems });
-      }
-    } catch (error) {
-      console.log(error);
-      handleServerError({
-        error,
-      });
-    }
-  }
+
   // handle remove cart items function ends
 
   // handle checkout button
@@ -163,64 +108,27 @@ export default function CartFooter({
       <View style={styles.content}>
         {/* Voucher Section */}
         <View style={styles.sectionContainer}>
-          {/* Left Section */}
-          <View style={styles.leftSection}>
-            <View style={styles.checkboxContainer}>
-              <Checkbox
-                value={isAllSelected}
-                onValueChange={onCheckAll}
-                style={styles.checkbox}
-                color={myTheme.primary}
-                size={20}
-              />
-              <Text style={styles.checkboxLabel}>
-                {t("cart.selectAll")} ({cartItemCountAll})
-              </Text>
-            </View>
-            <View style={styles.buttonGroup}>
-              {selectedCartItems && selectedCartItems?.length > 0 && (
-                <TouchableOpacity
-                  onPress={() => setOpenConfirmDeleteMultipleCartDialog(true)}
-                >
-                  <Feather name="trash-2" size={24} color="red" />
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                style={styles.destructiveButton}
-                onPress={() => setOpenConfirmDeleteAllCartDialog(true)}
-              >
-                <Feather name="trash-2" size={24} color="white" />
-                <Text style={styles.buttonText}>
-                  {t("cart.removeAll")} ({cartItemCountAll})
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Right Section */}
           <View style={styles.rightSection}>
             {/* Total Section */}
             <View style={styles.totalSection}>
-              <View>
-                <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>
-                    {t("cart.total")} ({cartItemCount} {t("cart.products")}):
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>
+                  {t("cart.total")} ({cartItemCount} {t("cart.products")}):
+                </Text>
+                <View style={styles.priceContainer}>
+                  <Text style={styles.finalPrice}>
+                    {t("productCard.price", { price: totalFinalPrice })}
                   </Text>
-                  <View style={styles.priceContainer}>
-                    <Text style={styles.finalPrice}>
-                      {t("productCard.price", { price: totalFinalPrice })}
-                    </Text>
-                    {savedPrice && savedPrice > 0 ? (
-                      <TotalPriceDetail
-                        totalProductDiscount={totalProductDiscount}
-                        totalBrandDiscount={totalVoucherDiscount}
-                        totalPlatformDiscount={platformVoucherDiscount}
-                        totalPayment={totalFinalPrice}
-                        totalSavings={savedPrice}
-                        totalProductCost={totalOriginalPrice}
-                      />
-                    ) : null}
-                  </View>
+                  {savedPrice && savedPrice > 0 ? (
+                    <TotalPriceDetail
+                      totalProductDiscount={totalProductDiscount}
+                      totalBrandDiscount={totalVoucherDiscount}
+                      totalPlatformDiscount={platformVoucherDiscount}
+                      totalPayment={totalFinalPrice}
+                      totalSavings={savedPrice}
+                      totalProductCost={totalOriginalPrice}
+                    />
+                  ) : null}
                 </View>
                 {savedPrice && savedPrice > 0 ? (
                   <View style={styles.savedContainer}>
@@ -234,14 +142,13 @@ export default function CartFooter({
                   </View>
                 ) : null}
               </View>
-
-              <TouchableOpacity
-                style={styles.checkoutButton}
-                onPress={handleCheckout}
-              >
-                <Text style={styles.checkoutButtonText}>{t("cart.buy")}</Text>
-              </TouchableOpacity>
             </View>
+            <TouchableOpacity
+              style={styles.checkoutButton}
+              onPress={handleCheckout}
+            >
+              <Text style={styles.checkoutButtonText}>{t("cart.buy")}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -262,7 +169,7 @@ const styles = StyleSheet.create({
     right: 0,
     borderTopWidth: 1,
     borderTopColor: myTheme.gray[200],
-    backgroundColor: myTheme.secondary,
+    backgroundColor: hexToRgba(myTheme.secondary, 0.3),
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
   },
@@ -312,16 +219,20 @@ const styles = StyleSheet.create({
   rightSection: {
     width: "100%",
     paddingTop: 4,
+    gap: 6,
   },
   totalSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: 6,
   },
   totalRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    justifyContent: "space-between",
+    width: "100%",
   },
   totalLabel: {
     fontSize: 16,
@@ -349,10 +260,12 @@ const styles = StyleSheet.create({
     backgroundColor: myTheme.primary,
     paddingHorizontal: 24,
     paddingVertical: 8,
-    borderRadius: 8,
+    borderRadius: 30,
   },
   checkoutButtonText: {
     color: "white",
     fontSize: 16,
+    textAlign: "center",
+    fontWeight: "bold",
   },
 });

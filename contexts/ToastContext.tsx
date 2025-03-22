@@ -14,9 +14,19 @@ import { setGlobalToast } from "@/utils";
 // Define toast types
 export type ToastType = "success" | "error" | "info" | "warning";
 
+export interface ToastAction {
+  label: string;
+  onPress: () => void;
+}
+
 // Define toast context interface
 interface ToastContextType {
-  showToast: (message: string, type?: ToastType, duration?: number) => void;
+  showToast: (
+    message: string,
+    type?: ToastType,
+    duration?: number,
+    action?: ToastAction
+  ) => void;
   hideToast: () => void;
 }
 
@@ -44,13 +54,20 @@ export function ToastProvider({ children }: ToastProviderProps) {
   const [message, setMessage] = useState("");
   const [type, setType] = useState<ToastType>("info");
   const [duration, setDuration] = useState(3000);
+  const [action, setAction] = useState<ToastAction | undefined>(undefined);
 
   // Function to show toast
   const showToast = useCallback(
-    (message: string, type: ToastType = "info", duration = 3000) => {
+    (
+      message: string,
+      type: ToastType = "info",
+      duration = 3000,
+      action?: ToastAction
+    ) => {
       setMessage(message);
       setType(type);
       setDuration(duration);
+      setAction(action);
       setVisible(true);
     },
     []
@@ -77,6 +94,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
         messageStyle={{ color: Colors.white }}
         onDismiss={hideToast}
         autoDismiss={duration}
+        action={action}
         zIndex={1000}
         style={{
           marginTop: 50, // Add some top margin to avoid status bar

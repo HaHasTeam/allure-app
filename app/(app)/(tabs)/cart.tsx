@@ -6,7 +6,11 @@ import MyText from "@/components/common/MyText";
 import { myFontWeight, myTheme } from "../../../constants/index";
 import Empty from "@/components/empty";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native-ui-lib";
+import {
+  FloatingButton,
+  FloatingButtonLayouts,
+  View,
+} from "react-native-ui-lib";
 import { FlatList, StyleSheet } from "react-native";
 import CartHeader from "@/components/cart/CartHeader";
 import {
@@ -32,6 +36,7 @@ import { getMyCartApi } from "@/hooks/api/cart";
 import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
 import CartItem from "@/components/cart/CartItem";
 import CartFooter from "@/components/cart/CartFooter";
+import CartAdditional from "@/components/cart/CartAdditional";
 
 const CartScreen = () => {
   const { t } = useTranslation();
@@ -324,6 +329,11 @@ const CartScreen = () => {
             onCheckAll={handleSelectAll}
             isAllSelected={isAllSelected}
             totalCartItems={allCartItemIds?.length}
+            cartItemCountAll={allCartItemIds?.length}
+            cartItemCount={selectedCartItems?.length}
+            setSelectedCartItems={setSelectedCartItems}
+            cartByBrand={cartItems}
+            selectedCartItems={selectedCartItems}
           />
           {/* Cart Item List */}
           <FlatList
@@ -404,6 +414,10 @@ const CartScreen = () => {
           />
         </>
       )}
+      {/* <CartAdditional
+        selectedCartItems={selectedCartItems}
+        setSelectedCartItems={setSelectedCartItems}
+      /> */}
       {!isFetching && cartItems && Object.keys(cartItems)?.length === 0 && (
         <Empty
           title={t("empty.cart.title")}
@@ -418,7 +432,7 @@ const CartScreen = () => {
 
 export default CartScreen;
 const styles = StyleSheet.create({
-  container: {
+  cartContainer: {
     flex: 1,
     flexDirection: "column",
     alignContent: "center",
@@ -426,6 +440,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 10,
     backgroundColor: myTheme.background,
+  },
+  container: {
+    flex: 1,
+    // position: "relative",
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "flex-start",
   },
   cartItemsContainer: {
     marginBottom: 100,

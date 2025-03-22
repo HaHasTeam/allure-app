@@ -36,10 +36,10 @@ const IncreaseDecreaseButton = ({
             styles.button,
             (isDecreaseDisabled || isProcessing) && styles.buttonDisabled,
           ]}
-          disabled={isIncreaseDisabled || isProcessing}
-          onPress={onIncrease}
+          disabled={isDecreaseDisabled || isProcessing}
+          onPress={onDecrease}
         >
-          <AntDesign name="plus" size={12} iconStyle={styles.icon} />
+          <AntDesign name="minus" size={12} iconStyle={styles.icon} />
         </TouchableOpacity>
 
         <TextInput
@@ -54,10 +54,10 @@ const IncreaseDecreaseButton = ({
             styles.button,
             (isDecreaseDisabled || isProcessing) && styles.buttonDisabled,
           ]}
-          disabled={isDecreaseDisabled || isProcessing}
-          onPress={onDecrease}
+          disabled={isIncreaseDisabled || isProcessing}
+          onPress={onIncrease}
         >
-          <AntDesign name="minus" size={12} iconStyle={styles.icon} />
+          <AntDesign name="plus" size={12} iconStyle={styles.icon} />
         </TouchableOpacity>
       </View>
     </View>
@@ -68,16 +68,16 @@ export default IncreaseDecreaseButton;
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
-    gap: 2,
+    gap: 4,
   },
   button: {
     borderWidth: 1,
     borderColor: hexToRgba(myTheme.secondary, 0.3),
-    width: 40,
-    height: 30,
-    borderRadius: 15,
+    width: 25,
+    height: 25,
+    borderRadius: 6,
     justifyContent: "center",
     fontWeight: "bold",
     color: myTheme.secondaryForeground,
@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
     color: myTheme.secondaryForeground,
     fontWeight: 600,
     borderColor: myTheme.gray[300],
-    height: 30,
-    borderRadius: 15,
+    height: 25,
+    borderRadius: 6,
     fontSize: 14,
     textAlign: "center",
     flexDirection: "row",

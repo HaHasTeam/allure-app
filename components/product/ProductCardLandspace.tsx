@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useEffect,
 } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -61,6 +62,15 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import ClassificationChosen from "../product-classification/ClassificationChosen";
 import Confirmation from "../confirmation/Confirmation";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Pressable } from "react-native";
+import ReanimatedSwipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import Reanimated, {
+  SharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
+import { hexToRgba } from "@/utils/color";
+
 interface ProductCardLandscapeProps {
   cartItem: ICartItem;
   productImage: string;
@@ -112,7 +122,6 @@ const ProductCardLandscape = ({
     useCartStore();
   const handleServerError = useHandleServerError();
   const queryClient = useQueryClient();
-
   // bottom sheet for delete cart items
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const toggleModalVisibility = () => {
@@ -319,226 +328,289 @@ const ProductCardLandscape = ({
       productStatus === ProductEnum.OFFICIAL
     );
 
-  // useEffect(() => {
-  //   setQuantity(productQuantity ?? 1)
-  //   setInputValue(productQuantity.toString() ?? '1')
-  // }, [productQuantity])
+  useEffect(() => {
+    setQuantity(productQuantity);
+    setInputValue(productQuantity.toString());
+  }, [productQuantity]);
   console.log(productImage);
+
+  // Render right action (trash button) when swiped
+  // const renderRightActions = (progress, dragX) => {
+  //   return (
+  //     <Pressable
+  //       style={styles.deleteAction}
+  //       onPress={() => {
+  //         swipeableRef.current?.close();
+  //         toggleModalVisibility();
+  //       }}
+  //     >
+  //       <Feather name="trash-2" size={24} color="white" />
+  //     </Pressable>
+  //   );
+  // };
+  function RightAction(prog: SharedValue<number>, drag: SharedValue<number>) {
+    const styleAnimation = useAnimatedStyle(() => {
+      return {
+        transform: [{ translateX: drag.value + 50 }],
+      };
+    });
+
+    return (
+      <Reanimated.View style={styleAnimation}>
+        <Pressable
+          style={styles.deleteAction}
+          onPress={() => {
+            toggleModalVisibility();
+          }}
+        >
+          <Feather name="trash-2" size={24} color="white" />
+        </Pressable>
+      </Reanimated.View>
+    );
+  }
   return (
-    <View style={styles.container}>
-      <View style={styles.childContainer}>
-        <View style={styles.firstChild}>
-          {/* product label */}
-          <View style={[PREVENT_ACTION && styles.opacity, styles.commonFlex]}>
-            {/* checkbox or text show hidden, inactive */}
-            {productStatus === ProductEnum.BANNED ? (
-              <ProductTag tag={ProductCartStatusEnum.BANNED} />
-            ) : productStatus === ProductEnum.INACTIVE ? (
-              <ProductTag tag={ProductCartStatusEnum.INACTIVE} />
-            ) : productStatus === ProductEnum.UN_PUBLISHED ? (
-              <ProductTag tag={ProductCartStatusEnum.UN_PUBLISHED} />
-            ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
-              <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
-            ) : IS_ACTIVE ? (
-              <Checkbox
-                size={20}
-                id={cartItemId}
-                value={isSelected}
-                style={styles.checkbox}
-                color={myTheme.primary}
-                onValueChange={() => onChooseProduct(cartItemId)}
-              />
-            ) : HIDDEN ? (
-              <ProductTag tag={ProductCartStatusEnum.HIDDEN} />
-            ) : OUT_OF_STOCK ? (
-              <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
-            ) : IN_STOCK_CLASSIFICATION ? (
-              <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
-            ) : null}
+    <GestureHandlerRootView>
+      <ReanimatedSwipeable
+        containerStyle={styles.swipeable}
+        friction={2}
+        enableTrackpadTwoFingerGesture
+        rightThreshold={40}
+        renderRightActions={RightAction}
+      >
+        <View style={styles.container}>
+          <View style={styles.childContainer}>
+            <View style={styles.firstChild}>
+              {/* product label */}
+              <View
+                style={[PREVENT_ACTION && styles.opacity, styles.commonFlex]}
+              >
+                {/* checkbox or text show hidden, inactive */}
+                {productStatus === ProductEnum.BANNED ? (
+                  <ProductTag tag={ProductCartStatusEnum.BANNED} />
+                ) : productStatus === ProductEnum.INACTIVE ? (
+                  <ProductTag tag={ProductCartStatusEnum.INACTIVE} />
+                ) : productStatus === ProductEnum.UN_PUBLISHED ? (
+                  <ProductTag tag={ProductCartStatusEnum.UN_PUBLISHED} />
+                ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
+                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+                ) : IS_ACTIVE ? (
+                  <Checkbox
+                    size={20}
+                    id={cartItemId}
+                    value={isSelected}
+                    style={styles.checkbox}
+                    color={myTheme.primary}
+                    onValueChange={() => onChooseProduct(cartItemId)}
+                  />
+                ) : HIDDEN ? (
+                  <ProductTag tag={ProductCartStatusEnum.HIDDEN} />
+                ) : OUT_OF_STOCK ? (
+                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+                ) : IN_STOCK_CLASSIFICATION ? (
+                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+                ) : null}
 
-            {/* product image */}
-            <Link
-              href={{
-                pathname: "/(app)/(products)/[id]",
-                params: { id: productId },
-              }}
-            >
-              <View style={styles.productImgContainer}>
-                <ImageWithFallback
-                  src={productImage}
-                  alt={productName}
-                  resizeMode="cover"
-                  style={styles.image}
-                />
-              </View>
-            </Link>
-          </View>
-
-          {/* product name, classification, price */}
-          <View
-            style={[
-              PREVENT_ACTION && styles.opacity,
-              styles.nameClassPriceContainer,
-            ]}
-          >
-            {/* product name */}
-            <View style={[styles.commonFlex, styles.fullWidth]}>
-              <View style={[styles.nameContainer, styles.fullWidth]}>
+                {/* product image */}
                 <Link
                   href={{
                     pathname: "/(app)/(products)/[id]",
                     params: { id: productId },
                   }}
-                  style={styles.linkStyle}
                 >
-                  <Text
-                    numberOfLines={2}
-                    ellipsizeMode="tail"
-                    style={styles.overFlowText}
-                  >
-                    {productName}
-                  </Text>
+                  <View style={styles.productImgContainer}>
+                    <ImageWithFallback
+                      src={productImage}
+                      alt={productName}
+                      resizeMode="cover"
+                      style={styles.image}
+                    />
+                  </View>
                 </Link>
-                <View>
-                  {eventType && eventType !== "" ? (
-                    <ProductTag tag={eventType} size="small" />
-                  ) : null}
-                </View>
-                {productStatus === ProductEnum.BANNED ? (
-                  <AlertMessage
-                    style={[styles.alertMessage, styles.danger]}
-                    textSize="small"
-                    color="danger"
-                    text="danger"
-                    message={t("cart.bannedMessage")}
-                  />
-                ) : productStatus === ProductEnum.INACTIVE ? (
-                  <AlertMessage
-                    style={[styles.alertMessage, styles.hidden]}
-                    textSize="small"
-                    color="black"
-                    message={t("cart.inactiveMessage")}
-                  />
-                ) : productStatus === ProductEnum.UN_PUBLISHED ? (
-                  <AlertMessage
-                    style={[styles.alertMessage, styles.danger]}
-                    textSize="small"
-                    color="danger"
-                    text="danger"
-                    message={t("cart.unPublishMessage")}
-                  />
-                ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
-                  <AlertMessage
-                    style={[styles.alertMessage, styles.danger]}
-                    textSize="small"
-                    color="danger"
-                    text="danger"
-                    message={t("cart.soldOutAllMessage")}
-                  />
-                ) : HIDDEN ? (
-                  <AlertMessage
-                    style={[styles.alertMessage, styles.hidden]}
-                    textSize="small"
-                    color="black"
-                    message={t("cart.hiddenMessage")}
-                  />
-                ) : !IN_STOCK_CLASSIFICATION ? (
-                  <AlertMessage
-                    style={[styles.alertMessage, styles.danger]}
-                    textSize="small"
-                    color="danger"
-                    text="danger"
-                    message={t("cart.soldOutAllMessage")}
-                  />
-                ) : OUT_OF_STOCK ? (
-                  <AlertMessage
-                    style={[styles.alertMessage, styles.danger]}
-                    textSize="small"
-                    color="danger"
-                    text="danger"
-                    message={t("cart.soldOutMessage")}
-                  />
-                ) : null}
               </View>
-            </View>
-            {/* product classification */}
-            <View style={styles.commonFlex}>
-              {productClassification?.type ===
-                ClassificationTypeEnum?.CUSTOM && (
-                <ClassificationChosen
-                  classifications={classifications}
-                  productClassification={productClassification}
-                  cartItemId={cartItemId}
-                  cartItemQuantity={quantity}
-                  preventAction={PREVENT_ACTION}
-                />
-              )}
-            </View>
 
-            {/* product price */}
-            {discount &&
-            discount > 0 &&
-            (discountType === DiscountTypeEnum.AMOUNT ||
-              discountType === DiscountTypeEnum.PERCENTAGE) ? (
-              <View>
+              {/* product name, classification, price */}
+              <View
+                style={[
+                  PREVENT_ACTION && styles.opacity,
+                  styles.nameClassPriceContainer,
+                ]}
+              >
+                {/* product name */}
+                <View style={[styles.commonFlex, styles.fullWidth]}>
+                  <View style={[styles.nameContainer, styles.fullWidth]}>
+                    <Link
+                      href={{
+                        pathname: "/(app)/(products)/[id]",
+                        params: { id: productId },
+                      }}
+                      style={styles.linkStyle}
+                    >
+                      <Text
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                        style={styles.overFlowText}
+                      >
+                        {productName}
+                      </Text>
+                    </Link>
+                    <View>
+                      {eventType && eventType !== "" ? (
+                        <ProductTag tag={eventType} size="small" />
+                      ) : null}
+                    </View>
+                    {productStatus === ProductEnum.BANNED ? (
+                      <AlertMessage
+                        style={[styles.alertMessage, styles.danger]}
+                        textSize="small"
+                        color="danger"
+                        text="danger"
+                        message={t("cart.bannedMessage")}
+                      />
+                    ) : productStatus === ProductEnum.INACTIVE ? (
+                      <AlertMessage
+                        style={[styles.alertMessage, styles.hidden]}
+                        textSize="small"
+                        color="black"
+                        message={t("cart.inactiveMessage")}
+                      />
+                    ) : productStatus === ProductEnum.UN_PUBLISHED ? (
+                      <AlertMessage
+                        style={[styles.alertMessage, styles.danger]}
+                        textSize="small"
+                        color="danger"
+                        text="danger"
+                        message={t("cart.unPublishMessage")}
+                      />
+                    ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
+                      <AlertMessage
+                        style={[styles.alertMessage, styles.danger]}
+                        textSize="small"
+                        color="danger"
+                        text="danger"
+                        message={t("cart.soldOutAllMessage")}
+                      />
+                    ) : HIDDEN ? (
+                      <AlertMessage
+                        style={[styles.alertMessage, styles.hidden]}
+                        textSize="small"
+                        color="black"
+                        message={t("cart.hiddenMessage")}
+                      />
+                    ) : !IN_STOCK_CLASSIFICATION ? (
+                      <AlertMessage
+                        style={[styles.alertMessage, styles.danger]}
+                        textSize="small"
+                        color="danger"
+                        text="danger"
+                        message={t("cart.soldOutAllMessage")}
+                      />
+                    ) : OUT_OF_STOCK ? (
+                      <AlertMessage
+                        style={[styles.alertMessage, styles.danger]}
+                        textSize="small"
+                        color="danger"
+                        text="danger"
+                        message={t("cart.soldOutMessage")}
+                      />
+                    ) : null}
+                  </View>
+                </View>
+                {/* product classification */}
                 <View style={styles.commonFlex}>
-                  <Text style={styles.highlighText}>
-                    {t("productCard.currentPrice", { price: discountPrice })}
-                  </Text>
-                  <Text style={styles.disabled}>
-                    {t("productCard.price", { price: price })}
-                  </Text>
+                  {productClassification?.type ===
+                    ClassificationTypeEnum?.CUSTOM && (
+                    <ClassificationChosen
+                      classifications={classifications}
+                      productClassification={productClassification}
+                      cartItemId={cartItemId}
+                      cartItemQuantity={quantity}
+                      preventAction={PREVENT_ACTION}
+                    />
+                  )}
                 </View>
-                <View>
-                  <Text style={styles.highlighText}>
-                    {t("voucher.off.numberPercentage", {
-                      percentage: discount * 100,
-                    })}
-                  </Text>
+                {/* price & quantity */}
+                <View
+                  style={[
+                    styles.commonFlex,
+                    styles.justifyBetween,
+                    styles.priceQuantityContainer,
+                  ]}
+                >
+                  {/* product price */}
+                  {discount &&
+                  discount > 0 &&
+                  (discountType === DiscountTypeEnum.AMOUNT ||
+                    discountType === DiscountTypeEnum.PERCENTAGE) ? (
+                    <View style={styles.haftWidth}>
+                      <View style={styles.commonFlex}>
+                        <Text style={styles.highlighText}>
+                          {t("productCard.currentPrice", {
+                            price: discountPrice,
+                          })}
+                        </Text>
+                        <Text style={styles.disabled}>
+                          {t("productCard.price", { price: price })}
+                        </Text>
+                      </View>
+                      <View>
+                        <Text style={styles.highlighText}>
+                          {t("voucher.off.numberPercentage", {
+                            percentage: discount * 100,
+                          })}
+                        </Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={[styles.commonFlex, styles.haftWidth]}>
+                      <Text>{t("productCard.price", { price: price })}</Text>
+                    </View>
+                  )}
+
+                  {/* product quantity */}
+                  <View
+                    style={[PREVENT_ACTION && styles.opacity, styles.haftWidth]}
+                  >
+                    {IS_ACTIVE &&
+                    (productStatus === ProductEnum.OFFICIAL ||
+                      productStatus === ProductEnum.FLASH_SALE) ? (
+                      <IncreaseDecreaseButton
+                        onIncrease={increaseQuantity}
+                        onDecrease={decreaseQuantity}
+                        isIncreaseDisabled={quantity >= MAX_QUANTITY_IN_CART}
+                        isDecreaseDisabled={false}
+                        inputValue={inputValue}
+                        handleInputChange={handleInputChange}
+                        onBlur={handleBlur}
+                        onKeyDown={handleKeyDown}
+                        isProcessing={isProcessing}
+                      />
+                    ) : (
+                      <Text>1</Text>
+                    )}
+                  </View>
+                </View>
+                <View
+                  style={[PREVENT_ACTION && styles.opacity, styles.secondChild]}
+                >
+                  {(PRODUCT_STOCK_COUNT < quantity ||
+                    PRODUCT_STOCK_COUNT <= 0) && (
+                    <Text
+                      style={[
+                        PRODUCT_STOCK_COUNT <= 0
+                          ? styles.outOfStockText
+                          : styles.almostOutText,
+                        styles.textSm,
+                      ]}
+                    >
+                      {t("cart.productLeft", { count: PRODUCT_STOCK_COUNT })}
+                    </Text>
+                  )}
                 </View>
               </View>
-            ) : (
-              <View style={styles.commonFlex}>
-                <Text>{t("productCard.price", { price: price })}</Text>
-              </View>
-            )}
-          </View>
-        </View>
-        {/* product quantity */}
-        <View style={[PREVENT_ACTION && styles.opacity, styles.secondChild]}>
-          {IS_ACTIVE &&
-          (productStatus === ProductEnum.OFFICIAL ||
-            productStatus === ProductEnum.FLASH_SALE) ? (
-            <IncreaseDecreaseButton
-              onIncrease={increaseQuantity}
-              onDecrease={decreaseQuantity}
-              isIncreaseDisabled={quantity >= MAX_QUANTITY_IN_CART}
-              isDecreaseDisabled={false}
-              inputValue={inputValue}
-              handleInputChange={handleInputChange}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-              isProcessing={isProcessing}
-            />
-          ) : (
-            <Text>1</Text>
-          )}
+            </View>
 
-          {(PRODUCT_STOCK_COUNT < quantity || PRODUCT_STOCK_COUNT <= 0) && (
-            <Text
-              style={
-                PRODUCT_STOCK_COUNT <= 0
-                  ? styles.outOfStockText
-                  : styles.almostOutText
-              }
-            >
-              {t("cart.productLeft", { count: PRODUCT_STOCK_COUNT })}
-            </Text>
-          )}
-        </View>
-
-        {/* product total price */}
-        {/* <Text style={[styles.textPrice, PREVENT_ACTION && styles.opacity ]}
+            {/* product total price */}
+            {/* <Text style={[styles.textPrice, PREVENT_ACTION && styles.opacity ]}
           className={`text-red-500 lg:text-base md:text-sm sm:text-xs text-xs w-[16%] md:w-[8%] sm:w-[12%] flex flex-col items-center ${
             
           }`}
@@ -546,8 +618,8 @@ const ProductCardLandscape = ({
           {t("productCard.currentPrice", { price: totalPrice })}
         </Text> */}
 
-        {/* delete action */}
-        <View style={styles.trashContainer}>
+            {/* delete action */}
+            {/* <View style={styles.trashContainer}>
           <Feather
             name="trash-2"
             size={24}
@@ -556,27 +628,51 @@ const ProductCardLandscape = ({
               toggleModalVisibility();
             }}
           />
+        </View> */}
+          </View>
+          <Confirmation
+            action="delete"
+            setIsModalVisible={setIsModalVisible}
+            bottomSheetModalRef={bottomSheetModalRef}
+            toggleModalVisibility={toggleModalVisibility}
+            onConfirm={() => {
+              // Handle delete confirmation
+              handleDeleteCartItem();
+              setIsModalVisible(false);
+            }}
+            item="productCart"
+          />
         </View>
-      </View>
-      <Confirmation
-        action="delete"
-        setIsModalVisible={setIsModalVisible}
-        bottomSheetModalRef={bottomSheetModalRef}
-        toggleModalVisibility={toggleModalVisibility}
-        onConfirm={() => {
-          // Handle delete confirmation
-          handleDeleteCartItem();
-          setIsModalVisible(false);
-        }}
-        item="productCart"
-      />
-    </View>
+      </ReanimatedSwipeable>
+    </GestureHandlerRootView>
   );
 };
 
 export default ProductCardLandscape;
 
 const styles = StyleSheet.create({
+  deleteAction: {
+    width: 50,
+    backgroundColor: myTheme.destructive,
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+  },
+  separator: {
+    width: "100%",
+    borderTopWidth: 1,
+  },
+  swipeable: {
+    // height: 50,
+    // backgroundColor: hexToRgba(myTheme.accent, 0.3),
+    // alignItems: "center",
+  },
+  textSm: { fontSize: 12 },
+  priceQuantityContainer: { width: "100%" },
+  haftWidth: { width: "50%" },
+  justifyBetween: {
+    justifyContent: "space-between",
+  },
   linkStyle: { maxWidth: "100%", flexShrink: 1, fontSize: 12 },
   disabled: { color: myTheme.gray[400] },
   highlighText: { color: myTheme.red[500] },
@@ -586,7 +682,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   secondChild: {
-    width: "13%",
+    width: "100%",
   },
   image: {
     borderRadius: 4,
@@ -602,11 +698,11 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: 2,
     paddingHorizontal: 2,
-    width: "60%",
+    width: "75%",
   },
   productImgContainer: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
   },
   fullWidth: { width: "100%" },
   commonFlex: { flexDirection: "row", gap: 4, alignItems: "center" },
@@ -615,18 +711,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: myTheme.gray[200],
+    paddingHorizontal: 10,
   },
   firstChild: {
-    width: "80%",
+    width: "100%",
     flex: 1,
     flexDirection: "row",
     gap: 2,
   },
   childContainer: {
     width: "100%",
-    flexDirection: "row",
+    flexDirection: "column",
     gap: 2,
-    alignItems: "center",
+    justifyContent: "center",
   },
   hidden: {
     backgroundColor: myTheme.gray[200],
