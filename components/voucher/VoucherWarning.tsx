@@ -42,11 +42,11 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 8,
     backgroundColor: "#FEE2E2",
-    padding: 8,
+    padding: 6,
     borderRadius: 8,
   },
   text: {
-    fontSize: 14,
+    fontSize: 12,
     color: "#EF4444",
   },
 });

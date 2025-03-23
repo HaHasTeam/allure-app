@@ -712,6 +712,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: myTheme.gray[200],
     paddingHorizontal: 10,
+    marginBottom: 8,
   },
   firstChild: {
     width: "100%",

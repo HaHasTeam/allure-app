@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import Empty from "../empty";
@@ -24,6 +25,8 @@ import {
 import { PreOrderProductEnum } from "@/types/pre-order";
 import ProductCardLandscape from "../product/ProductCardLandspace";
 import { AntDesign } from "@expo/vector-icons";
+import VoucherBrandList from "../voucher/VoucherBrandList";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 interface CartItemProps {
   brandName: string;
@@ -53,6 +56,17 @@ const CartItem = ({
 }: CartItemProps) => {
   const { t } = useTranslation();
   const [chosenVoucher, setChosenVoucher] = useState<TVoucher | null>(null);
+  const [openVoucherList, setOpenVoucherList] = useState(false);
+
+  const bottomSheetVoucherModalRef = useRef<BottomSheetModal>(null);
+  const toggleVoucherVisibility = () => {
+    if (openVoucherList) {
+      bottomSheetVoucherModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetVoucherModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setOpenVoucherList(!openVoucherList); // Toggle the state
+  };
 
   const cartItemIds = cartBrandItem?.map((cartItem) => cartItem.id);
   const isBrandSelected = cartBrandItem.every((productClassification) =>
@@ -90,6 +104,7 @@ const CartItem = ({
       setChosenVoucher(null);
     }
   }, [selectedCartItems, voucherDiscount]);
+
   return (
     <View style={styles.cartItemContainer}>
       {/* Brand section */}
@@ -184,7 +199,6 @@ const CartItem = ({
       })}
 
       {/* Voucher */}
-
       <View style={styles.voucherContainer}>
         <AntDesign name="tags" size={20} color="red" />
         <Text>
@@ -205,19 +219,27 @@ const CartItem = ({
                 })
             : null}
         </Text>
-        {/* <VoucherCartList
-            triggerText={t("cart.viewMoreVoucher")}
-            brandName={brand?.name ?? ""}
-            brandId={brand?.id ?? ""}
-            brandLogo={brand?.logo ?? ""}
-            hasBrandProductSelected={hasBrandProductSelected}
-            handleVoucherChange={handleVoucherChange}
-            checkoutItems={checkoutItems}
-            selectedCheckoutItems={selectedCheckoutItems}
-            bestVoucherForBrand={bestVoucherForBrand}
-            chosenBrandVoucher={chosenVoucher}
-            voucherDiscount={voucherDiscount}
-          /> */}
+
+        <VoucherBrandList
+          triggerText={
+            chosenVoucher
+              ? t("cart.viewMoreVoucher")
+              : t("voucher.chooseVoucher")
+          }
+          brandName={brand?.name ?? ""}
+          brandId={brand?.id ?? ""}
+          brandLogo={brand?.logo ?? ""}
+          hasBrandProductSelected={hasBrandProductSelected}
+          handleVoucherChange={handleVoucherChange}
+          checkoutItems={checkoutItems}
+          selectedCheckoutItems={selectedCheckoutItems}
+          bestVoucherForBrand={bestVoucherForBrand}
+          chosenBrandVoucher={chosenVoucher}
+          voucherDiscount={voucherDiscount}
+          bottomSheetModalRef={bottomSheetVoucherModalRef}
+          setIsModalVisible={setOpenVoucherList}
+          toggleModalVisibility={toggleVoucherVisibility}
+        />
       </View>
     </View>
   );
@@ -231,7 +253,8 @@ const styles = StyleSheet.create({
   },
   voucherContainer: {
     flexDirection: "row",
-    justifyContent: "center",
     gap: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
 });

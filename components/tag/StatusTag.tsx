@@ -60,11 +60,15 @@ const styles = StyleSheet.create({
   bestVoucher: {
     color: myTheme.white,
     backgroundColor: myTheme.green[500],
-    borderRadius: "50%",
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
   },
   numberCount: {
     color: myTheme.white,
     backgroundColor: myTheme.orange[500],
-    borderRadius: "50%",
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
   },
 });

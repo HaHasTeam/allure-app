@@ -210,9 +210,9 @@ const CartScreen = () => {
               cartItems,
               selectedCartItems
             );
-            // await callBestBrandVouchersFn({
-            //   checkoutItems: checkoutItems,
-            // });
+            await callBestBrandVouchersFn({
+              checkoutItems: checkoutItems,
+            });
           }
         } catch (error) {
           console.error(error);
@@ -230,9 +230,9 @@ const CartScreen = () => {
               .flat();
           }
 
-          // await callBestPlatformVouchersFn({
-          //   checkoutItems: checkoutItems,
-          // });
+          await callBestPlatformVouchersFn({
+            checkoutItems: checkoutItems,
+          });
         } catch (error) {
           console.error(error);
         }

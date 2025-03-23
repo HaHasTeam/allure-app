@@ -284,12 +284,12 @@
     },
     "brandVoucher": {
       "title": "Không có voucher",
-      "description": "Chưa có mã giảm giá nào của thương hiệu. Nhập mã giảm giá có thể sử dụng vào thanh bên trên.",
+      "description": "Chưa có mã giảm giá nào của thương hiệu.",
       "button": "Khám phá thương hiệu"
     },
     "platformVoucher": {
-      "title": "No Vouchers Available",
-      "description": "There are no vouchers from {{platformName}}. Enter a valid voucher code in the bar above.",
+      "title": "Không có voucher",
+      "description": "Chưa có mã giảm giá nào của {{platformName}}.",
       "button": "Explore {{platformName}} Vouchers"
     },
     "product": {
@@ -463,7 +463,7 @@
     "delete": "Xóa",
     "removeAll": "Bỏ tất cả",
     "voucher": "Voucher",
-    "selectVoucher": "Chọn hoặc nhập voucher",
+    "selectVoucher": "Chọn voucher",
     "buy": "Mua hàng",
     "action": "Hành động",
     "terms": "Điều khoản và Điều kiện của chúng tôi",
@@ -561,7 +561,7 @@
     "condition": "Điều kiện",
     "chooseProductBrandAlert": "Vui lòng chọn sản phẩm từ thương hiệu để áp dụng voucher.",
     "chooseProductAppAlert": "Vui lòng chọn sản phẩm để sử dụng ưu đãi.",
-    "description": "Nhập hoặc chọn 1 voucher",
+    "description": "Chọn 1 voucher",
     "help": "Trợ giúp",
     "chooseVoucher": "Chọn voucher",
     "howToUse": "Cách Sử Dụng Voucher",

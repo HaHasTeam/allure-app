@@ -35,7 +35,7 @@ interface VoucherItemProps {
     | VoucherUsedStatusEnum.UNAVAILABLE
     | VoucherUsedStatusEnum.UNCLAIMED;
   bestVoucherForBrand: IBrandBestVoucher;
-  setVoucher: Dispatch<SetStateAction<string>>;
+  handleVoucherSelection: (voucherId: string) => void;
 }
 const VoucherItem = ({
   voucher,
@@ -46,7 +46,7 @@ const VoucherItem = ({
   status,
   onCollectSuccess,
   bestVoucherForBrand,
-  setVoucher,
+  handleVoucherSelection,
 }: VoucherItemProps) => {
   const { t } = useTranslation();
   const [isCollecting, setIsCollecting] = useState(false);
@@ -105,7 +105,7 @@ const VoucherItem = ({
                   src={brandLogo}
                   alt="Brand logo"
                   resizeMode="contain"
-                  style={[styles.fullWidth, styles.fullHeight]}
+                  style={[styles.fullWidth, styles.fullHeight, styles.radiusSm]}
                 />
               </View>
             ) : (
@@ -184,14 +184,16 @@ const VoucherItem = ({
               (status === VoucherUsedStatusEnum?.UNAVAILABLE ||
                 status === VoucherUsedStatusEnum?.AVAILABLE) && (
                 <RadioButton
-                  value={voucher?.id}
+                  selected={voucher?.id === selectedVoucher}
                   id={voucher?.id}
-                  onPress={() => setVoucher(voucher?.id)}
+                  onPress={() => handleVoucherSelection(voucher?.id)}
                   //   checked={voucher?.id === selectedVoucher}
                   disabled={
                     !hasBrandProductSelected ||
                     status === VoucherUsedStatusEnum?.UNAVAILABLE
                   }
+                  size={16}
+                  color={myTheme.primary}
                 />
               )
             )}
@@ -213,6 +215,9 @@ const VoucherItem = ({
 export default VoucherItem;
 
 const styles = StyleSheet.create({
+  radiusSm: {
+    borderRadius: 8,
+  },
   flex: {
     flexDirection: "row",
     justifyContent: "center",
@@ -220,7 +225,7 @@ const styles = StyleSheet.create({
   },
 
   brandText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     textTransform: "uppercase",
   },
@@ -230,17 +235,18 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: "column",
-    gap: 2,
+    gap: 3,
+    marginBottom: 7,
   },
   commonFlex: {
-    display: "flex",
+    flexDirection: "row",
     alignItems: "center",
     gap: 4,
   },
   contentContainer: {
     borderWidth: 1,
     borderColor: myTheme.gray[200],
-    borderRadius: 8,
+    borderRadius: 10,
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
     position: "relative",
   },
@@ -265,7 +271,6 @@ const styles = StyleSheet.create({
   },
   contentSectionContainer: {
     flex: 1,
-    alignItems: "center",
   },
   header: {
     flexDirection: "row",
@@ -282,17 +287,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   textContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     flexWrap: "wrap",
     alignItems: "flex-start",
     gap: 4,
   },
   fontMedium: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "500",
   },
   minOrderText: {
-    fontSize: 16,
+    fontSize: 12,
     marginTop: 4,
   },
   specificTag: {
@@ -309,8 +314,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   expiryText: {
-    marginTop: 8,
-    fontSize: 12,
+    marginTop: 4,
+    fontSize: 10,
     color: "gray",
   },
 });

@@ -284,12 +284,12 @@
     },
     "brandVoucher": {
       "title": "No Vouchers Available",
-      "description": "There are no vouchers from this brand. Enter a valid voucher code in the bar above.",
+      "description": "There are no vouchers from this brand.",
       "button": "Explore Brand"
     },
     "platformVoucher": {
       "title": "No Vouchers Available",
-      "description": "There are no vouchers from {{platformName}}. Enter a valid voucher code in the bar above.",
+      "description": "There are no vouchers from {{platformName}}.",
       "button": "Explore {{platformName}} Vouchers"
     },
     "product": {
@@ -463,7 +463,7 @@
     "clearAll": "Clear All",
     "removeAll": "Remove All",
     "voucher": "Voucher",
-    "selectVoucher": "Select or Enter Voucher",
+    "selectVoucher": "Select a voucher",
     "buy": "Buy",
     "action": "Action",
     "terms": "Our Terms and Conditions",
@@ -561,7 +561,7 @@
     "condition": "Condition",
     "chooseProductBrandAlert": "Please choose at least one product from the brand to apply vouchers.",
     "chooseProductAppAlert": "Please choose at least one product to use vouchers.",
-    "description": "Enter or choose 1 voucher",
+    "description": "Choose 1 voucher",
     "help": "Help",
     "chooseVoucher": "Choose voucher",
     "howToUse": "How To Use Voucher",
