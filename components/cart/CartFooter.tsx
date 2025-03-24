@@ -267,7 +267,9 @@ export default function CartFooter({
               onPress={handleCheckout}
               disabled={selectedCartItems?.length === 0}
             >
-              <Text style={styles.checkoutButtonText}>{t("cart.buy")}</Text>
+              <Text style={styles.checkoutButtonText}>
+                {t("cart.checkout")}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
