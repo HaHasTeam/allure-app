@@ -245,6 +245,11 @@ const VoucherPlatformList = ({
                 {/* Warning Message */}
                 {selectedCartItems?.length === 0 && (
                   <View style={styles.warningContainer}>
+                    <Feather
+                      name="alert-circle"
+                      size={20}
+                      style={styles.alertIcon}
+                    />
                     <Text style={styles.warningText}>
                       {t("voucher.chooseProductAppAlert")}
                     </Text>
@@ -434,6 +439,7 @@ const styles = StyleSheet.create({
   alertIcon: {
     width: 16,
     height: 16,
+    color: myTheme.red[500],
   },
 
   emptyContainer: {
@@ -463,13 +469,13 @@ const styles = StyleSheet.create({
   warningContainer: {
     marginBottom: 8,
     padding: 10,
-    backgroundColor: "#FFEBEE",
+    backgroundColor: myTheme.red[100],
     borderRadius: 4,
     flexDirection: "row",
     alignItems: "center",
   },
   warningText: {
-    color: "#D32F2F",
+    color: myTheme.red[500],
     fontSize: 14,
     marginLeft: 8,
   },

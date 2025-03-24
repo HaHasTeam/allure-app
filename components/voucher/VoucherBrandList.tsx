@@ -271,7 +271,9 @@ const VoucherBrandList = ({
                     size={20}
                     style={styles.alertIcon}
                   />
-                  <Text>{t("voucher.chooseProductBrandAlert")}</Text>
+                  <Text style={styles.warningText}>
+                    {t("voucher.chooseProductBrandAlert")}
+                  </Text>
                 </View>
               )}
 
@@ -295,7 +297,10 @@ const VoucherBrandList = ({
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={styles.buttonConfirm}
+                      style={[
+                        styles.buttonConfirm,
+                        !hasBrandProductSelected && styles.buttonDisabled,
+                      ]}
                       onPress={() => {
                         handleConfirm();
                         toggleModalVisibility();
@@ -367,16 +372,22 @@ const styles = StyleSheet.create({
   buttonCancel: {
     borderWidth: 1,
     borderColor: myTheme.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: "center",
   },
   buttonConfirm: {
     backgroundColor: myTheme.primary,
-    borderColor: myTheme.primary,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
   },
   fullWidth: { width: "100%" },
   voucherContainer: {
@@ -407,15 +418,20 @@ const styles = StyleSheet.create({
     gap: 8,
     fontSize: 14,
     color: "#EF4444",
-    backgroundColor: "#FEE2E2",
+    backgroundColor: myTheme.red[100],
     padding: 8,
     borderRadius: 4,
     marginBottom: 4,
   },
-
+  warningText: {
+    color: myTheme.red[500],
+    fontSize: 14,
+    marginLeft: 8,
+  },
   alertIcon: {
     width: 16,
     height: 16,
+    color: myTheme.red[500],
   },
 
   emptyContainer: {

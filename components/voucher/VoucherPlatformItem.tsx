@@ -81,6 +81,7 @@ const VoucherPlatformItem = ({
       handleServerError({ error });
     }
   }
+  console.log(bestVoucherForPlatform);
   return (
     <View style={styles.container}>
       <View

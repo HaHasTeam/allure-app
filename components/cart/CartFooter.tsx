@@ -260,8 +260,12 @@ export default function CartFooter({
               />
             </View>
             <TouchableOpacity
-              style={styles.checkoutButton}
+              style={[
+                styles.checkoutButton,
+                selectedCartItems?.length === 0 && styles.buttonDisabled,
+              ]}
               onPress={handleCheckout}
+              disabled={selectedCartItems?.length === 0}
             >
               <Text style={styles.checkoutButtonText}>{t("cart.buy")}</Text>
             </TouchableOpacity>
@@ -395,5 +399,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     fontWeight: "bold",
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
   },
 });
