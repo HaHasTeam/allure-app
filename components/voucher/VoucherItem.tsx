@@ -168,18 +168,22 @@ const VoucherItem = ({
             </View>
 
             {status === VoucherUsedStatusEnum?.UNCLAIMED ? (
-              <TouchableOpacity
-                className="bg-primary hover:bg-primary/80"
-                onPress={() => {
-                  handleCollectVoucher();
-                }}
-              >
-                {isCollecting ? (
-                  <ActivityIndicator size="small" color={myTheme.primary} />
-                ) : (
-                  <Text>{t("button.save")}</Text>
-                )}
-              </TouchableOpacity>
+              <View style={styles.fullHeight}>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={() => {
+                    handleCollectVoucher();
+                  }}
+                >
+                  {isCollecting ? (
+                    <ActivityIndicator size="small" color={myTheme.primary} />
+                  ) : (
+                    <Text style={styles.saveButtonText}>
+                      {t("button.save")}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
             ) : (
               (status === VoucherUsedStatusEnum?.UNAVAILABLE ||
                 status === VoucherUsedStatusEnum?.AVAILABLE) && (
@@ -215,6 +219,19 @@ const VoucherItem = ({
 export default VoucherItem;
 
 const styles = StyleSheet.create({
+  saveButtonText: {
+    fontWeight: "bold",
+    color: myTheme.white,
+  },
+  saveButton: {
+    backgroundColor: myTheme.primary,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: "auto",
+  },
   radiusSm: {
     borderRadius: 8,
   },

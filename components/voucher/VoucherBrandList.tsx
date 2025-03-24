@@ -17,7 +17,12 @@ import {
 } from "react";
 import useHandleServerError from "@/hooks/useHandleServerError";
 import { useTranslation } from "react-i18next";
-import { IBrandBestVoucher, ICheckoutItem, TVoucher } from "@/types/voucher";
+import {
+  IBrandBestVoucher,
+  ICheckoutItem,
+  IVoucherUI,
+  TVoucher,
+} from "@/types/voucher";
 import { useMutation } from "@tanstack/react-query";
 import { getCheckoutListBrandVouchersApi } from "@/hooks/api/voucher";
 import { Feather } from "@expo/vector-icons";
@@ -48,9 +53,7 @@ interface VoucherBrandListProps {
   toggleModalVisibility: () => void;
   bottomSheetModalRef: React.RefObject<BottomSheetModal>;
 }
-interface TVoucherUI extends TVoucher {
-  statusVoucher: VoucherUsedStatusEnum;
-}
+
 const VoucherBrandList = ({
   triggerText,
   brandName,
@@ -73,7 +76,7 @@ const VoucherBrandList = ({
   const [selectedVoucher, setSelectedVoucher] = useState<string>(
     chosenBrandVoucher?.id ?? ""
   );
-  const [allVouchers, setAllVouchers] = useState<TVoucherUI[]>([]);
+  const [allVouchers, setAllVouchers] = useState<IVoucherUI[]>([]);
   const [unclaimedVouchers, setUnclaimedVouchers] = useState<TVoucher[]>([]);
   const [availableVouchers, setAvailableVouchers] = useState<TVoucher[]>([]);
   const [unAvailableVouchers, setUnAvailableVouchers] = useState<TVoucher[]>(
@@ -237,7 +240,6 @@ const VoucherBrandList = ({
     <>
       <Text
         style={styles.link}
-        className="text-blue-700 hover:cursor-pointer"
         onPress={() => {
           toggleModalVisibility();
           handleCallBrandVouchers();

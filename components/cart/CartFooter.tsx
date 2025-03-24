@@ -1,11 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ICartByBrand } from "@/types/cart";
 import { DiscountTypeEnum, ProjectInformationEnum } from "@/types/enum";
 import { IPlatformBestVoucher, TVoucher } from "@/types/voucher";
 import useHandleServerError from "@/hooks/useHandleServerError";
-import { Feather } from "@expo/vector-icons";
+import {
+  Entypo,
+  Feather,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, Text } from "react-native";
 import TotalPriceDetail from "./TotalPriceDetail";
 import { myTheme } from "@/constants";
@@ -23,6 +28,8 @@ import {
 import { useToast } from "@/hooks/useToast";
 import { useRouter } from "expo-router";
 import { hexToRgba } from "@/utils/color";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import VoucherPlatformList from "../voucher/VoucherPlatformList";
 
 interface CartFooterProps {
   cartItemCountAll: number;
@@ -63,6 +70,27 @@ export default function CartFooter({
   const { t } = useTranslation();
   const router = useRouter();
   const [openWarningDialog, setOpenWarningDialog] = useState(false);
+  const [openVoucherList, setOpenVoucherList] = useState(false);
+  const [openTotalPrice, setOpenTotalPrice] = useState(false);
+
+  const bottomSheetPlatformVoucherModalRef = useRef<BottomSheetModal>(null);
+  const togglePlatformVoucherVisibility = () => {
+    if (openVoucherList) {
+      bottomSheetPlatformVoucherModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetPlatformVoucherModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setOpenVoucherList(!openVoucherList); // Toggle the state
+  };
+  const bottomSheetTotalPriceModalRef = useRef<BottomSheetModal>(null);
+  const toggleTotalPriceVisibility = () => {
+    if (openVoucherList) {
+      bottomSheetTotalPriceModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetTotalPriceModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setOpenTotalPrice(!openTotalPrice); // Toggle the state
+  };
 
   const insufficientStockItems = useMemo(() => {
     return Object.values(cartByBrand)
@@ -87,10 +115,9 @@ export default function CartFooter({
       );
   }, [cartByBrand, selectedCartItems]);
 
-  // handle remove cart items api ends
-  // handle remove cart items function starts
-
-  // handle remove cart items function ends
+  const handleVoucherChange = (voucher: TVoucher | null) => {
+    setPlatformChosenVoucher(voucher);
+  };
 
   // handle checkout button
   const handleCheckout = () => {
@@ -107,9 +134,86 @@ export default function CartFooter({
     <View style={styles.container}>
       <View style={styles.content}>
         {/* Voucher Section */}
+        <View style={[styles.commonFlex, styles.spaceBetween]}>
+          <View style={styles.commonFlex}>
+            <MaterialIcons name="discount" size={24} color={myTheme.red[500]} />
+            <Text>
+              {ProjectInformationEnum.name} {t("cart.voucher")}
+            </Text>
+          </View>
+          <TouchableOpacity onPress={() => togglePlatformVoucherVisibility()}>
+            <Text></Text>
+          </TouchableOpacity>
+
+          <VoucherPlatformList
+            triggerText={
+              <View>
+                {platformChosenVoucher ? (
+                  platformChosenVoucher?.discountType ===
+                    DiscountTypeEnum.AMOUNT &&
+                  platformChosenVoucher?.discountValue ? (
+                    <View style={styles.commonFlex}>
+                      <Text style={styles.link}>
+                        {t("voucher.discountAmount", {
+                          amount: platformVoucherDiscount,
+                        })}
+                      </Text>
+                      <MaterialCommunityIcons
+                        name="pencil"
+                        size={16}
+                        color={myTheme.blue[500]}
+                      />
+                    </View>
+                  ) : (
+                    <View style={styles.commonFlex}>
+                      <Text style={styles.link}>
+                        {t("voucher.discountAmount", {
+                          amount: platformVoucherDiscount,
+                        })}{" "}
+                      </Text>
+                      <MaterialCommunityIcons
+                        name="pencil"
+                        size={16}
+                        color={myTheme.blue[500]}
+                      />
+                    </View>
+                  )
+                ) : bestPlatformVoucher?.bestVoucher ? (
+                  bestPlatformVoucher?.bestVoucher?.discountType ===
+                    DiscountTypeEnum.AMOUNT &&
+                  bestPlatformVoucher?.bestVoucher?.discountValue ? (
+                    <Text style={styles.link}>
+                      {t("voucher.bestDiscountAmountDisplay", {
+                        amount: bestPlatformVoucher?.bestVoucher?.discountValue,
+                      })}
+                    </Text>
+                  ) : (
+                    <Text style={styles.link}>
+                      {t("voucher.bestDiscountPercentageDisplay", {
+                        percentage:
+                          bestPlatformVoucher?.bestVoucher?.discountValue * 100,
+                      })}
+                    </Text>
+                  )
+                ) : (
+                  <Text style={styles.link}>{t("cart.selectVoucher")}</Text>
+                )}
+              </View>
+            }
+            bestPlatFormVoucher={bestPlatformVoucher}
+            onConfirmVoucher={setPlatformChosenVoucher}
+            selectedCartItems={selectedCartItems}
+            chosenPlatformVoucher={platformChosenVoucher}
+            cartByBrand={cartByBrand}
+            bottomSheetModalRef={bottomSheetPlatformVoucherModalRef}
+            setIsModalVisible={setOpenVoucherList}
+            toggleModalVisibility={togglePlatformVoucherVisibility}
+            handleVoucherChange={handleVoucherChange}
+          />
+        </View>
+        {/* Total Section */}
         <View style={styles.sectionContainer}>
           <View style={styles.rightSection}>
-            {/* Total Section */}
             <View style={styles.totalSection}>
               <View style={styles.totalRow}>
                 <Text style={styles.totalLabel}>
@@ -119,19 +223,14 @@ export default function CartFooter({
                   <Text style={styles.finalPrice}>
                     {t("productCard.price", { price: totalFinalPrice })}
                   </Text>
-                  {savedPrice && savedPrice > 0 ? (
-                    <TotalPriceDetail
-                      totalProductDiscount={totalProductDiscount}
-                      totalBrandDiscount={totalVoucherDiscount}
-                      totalPlatformDiscount={platformVoucherDiscount}
-                      totalPayment={totalFinalPrice}
-                      totalSavings={savedPrice}
-                      totalProductCost={totalOriginalPrice}
-                    />
-                  ) : null}
                 </View>
-                {savedPrice && savedPrice > 0 ? (
-                  <View style={styles.savedContainer}>
+              </View>
+              {savedPrice && savedPrice > 0 ? (
+                <TouchableOpacity
+                  onPress={() => toggleTotalPriceVisibility()}
+                  style={styles.savedContainer}
+                >
+                  <View style={styles.commonFlex}>
                     <Text style={styles.savedText}>
                       {t("cart.saved")}:
                       <Text style={styles.savedAmount}>
@@ -140,8 +239,25 @@ export default function CartFooter({
                       </Text>
                     </Text>
                   </View>
-                ) : null}
-              </View>
+                  <Entypo
+                    name="chevron-down"
+                    size={12}
+                    color={myTheme.green[500]}
+                  />
+                </TouchableOpacity>
+              ) : null}
+              {/* Price total bottom sheet */}
+              <TotalPriceDetail
+                toggleModalVisibility={toggleTotalPriceVisibility}
+                setIsModalVisible={setOpenTotalPrice}
+                bottomSheetModalRef={bottomSheetTotalPriceModalRef}
+                totalProductDiscount={totalProductDiscount}
+                totalBrandDiscount={totalVoucherDiscount}
+                totalPlatformDiscount={platformVoucherDiscount}
+                totalPayment={totalFinalPrice}
+                totalSavings={savedPrice}
+                totalProductCost={totalOriginalPrice}
+              />
             </View>
             <TouchableOpacity
               style={styles.checkoutButton}
@@ -157,6 +273,17 @@ export default function CartFooter({
 }
 
 const styles = StyleSheet.create({
+  link: {
+    color: myTheme.blue[500],
+  },
+  spaceBetween: {
+    justifyContent: "space-between",
+  },
+  commonFlex: {
+    flexDirection: "row",
+    gap: 6,
+    alignItems: "center",
+  },
   checkbox: {
     alignSelf: "center",
     borderRadius: 6,
@@ -222,10 +349,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   totalSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 6,
+    gap: 3,
   },
   totalRow: {
     flexDirection: "row",
@@ -248,13 +372,17 @@ const styles = StyleSheet.create({
   },
   savedContainer: {
     alignItems: "flex-end",
+    flexDirection: "row",
+    marginLeft: "auto",
   },
   savedText: {
     fontSize: 14,
+    color: myTheme.green[500],
   },
   savedAmount: {
     fontSize: 14,
-    color: myTheme.red[500],
+    color: myTheme.green[500],
+    fontWeight: "semibold",
   },
   checkoutButton: {
     backgroundColor: myTheme.primary,

@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   cartItemsContainer: {
-    marginBottom: 100,
+    marginBottom: 143,
   },
   emptyContainer: {
     flex: 1,
