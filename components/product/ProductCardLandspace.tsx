@@ -11,7 +11,6 @@ import React, {
 import { useTranslation } from "react-i18next";
 
 import useHandleServerError from "@/hooks/useHandleServerError";
-import { useToast } from "@/hooks/useToast";
 
 import useCartStore from "@/store/cart";
 import { ICartByBrand, ICartItem } from "@/types/cart";
@@ -70,6 +69,7 @@ import Reanimated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { hexToRgba } from "@/utils/color";
+import { useToast } from "@/contexts/ToastContext";
 
 interface ProductCardLandscapeProps {
   cartItem: ICartItem;
@@ -117,7 +117,7 @@ const ProductCardLandscape = ({
   );
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { successToast, errorToast } = useToast();
+  const { showToast } = useToast();
   const { cartItems, setCartItems, selectedCartItem, setSelectedCartItem } =
     useCartStore();
   const handleServerError = useHandleServerError();
@@ -149,9 +149,7 @@ const ProductCardLandscape = ({
     mutationKey: [deleteCartItemApi.mutationKey, cartItemId as string],
     mutationFn: deleteCartItemApi.fn,
     onSuccess: () => {
-      successToast({
-        message: t("delete.productCart.success"),
-      });
+      showToast(t("delete.productCart.success"), "success", 4000);
       queryClient.invalidateQueries({
         queryKey: [getMyCartApi.queryKey],
       });
@@ -281,17 +279,15 @@ const ProductCardLandscape = ({
         setInputValue(value);
         setQuantity(parsedValue);
       } else if (parsedValue > MAX_QUANTITY_IN_CART) {
-        errorToast({
-          message: t("cart.maxQuantityError", {
+        showToast(
+          t("cart.maxQuantityError", {
             maxQuantity: MAX_QUANTITY_IN_CART,
           }),
-          isShowDescription: false,
-        });
+          "error",
+          4000
+        );
       } else if (parsedValue <= 0) {
-        errorToast({
-          message: t("cart.negativeQuantityError"),
-          isShowDescription: false,
-        });
+        showToast(t("cart.negativeQuantityError"), "error", 4000);
       }
     }
   };

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import useHandleServerError from "@/hooks/useHandleServerError";
-import { useToast } from "@/hooks/useToast";
 import {
   DiscountTypeEnum,
   VoucherApplyTypeEnum,
@@ -23,6 +22,7 @@ import {
 } from "react-native";
 import { myTheme } from "@/constants";
 import { RadioButton } from "react-native-ui-lib";
+import { useToast } from "@/contexts/ToastContext";
 
 interface VoucherPlatformItemProps {
   voucher: TVoucher;
@@ -48,7 +48,7 @@ const VoucherPlatformItem = ({
   const { t } = useTranslation();
   const [isCollecting, setIsCollecting] = useState(false);
   const handleServerError = useHandleServerError();
-  const { successToast } = useToast();
+  const { showToast } = useToast();
 
   const { mutateAsync: collectVoucherFn } = useMutation({
     mutationKey: [collectVoucherApi.mutationKey],
@@ -57,9 +57,7 @@ const VoucherPlatformItem = ({
       console.log(data);
       setIsCollecting(false);
       try {
-        successToast({
-          message: t("voucher.collectSuccess"),
-        });
+        showToast(t("voucher.collectSuccess"), "success", 4000);
         if (onCollectSuccess) {
           onCollectSuccess(); // Trigger the parent callback
         }
