@@ -40,6 +40,7 @@ import {
 import { createCheckoutItem, createCheckoutItems } from "@/utils/cart";
 import { OrderItemCreation } from "@/components/checkout/OrderItemsCreation";
 import { getCreateOrderSchema } from "@/schema/order.schema";
+import useAuth from "@/hooks/api/useAuth";
 
 const checkout = () => {
   const { t } = useTranslation();
@@ -274,6 +275,16 @@ const checkout = () => {
   ) => {
     setChosenBrandVouchers({ ...chosenBrandVouchers, [brandId]: voucher });
   };
+
+  useEffect(() => {
+    const handleAddress = async () => {
+      const user = await getProfile();
+      if (user && useMyAddressesData?.data) {
+        setMyAddresses(useMyAddressesData?.data);
+      }
+    };
+    handleAddress();
+  }, [getProfile, useMyAddressesData]);
 
   useEffect(() => {
     async function handleShowBestBrandVoucher() {
