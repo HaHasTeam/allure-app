@@ -434,6 +434,7 @@
     "viewNotification": "View Notifications"
   },
   "cart": {
+    "result": "Result",
     "brannedAllMessage": "This product is banned.",
     "unPublishAllMessage": "This product is not available for purchase.",
     "deleteItem": "Delete {{count}} item(s)",

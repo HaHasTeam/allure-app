@@ -434,6 +434,7 @@
     "viewNotification": "Xem thông báo"
   },
   "cart": {
+    "result": "Kết quả",
     "brannedAllMessage": "Sản phẩm này bị cấm.",
     "unPublishAllMessage": "Sản phẩm này không có sẵn để mua.",
     "deleteItem": "Xóa {{count}} sản phẩm",
