@@ -1,0 +1,196 @@
+import { useTranslation } from "react-i18next";
+
+import { IAddress } from "@/types/address";
+
+import UpdateAddressDialog from "./UpdateAddressDialog";
+import { myTheme } from "@/constants";
+import { RadioButton } from "react-native-ui-lib";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import StatusTag from "../tag/StatusTag";
+import { hexToRgba } from "@/utils/color";
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { useRef, useState } from "react";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+
+interface AddressItemProps {
+  address: IAddress;
+  selectedAddressId?: string;
+  isShowRadioItem?: boolean;
+  handleAddressSelection: (addressId: string | undefined) => void;
+}
+const AddressItem = ({
+  address,
+  selectedAddressId,
+  isShowRadioItem = true,
+  handleAddressSelection,
+}: AddressItemProps) => {
+  const { t } = useTranslation();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const toggleModalVisibility = () => {
+    if (isModalVisible) {
+      bottomSheetModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setIsModalVisible(!isModalVisible); // Toggle the state
+  };
+  return (
+    <View style={styles.container}>
+      <View style={styles.contentWrapper}>
+        {isShowRadioItem ? (
+          <View style={styles.radioContainer}>
+            <RadioButton
+              selected={address?.id === selectedAddressId}
+              id={address?.id}
+              onPress={() => handleAddressSelection(address?.id)}
+              size={16}
+              color={myTheme.primary}
+            />
+          </View>
+        ) : null}
+        <View style={styles.addressDetails}>
+          <View style={styles.headerSection}>
+            <View style={styles.nameSection}>
+              <View style={styles.namePart}>
+                <View
+                  style={[
+                    styles.circleIcon,
+                    { backgroundColor: hexToRgba(myTheme.secondary, 0.5) },
+                  ]}
+                >
+                  <AntDesign name="user" color={myTheme.gray[500]} size={16} />
+                </View>
+                <Text style={styles.nameText}>{address?.fullName ?? ""}</Text>
+              </View>
+
+              <View style={styles.phonePart}>
+                <View
+                  style={[
+                    styles.circleIcon,
+                    { backgroundColor: hexToRgba(myTheme.secondary, 0.5) },
+                  ]}
+                >
+                  <AntDesign name="phone" color={myTheme.gray[500]} size={16} />
+                </View>
+                <Text>{address?.phone ?? ""}</Text>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.buttonLink}
+              onPress={() => toggleModalVisibility()}
+            >
+              <Text style={styles.buttonLinkText}>{t("address.update")}</Text>
+            </TouchableOpacity>
+            <UpdateAddressDialog
+              address={address}
+              bottomSheetModalRef={bottomSheetModalRef}
+              setIsModalVisible={setIsModalVisible}
+            />
+          </View>
+          <View style={styles.addressLine}>
+            <View
+              style={[
+                styles.circleIcon,
+                { backgroundColor: hexToRgba(myTheme.secondary, 0.5) },
+              ]}
+            >
+              <Feather name="map-pin" color={myTheme.gray[500]} size={16} />
+            </View>
+            <Text style={styles.addressText}>{address?.fullAddress ?? ""}</Text>
+          </View>
+        </View>
+        <View>{address?.isDefault && <StatusTag tag="Default" />}</View>
+      </View>
+    </View>
+  );
+};
+
+export default AddressItem;
+
+const styles = StyleSheet.create({
+  buttonLinkText: {
+    color: myTheme.blue[500],
+  },
+  buttonLink: {},
+  container: {
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    borderRadius: 8,
+  },
+  contentWrapper: {
+    padding: 8,
+    flexDirection: "row",
+    gap: 8,
+  },
+  radioContainer: {
+    height: 32,
+    justifyContent: "center",
+  },
+  addressDetails: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 12,
+  },
+  headerSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  nameSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  namePart: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderRightWidth: 1,
+    borderRightColor: "#D1D5DB",
+    paddingRight: 8,
+  },
+  phonePart: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  nameText: {
+    fontWeight: "500",
+  },
+  addressSection: {
+    flexDirection: "column",
+    gap: 8,
+  },
+  addressLine: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 4,
+  },
+  addressText: {
+    color: "#4B5563",
+    fontSize: 14,
+    flex: 1,
+  },
+  circleIcon: {
+    borderRadius: 9999,
+    padding: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  defaultTag: {
+    backgroundColor: "#EFF6FF",
+    color: "#1D4ED8",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    fontSize: 12,
+  },
+});

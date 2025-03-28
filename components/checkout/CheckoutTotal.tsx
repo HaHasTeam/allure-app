@@ -1,22 +1,23 @@
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { useTranslation } from "react-i18next";
 
-import configs from '@/config'
-import useCartStore from '@/store/cart'
-import { DiscountTypeEnum } from '@/types/enum'
-import { formatCurrency, formatNumber } from '@/utils/number'
-
-import Button from '../button'
+import useCartStore from "@/store/cart";
+import { DiscountTypeEnum } from "@/types/enum";
+import { formatCurrency, formatNumber } from "@/utils/number";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { hexToRgba } from "@/utils/color";
+import { myTheme } from "@/constants";
+import LoadingIcon from "../loading/LoadingIcon";
+import { Link } from "expo-router";
 
 interface CheckoutTotalProps {
-  totalProductDiscount: number
-  totalProductCost: number
-  totalBrandDiscount: number
-  totalPlatformDiscount: number
-  totalSavings: number
-  totalPayment: number
-  isLoading: boolean
-  formId: string
+  totalProductDiscount: number;
+  totalProductCost: number;
+  totalBrandDiscount: number;
+  totalPlatformDiscount: number;
+  totalSavings: number;
+  totalPayment: number;
+  isLoading: boolean;
+  formId: string;
 }
 export default function CheckoutTotal({
   totalProductDiscount,
@@ -28,103 +29,215 @@ export default function CheckoutTotal({
   totalPayment,
   formId,
 }: CheckoutTotalProps) {
-  const { t } = useTranslation()
-  const { groupBuying, groupBuyingOrder } = useCartStore()
-  const criteria = groupBuying?.groupProduct.criterias[0]
+  const { t } = useTranslation();
+  const { groupBuying, groupBuyingOrder } = useCartStore();
+  const criteria = groupBuying?.groupProduct.criterias[0];
   return (
-    <div className="w-full bg-white rounded-md shadow-sm p-4">
-      <div>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t('cart.totalCost')}</span>
-            <span className="font-medium">{t('productCard.price', { price: totalProductCost })}</span>
-          </div>
-          {!!groupBuying && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{t('cart.wishDiscount')}</span>
-              <span className="font-medium">
-                {criteria?.voucher.discountType === DiscountTypeEnum.PERCENTAGE
-                  ? formatNumber(String(criteria?.voucher?.discountValue ?? 0), '%')
-                  : formatCurrency(criteria?.voucher.discountValue ?? 0)}
-              </span>
-            </div>
-          )}
-          {totalProductDiscount && totalProductDiscount > 0 ? (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">{t('cart.directDiscount')}</span>
-              <span className="font-medium text-green-700">
-                -{t('productCard.price', { price: totalProductDiscount })}
-              </span>
-            </div>
-          ) : null}
-          {totalBrandDiscount && totalBrandDiscount > 0 ? (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">{t('cart.discountBrand')}</span>
-              <span className="text-green-700 font-medium">
-                -{t('productCard.price', { price: totalBrandDiscount })}
-              </span>
-            </div>
-          ) : null}
-          {totalPlatformDiscount && totalPlatformDiscount > 0 ? (
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">{t('cart.discountPlatform')}</span>
-              <span className="text-green-700 font-medium">
-                -{t('productCard.price', { price: totalPlatformDiscount })}
-              </span>
-            </div>
-          ) : null}
-          {groupBuying ? (
-            <div className="flex justify-between items-center pt-3 border-t text-base font-medium">
-              <span>{t('cart.maxPrice')}</span>
-              <span className="font-semibold text-red-500 text-lg">
-                {t('productCard.price', {
-                  price:
-                    criteria?.voucher.discountType === DiscountTypeEnum.PERCENTAGE
-                      ? (totalPayment * (100 - criteria?.voucher.discountValue)) / 100
-                      : totalPayment - (criteria?.voucher?.discountValue ?? 0) <= 0
-                        ? 0
-                        : totalPayment - (criteria?.voucher?.discountValue ?? 0),
-                })}
-              </span>
-            </div>
-          ) : (
-            <div className="flex justify-between items-center pt-3 border-t text-base font-medium">
-              <span>{t('cart.totalPayment')}</span>
-              <span className="font-semibold text-red-500 text-lg">
-                {t('productCard.price', { price: totalPayment })}
-              </span>
-            </div>
-          )}
+    <View style={styles.container}>
+      <View style={styles.detailsContainer}>
+        {/* Total Cost */}
+        <View style={styles.rowBetween}>
+          <Text style={styles.mutedText}>{t("cart.totalCost")}</Text>
+          <Text style={styles.mediumText}>
+            {t("productCard.price", { price: totalProductCost })}
+          </Text>
+        </View>
 
-          {totalSavings && totalSavings > 0 ? (
-            <div className="flex gap-1 justify-end items-center text-sm text-green-700">
-              <span className="text-green-700 font-medium">{t('cart.savings')}: </span>
-              <span className="text-green-700 font-medium">-{t('productCard.price', { price: totalSavings })}</span>
-            </div>
-          ) : null}
-        </div>
-      </div>
-      <div className="flex-col gap-3">
-        <p className="text-sm text-muted-foreground my-3 text-right">{t('cart.checkoutDescription')}</p>
-        <p className="text-sm text-muted-foreground my-1">
-          {t('cart.acceptCondition')}
-          <Link to={configs.routes.termsAndConditions} className="text-sm text-blue-500 hover:underline font-medium">
-            {t('cart.terms')}
+        {!!groupBuying && (
+          <View style={styles.rowBetween}>
+            <Text style={styles.mutedText}>{t("cart.wishDiscount")}</Text>
+            <Text style={styles.mediumText}>
+              {criteria?.voucher.discountType === DiscountTypeEnum.PERCENTAGE
+                ? formatNumber(
+                    String(criteria?.voucher?.discountValue ?? 0),
+                    "%"
+                  )
+                : formatCurrency(criteria?.voucher.discountValue ?? 0)}
+            </Text>
+          </View>
+        )}
+        {totalProductDiscount && totalProductDiscount > 0 ? (
+          <View style={styles.rowBetween}>
+            <Text style={styles.mutedText}>{t("cart.directDiscount")}</Text>
+            <Text style={styles.discountText}>
+              -{t("productCard.price", { price: totalProductDiscount })}
+            </Text>
+          </View>
+        ) : null}
+        {totalBrandDiscount && totalBrandDiscount > 0 ? (
+          <View style={styles.rowBetween}>
+            <Text style={styles.mutedText}>{t("cart.discountBrand")}</Text>
+            <Text style={styles.discountText}>
+              -{t("productCard.price", { price: totalBrandDiscount })}
+            </Text>
+          </View>
+        ) : null}
+        {totalPlatformDiscount && totalPlatformDiscount > 0 ? (
+          <View style={styles.rowBetween}>
+            <Text style={styles.mutedText}>{t("cart.discountPlatform")}</Text>
+            <Text style={styles.discountText}>
+              -{t("productCard.price", { price: totalPlatformDiscount })}
+            </Text>
+          </View>
+        ) : null}
+
+        <View style={styles.totalPaymentContainer}>
+          <Text style={styles.totalPaymentLabel}>
+            {groupBuying ? t("cart.maxPrice") : t("cart.totalPayment")}
+          </Text>
+          <Text style={styles.totalPaymentValue}>
+            {groupBuying
+              ? t("productCard.price", {
+                  price:
+                    criteria?.voucher.discountType ===
+                    DiscountTypeEnum.PERCENTAGE
+                      ? (totalPayment *
+                          (100 - criteria?.voucher.discountValue)) /
+                        100
+                      : totalPayment -
+                          (criteria?.voucher?.discountValue ?? 0) <=
+                        0
+                      ? 0
+                      : totalPayment - (criteria?.voucher?.discountValue ?? 0),
+                })
+              : t("productCard.price", { price: totalPayment })}
+          </Text>
+        </View>
+
+        {totalSavings && totalSavings > 0 ? (
+          <View style={styles.savingsContainer}>
+            <Text style={styles.savingsText}>{t("cart.savings")}: </Text>
+            <Text style={styles.savingsText}>
+              -{t("productCard.price", { price: totalSavings })}
+            </Text>
+          </View>
+        ) : null}
+      </View>
+      <View style={styles.footerContainer}>
+        <Text style={styles.descriptionText}>
+          {t("cart.checkoutDescription")}
+        </Text>
+        <Text style={styles.termsText}>
+          {t("cart.acceptCondition")}
+          <Link href={"/"} style={styles.termsLink}>
+            {t("cart.terms")}
           </Link>
-        </p>
-        <Button
-          form={formId}
-          type="submit"
-          className="w-full bg-destructive hover:bg-destructive/80 mt-2"
-          loading={isLoading}
+        </Text>
+
+        <TouchableOpacity
+          style={[
+            styles.submitButton,
+            {
+              backgroundColor: isLoading
+                ? hexToRgba(myTheme.destructive, 0.8)
+                : myTheme.destructive,
+            },
+          ]}
         >
-          {groupBuying
-            ? groupBuyingOrder
-              ? t('cart.updateGroupOrder')
-              : t('cart.createGroupOrder')
-            : t('cart.placeOrder')}
-        </Button>
-      </div>
-    </div>
-  )
+          {isLoading ? (
+            <LoadingIcon color="primaryBackground" />
+          ) : (
+            <Text style={styles.submitButtonText}>
+              {groupBuying
+                ? groupBuyingOrder
+                  ? t("cart.updateGroupOrder")
+                  : t("cart.createGroupOrder")
+                : t("cart.placeOrder")}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    backgroundColor: myTheme.white,
+    borderRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    padding: 16,
+  },
+  detailsContainer: {
+    marginBottom: 16,
+  },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  mutedText: {
+    fontSize: 14,
+    color: myTheme.mutedForeground,
+  },
+  mediumText: {
+    fontWeight: "500",
+  },
+  discountText: {
+    fontWeight: "500",
+    color: myTheme.green[700],
+  },
+  totalPaymentContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: myTheme.border,
+  },
+  totalPaymentLabel: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  totalPaymentValue: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: myTheme.red[500],
+  },
+  savingsContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  savingsText: {
+    fontSize: 14,
+    color: myTheme.green[700],
+    fontWeight: "500",
+  },
+  footerContainer: {
+    marginTop: 8,
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: myTheme.mutedForeground,
+    textAlign: "right",
+    marginBottom: 12,
+  },
+  termsText: {
+    fontSize: 14,
+    color: myTheme.mutedForeground,
+    marginBottom: 8,
+  },
+  termsLink: {
+    color: myTheme.blue[500],
+    textDecorationLine: "underline",
+    fontWeight: "500",
+  },
+  submitButton: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+  },
+  submitButtonText: {
+    color: myTheme.white,
+    fontWeight: "600",
+  },
+});

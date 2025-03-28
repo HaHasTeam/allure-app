@@ -12,8 +12,8 @@ interface BrandSectionProps {
   brandName: string;
   brandId: string;
   brandLogo: string;
-  isBrandSelected: boolean;
-  handleBrandSelect: (value: boolean) => void;
+  isBrandSelected?: boolean;
+  handleBrandSelect?: (value: boolean) => void;
 }
 const BrandSection = ({
   brandName,
@@ -26,13 +26,15 @@ const BrandSection = ({
     <View>
       <View style={styles.container}>
         {/* group product of brand checkbox */}
-        <Checkbox
-          value={isBrandSelected}
-          onValueChange={handleBrandSelect}
-          style={styles.checkbox}
-          color={myTheme.primary}
-          size={20}
-        />
+        {handleBrandSelect && (
+          <Checkbox
+            value={isBrandSelected}
+            onValueChange={handleBrandSelect}
+            style={styles.checkbox}
+            color={myTheme.primary}
+            size={20}
+          />
+        )}
         {/* <Ionicons name="storefront-sharp" size={24} style={styles.icon} /> */}
         <Link href="/" style={styles.brandNameLink}>
           <View style={styles.commonFlex}>

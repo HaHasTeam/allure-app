@@ -1,38 +1,55 @@
-import { MessageCircle, Store, Tag } from 'lucide-react'
-import { useMemo } from 'react'
-import { UseFormReturn } from 'react-hook-form'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
-import { z } from 'zod'
-
-import configs from '@/config'
-import { cn } from '@/lib/utils'
-import { CreateOrderSchema } from '@/schemas/order.schema'
-import useCartStore from '@/store/cart'
-import { IBrand } from '@/types/brand'
-import { ICartItem } from '@/types/cart'
-import { ClassificationTypeEnum, DiscountTypeEnum, OrderEnum, StatusEnum } from '@/types/enum'
-import { IBrandBestVoucher, ICheckoutItem, TVoucher } from '@/types/voucher'
-import { formatCurrency, formatNumber } from '@/utils/number'
-import { calculateCheckoutBrandVoucherDiscount, getTotalBrandProductsPrice } from '@/utils/price'
-
-import ProductCheckoutLandscape from '../product/ProductCheckoutLandscape'
-import { Button } from '../ui/button'
-import { FormControl, FormField, FormItem, FormMessage } from '../ui/form'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import VoucherCartList from '../voucher/VoucherCartList'
+import { CreateOrderSchema } from "@/schema/order.schema";
+import useCartStore from "@/store/cart";
+import { IBrand } from "@/types/brand";
+import { ICartItem } from "@/types/cart";
+import {
+  ClassificationTypeEnum,
+  DiscountTypeEnum,
+  OrderEnum,
+  StatusEnum,
+} from "@/types/enum";
+import { IBrandBestVoucher, ICheckoutItem, TVoucher } from "@/types/voucher";
+import {
+  calculateCheckoutBrandVoucherDiscount,
+  getTotalBrandProductsPrice,
+} from "@/utils/price";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
+import { Link } from "expo-router";
+import { SetStateAction, useMemo, useRef, useState } from "react";
+import {
+  UseFormRegister,
+  UseFormReturn,
+  UseFormSetValue,
+  UseFormWatch,
+} from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { z } from "zod";
+import VoucherBrandList from "../voucher/VoucherBrandList";
+import { formatCurrency, formatNumber } from "@/utils/number";
+import ProductCheckoutLandscape from "../product/ProductCheckoutLandscape";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import BrandSection from "../brand/BrandSection";
 
 interface CheckoutItemProps {
-  brandName: string
-  cartBrandItem: ICartItem[]
-  onVoucherSelect: (brandId: string, voucher: TVoucher | null) => void
-  chosenBrandVoucher: TVoucher | null
-  bestVoucherForBrand: IBrandBestVoucher
-  brand?: IBrand
-  index: number
-  form: UseFormReturn<z.infer<typeof CreateOrderSchema>>
-  isInGroupBuying?: boolean
+  brandName: string;
+  cartBrandItem: ICartItem[];
+  onVoucherSelect: (brandId: string, voucher: TVoucher | null) => void;
+  chosenBrandVoucher: TVoucher | null;
+  bestVoucherForBrand: IBrandBestVoucher;
+  brand?: IBrand;
+  index: number;
+  isInGroupBuying?: boolean;
+  watch: UseFormWatch<z.infer<typeof CreateOrderSchema>>;
+  register: UseFormRegister<z.infer<typeof CreateOrderSchema>>;
+  setValue: UseFormSetValue<z.infer<typeof CreateOrderSchema>>;
 }
 const CheckoutItem = ({
   brandName,
@@ -43,207 +60,324 @@ const CheckoutItem = ({
   chosenBrandVoucher,
   brand,
   index,
-  form,
+  register,
+  setValue,
+  watch,
 }: CheckoutItemProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
+
+  const messageFieldName = `orders.${index}.message` as const;
+
+  const currentMessage = watch(messageFieldName);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const toggleModalVisibility = () => {
+    if (isModalVisible) {
+      bottomSheetModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setIsModalVisible(!isModalVisible); // Toggle the state
+  };
 
   const totalBrandPrice = useMemo(() => {
-    return getTotalBrandProductsPrice(cartBrandItem)
-  }, [cartBrandItem])
+    return getTotalBrandProductsPrice(cartBrandItem);
+  }, [cartBrandItem]);
   const checkoutItems: ICheckoutItem[] = cartBrandItem
     ?.map((cartItem) => ({
-      classificationId: cartItem.productClassification?.id ?? '',
+      classificationId: cartItem.productClassification?.id ?? "",
       quantity: cartItem.quantity ?? 0,
     }))
-    ?.filter((item) => item.classificationId !== null)
+    ?.filter((item) => item.classificationId !== null);
   const handleVoucherChange = (voucher: TVoucher | null) => {
-    onVoucherSelect(brand?.id ?? '', voucher)
-  }
+    onVoucherSelect(brand?.id ?? "", voucher);
+  };
   const voucherDiscount = useMemo(
-    () => calculateCheckoutBrandVoucherDiscount(cartBrandItem, chosenBrandVoucher),
-    [cartBrandItem, chosenBrandVoucher],
-  )
-  const { groupBuying } = useCartStore()
-  const criteria = groupBuying?.groupProduct.criterias[0]
+    () =>
+      calculateCheckoutBrandVoucherDiscount(cartBrandItem, chosenBrandVoucher),
+    [cartBrandItem, chosenBrandVoucher]
+  );
+  const { groupBuying } = useCartStore();
+  const criteria = groupBuying?.groupProduct.criterias[0];
   return (
-    <div className="w-full bg-white sm:p-4 p-2 rounded-lg space-y-2 shadow-sm">
+    <View>
       {/* Brand Header */}
-      <div className="flex items-center gap-2 mb-4">
-        {/* group product of brand checkbox */}
-        <Store className="w-5 h-5 text-red-500" />
-        <Link to={configs.routes.brands + `/${brand?.id ?? ''}`}>
-          <span className="font-medium">{brandName}</span>
-        </Link>
-        <Button type="button" className="p-2 bg-primary hover:bg-primary/80" variant="default">
-          <MessageCircle className="w-4 h-4" />
-          {t('brand.chatNow')}
-        </Button>
-      </div>
-      {/* Product Cards */}
-      {cartBrandItem?.map((cartItem) => {
-        const product =
-          cartItem?.productClassification?.preOrderProduct?.product ??
-          cartItem?.productClassification?.productDiscount?.product ??
-          cartItem?.productClassification?.product
-        const productClassification = cartItem?.productClassification ?? null
-        // const productImage = cartItem?.productClassification?.images?.[0]?.fileUrl ?? ''
-        const productImage =
-          (cartItem?.productClassification?.type === ClassificationTypeEnum.DEFAULT
-            ? product?.images?.filter((img) => img?.status === StatusEnum.ACTIVE)[0]?.fileUrl
-            : cartItem?.productClassification?.images?.filter((img) => img?.status === StatusEnum.ACTIVE)[0]
-                ?.fileUrl) ?? ''
+      {brand && (
+        <BrandSection
+          brandId={brand.id}
+          brandName={brand.name}
+          brandLogo={brand.logo}
+        />
+      )}
+      <View style={styles.container}>
+        {/* Product Cards */}
+        <ScrollView>
+          {cartBrandItem?.map((cartItem) => {
+            const product =
+              cartItem?.productClassification?.preOrderProduct?.product ??
+              cartItem?.productClassification?.productDiscount?.product ??
+              cartItem?.productClassification?.product;
+            const productClassification =
+              cartItem?.productClassification ?? null;
+            // const productImage = cartItem?.productClassification?.images?.[0]?.fileUrl ?? ''
+            const productImage =
+              (cartItem?.productClassification?.type ===
+              ClassificationTypeEnum.DEFAULT
+                ? product?.images?.filter(
+                    (img) => img?.status === StatusEnum.ACTIVE
+                  )[0]?.fileUrl
+                : cartItem?.productClassification?.images?.filter(
+                    (img) => img?.status === StatusEnum.ACTIVE
+                  )[0]?.fileUrl) ?? "";
 
-        const productName = product?.name ?? ''
-        const productId = product?.id ?? ''
-        const selectedClassification = cartItem?.classification ?? ''
-        const productPrice = cartItem?.productClassification?.price ?? 0
-        const productQuantity = cartItem?.quantity ?? 0
-        const eventType = isInGroupBuying
-          ? ''
-          : cartItem?.productClassification?.preOrderProduct
-            ? OrderEnum.PRE_ORDER
-            : cartItem?.productClassification?.productDiscount || (product?.productDiscounts ?? [])[0]?.discount
+            const productName = product?.name ?? "";
+            const productId = product?.id ?? "";
+            const selectedClassification = cartItem?.classification ?? "";
+            const productPrice = cartItem?.productClassification?.price ?? 0;
+            const productQuantity = cartItem?.quantity ?? 0;
+            const eventType = isInGroupBuying
+              ? ""
+              : cartItem?.productClassification?.preOrderProduct
+              ? OrderEnum.PRE_ORDER
+              : cartItem?.productClassification?.productDiscount ||
+                (product?.productDiscounts ?? [])[0]?.discount
               ? OrderEnum.FLASH_SALE
-              : ''
-        const discount = isInGroupBuying
-          ? null
-          : eventType === OrderEnum.FLASH_SALE
-            ? cartItem?.productClassification?.productDiscount?.discount
-            : ((product?.productDiscounts ?? [])[0]?.discount ?? null)
+              : "";
+            const discount = isInGroupBuying
+              ? null
+              : eventType === OrderEnum.FLASH_SALE
+              ? cartItem?.productClassification?.productDiscount?.discount
+              : (product?.productDiscounts ?? [])[0]?.discount ?? null;
 
-        const discountType = isInGroupBuying
-          ? null
-          : eventType === OrderEnum.FLASH_SALE || (product?.productDiscounts ?? [])[0]?.discount
-            ? DiscountTypeEnum.PERCENTAGE
-            : null
+            const discountType = isInGroupBuying
+              ? null
+              : eventType === OrderEnum.FLASH_SALE ||
+                (product?.productDiscounts ?? [])[0]?.discount
+              ? DiscountTypeEnum.PERCENTAGE
+              : null;
 
-        return (
-          <ProductCheckoutLandscape
-            key={cartItem?.id}
-            productImage={productImage}
-            productName={productName}
-            selectedClassification={selectedClassification}
-            discount={discount}
-            discountType={discountType}
-            price={productPrice}
-            productId={productId}
-            eventType={eventType}
-            productQuantity={productQuantity}
-            productClassification={productClassification}
-          />
-        )
-      })}
-      {/* Message and brand voucher */}
-      {
-        <div
-          className={cn(
-            'w-full flex md:justify-between justify-start md:flex-row flex-col gap-3 border-b border-gray-200 py-3',
-            isInGroupBuying && 'hidden',
-          )}
-        >
-          <div className="order-2 md:order-1 flex items-center gap-3 text-sm w-full">
-            <FormField
-              control={form.control}
-              name={`orders.${index}.message`}
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <div className="w-full flex gap-2">
-                    <div className="w-1/5 flex items-center">
-                      <Label>{t('input.message')}</Label>
-                    </div>
-                    <div className="w-full space-y-1">
-                      <FormControl>
-                        <Input
-                          {...field}
-                          value={field.value ?? ''}
-                          className="border border-secondary w-full"
-                          placeholder={t('input.message')}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </div>
-                  </div>
-                </FormItem>
-              )}
-            />
-          </div>
-          {/* Voucher */}
-          <div className="order-1 md:order-2 flex items-center gap-3 text-sm w-full justify-end">
-            <Tag className="w-4 h-4 text-red-500" />
-            <span>
-              {chosenBrandVoucher
-                ? chosenBrandVoucher?.discountType === DiscountTypeEnum.AMOUNT && voucherDiscount
-                  ? t('voucher.discountAmount', { amount: voucherDiscount })
-                  : t('voucher.discountAmount', { amount: voucherDiscount })
-                : bestVoucherForBrand?.bestVoucher
-                  ? bestVoucherForBrand?.bestVoucher?.discountType === DiscountTypeEnum.AMOUNT &&
+            return (
+              <ProductCheckoutLandscape
+                key={cartItem?.id}
+                productImage={productImage}
+                productName={productName}
+                selectedClassification={selectedClassification}
+                discount={discount}
+                discountType={discountType}
+                price={productPrice}
+                productId={productId}
+                eventType={eventType}
+                productQuantity={productQuantity}
+                productClassification={productClassification}
+              />
+            );
+          })}
+        </ScrollView>
+        {/* Message and brand voucher */}
+        {!isInGroupBuying && (
+          <View style={styles.voucherSection}>
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>{t("input.message")}</Text>
+              <TextInput
+                style={styles.input}
+                placeholder={t("input.message")}
+                value={currentMessage || ""}
+                onChangeText={(text) => {
+                  // Update the form value for this specific brand's message
+                  setValue(messageFieldName, text, {
+                    shouldValidate: true,
+                  });
+                }}
+                {...register(messageFieldName)}
+              />
+            </View>
+            <View style={styles.voucherContainer}>
+              <Feather name="tag" size={16} color="red" />
+              <Text>
+                {" "}
+                {chosenBrandVoucher
+                  ? chosenBrandVoucher?.discountType ===
+                      DiscountTypeEnum.AMOUNT && voucherDiscount
+                    ? t("voucher.discountAmount", { amount: voucherDiscount })
+                    : t("voucher.discountAmount", { amount: voucherDiscount })
+                  : bestVoucherForBrand?.bestVoucher
+                  ? bestVoucherForBrand?.bestVoucher?.discountType ===
+                      DiscountTypeEnum.AMOUNT &&
                     bestVoucherForBrand?.bestVoucher?.discountValue
-                    ? t('voucher.bestDiscountAmountDisplay', {
+                    ? t("voucher.bestDiscountAmountDisplay", {
                         amount: bestVoucherForBrand?.bestVoucher?.discountValue,
                       })
-                    : t('voucher.bestDiscountPercentageDisplay', {
-                        percentage: bestVoucherForBrand?.bestVoucher?.discountValue * 100,
+                    : t("voucher.bestDiscountPercentageDisplay", {
+                        percentage:
+                          bestVoucherForBrand?.bestVoucher?.discountValue * 100,
                       })
                   : null}
-            </span>
+              </Text>
+              <VoucherBrandList
+                triggerText={t("cart.viewMoreVoucher")}
+                brandName={brand?.name ?? ""}
+                brandLogo={brand?.logo ?? ""}
+                brandId={brand?.id ?? ""}
+                hasBrandProductSelected={true}
+                checkoutItems={checkoutItems}
+                selectedCheckoutItems={checkoutItems}
+                handleVoucherChange={handleVoucherChange}
+                bestVoucherForBrand={bestVoucherForBrand}
+                chosenBrandVoucher={chosenBrandVoucher}
+                voucherDiscount={voucherDiscount}
+                setIsModalVisible={setIsModalVisible}
+                toggleModalVisibility={toggleModalVisibility}
+                bottomSheetModalRef={bottomSheetModalRef}
+              />
+            </View>
+          </View>
+        )}
 
-            <VoucherCartList
-              triggerText={t('cart.viewMoreVoucher')}
-              brandName={brand?.name ?? ''}
-              brandLogo={brand?.logo ?? ''}
-              brandId={brand?.id ?? ''}
-              hasBrandProductSelected={true}
-              checkoutItems={checkoutItems}
-              selectedCheckoutItems={checkoutItems}
-              handleVoucherChange={handleVoucherChange}
-              bestVoucherForBrand={bestVoucherForBrand}
-              chosenBrandVoucher={chosenBrandVoucher}
-              voucherDiscount={voucherDiscount}
-            />
-          </div>
-        </div>
-      }
-      <div className="w-full flex gap-2 justify-end items-center">
-        <span className="lg:text-lg md:text-sm sm:text-xs text-xs text-gray-600">
-          {t('cart.total')} ({cartBrandItem?.length} {t('cart.products')}):
-        </span>
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalText}>
+            {t("cart.total")} ({cartBrandItem?.length} {t("cart.products")}):
+          </Text>
+          <Text style={styles.priceText}>
+            {t("productCard.currentPrice", {
+              price: totalBrandPrice - (voucherDiscount ?? 0),
+            })}
+          </Text>
+        </View>
 
-        <span
-          className={cn(
-            'text-red-500 lg:text-lg md:text-sm sm:text-xs text-xs font-medium text-end',
-            isInGroupBuying && 'text-gray-800 text-sm',
-          )}
-        >
-          {t('productCard.currentPrice', { price: totalBrandPrice - (voucherDiscount ?? 0) })}
-        </span>
-      </div>
-      {groupBuying && (
-        <div className="flex gap-2 items-end flex-col w-full">
-          <div className="flex items-center gap-1">
-            {t('cart.wishDiscount') + ':'}
-            <div className="text-lg w-[68px] text-end">
-              {criteria?.voucher.discountType === DiscountTypeEnum.PERCENTAGE
-                ? formatNumber(String(criteria?.voucher?.discountValue ?? 0), '%')
-                : formatCurrency(criteria?.voucher.discountValue ?? 0)}
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            {t('cart.maxPrice') + ':'}
-            <div className=" w-[68px] text-red-500 lg:text-lg  font-medium text-end text-lg">
-              {t('format.currency', {
-                value:
-                  criteria?.voucher.discountType === DiscountTypeEnum.PERCENTAGE
-                    ? (totalBrandPrice * (100 - criteria?.voucher.discountValue)) / 100
-                    : totalBrandPrice - (criteria?.voucher?.discountValue ?? 0) <= 0
+        {groupBuying && (
+          <View style={styles.groupBuyingContainer}>
+            <View style={styles.rowContainer}>
+              <Text>{t("cart.wishDiscount")}:</Text>
+              <Text style={styles.discountText}>
+                {criteria?.voucher.discountType === DiscountTypeEnum.PERCENTAGE
+                  ? formatNumber(
+                      String(criteria?.voucher?.discountValue ?? 0),
+                      "%"
+                    )
+                  : formatCurrency(criteria?.voucher.discountValue ?? 0)}
+              </Text>
+            </View>
+            <View style={styles.rowContainer}>
+              <Text>{t("cart.maxPrice")}:</Text>
+              <Text style={styles.maxPriceText}>
+                {t("format.currency", {
+                  value:
+                    criteria?.voucher.discountType ===
+                    DiscountTypeEnum.PERCENTAGE
+                      ? (totalBrandPrice *
+                          (100 - criteria?.voucher.discountValue)) /
+                        100
+                      : totalBrandPrice -
+                          (criteria?.voucher?.discountValue ?? 0) <=
+                        0
                       ? 0
-                      : totalBrandPrice - (criteria?.voucher?.discountValue ?? 0),
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+                      : totalBrandPrice -
+                        (criteria?.voucher?.discountValue ?? 0),
+                })}
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
 
-export default CheckoutItem
+export default CheckoutItem;
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    backgroundColor: "white",
+    padding: 10,
+    borderRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    marginBottom: 10,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 10,
+  },
+  brandName: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  chatButton: {
+    flexDirection: "row",
+    backgroundColor: "#007AFF",
+    padding: 6,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  chatText: {
+    color: "white",
+    marginLeft: 5,
+  },
+  voucherSection: {
+    flexDirection: "column",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5E5",
+    paddingVertical: 10,
+  },
+  inputContainer: {
+    flexDirection: "column",
+    width: "100%",
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 14,
+    color: "#333",
+    marginBottom: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 8,
+    width: "100%",
+  },
+  voucherContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  totalContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  totalText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  priceText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "red",
+  },
+  groupBuyingContainer: {
+    flexDirection: "column",
+    alignItems: "flex-end",
+    width: "100%",
+    marginTop: 10,
+  },
+  rowContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  discountText: {
+    fontSize: 18,
+    textAlign: "right",
+  },
+  maxPriceText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "red",
+    textAlign: "right",
+  },
+});
