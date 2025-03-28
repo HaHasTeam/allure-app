@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Stack, useRouter } from "expo-router";
@@ -20,7 +20,7 @@ import {
   calculateTotalCheckoutBrandVoucherDiscount,
 } from "@/utils/price";
 import { PaymentMethod, ResultEnum } from "@/types/enum";
-import { useForm } from "react-hook-form";
+import { Form, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -41,6 +41,13 @@ import { createCheckoutItem, createCheckoutItems } from "@/utils/cart";
 import { OrderItemCreation } from "@/components/checkout/OrderItemsCreation";
 import { getCreateOrderSchema } from "@/schema/order.schema";
 import useAuth from "@/hooks/api/useAuth";
+import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
+import Empty from "@/components/empty";
+import { myTheme } from "@/constants";
+import CheckoutItem from "@/components/checkout/CheckoutItem";
+import CheckoutHeader from "@/components/checkout/CheckoutHeader";
+import { ProjectInformationEnum } from "@/types/project";
+import CheckoutTotal from "@/components/checkout/CheckoutTotal";
 
 const checkout = () => {
   const { t } = useTranslation();
@@ -328,13 +335,219 @@ const checkout = () => {
   }, [selectedCartItem, selectedCartItems]);
 
   return (
-    <View>
+    <SafeAreaView
+      style={
+        !selectedCartItem || Object.keys(selectedCartItem)?.length === 0
+          ? styles.container
+          : styles.emptyContainer
+      }
+    >
       <Stack.Screen options={{ title: t("cart.checkout") }} />
-      <Text>checkout</Text>
-    </View>
+      {isGettingAddress && <LoadingContentLayer />}
+      {selectedCartItem && Object.keys(selectedCartItem)?.length > 0 && (
+        <ScrollView style={styles.contentContainer}>
+          <View style={styles.innerContainer}>
+            <View style={styles.formContainer}>
+              <View style={styles.leftColumn}>
+                <CheckoutHeader />
+                {selectedCartItem &&
+                  Object.keys(selectedCartItem).map((brandName, index) => {
+                    const brand =
+                      selectedCartItem[brandName]?.[0]?.productClassification
+                        ?.productDiscount?.product?.brand ??
+                      selectedCartItem[brandName]?.[0]?.productClassification
+                        ?.preOrderProduct?.product?.brand ??
+                      selectedCartItem[brandName]?.[0]?.productClassification
+                        ?.product?.brand;
+
+                    const brandId = brand?.id ?? "";
+                    const bestVoucherForBrand = voucherMap[brandId] || null;
+                    const chosenVoucherForBrand =
+                      chosenBrandVouchers[brandId] || null;
+
+                    return (
+                      <CheckoutItem
+                        key={`${brandName}_${index}`}
+                        isInGroupBuying={isInGroupBuying}
+                        brand={brand}
+                        brandName={brandName}
+                        cartBrandItem={selectedCartItem[brandName]}
+                        onVoucherSelect={handleVoucherSelection}
+                        bestVoucherForBrand={bestVoucherForBrand}
+                        chosenBrandVoucher={chosenVoucherForBrand}
+                        index={index}
+                        form={form}
+                      />
+                    );
+                  })}
+              </View>
+
+              {/* <View style={styles.rightColumn}>
+                <AddressSection form={form} addresses={[]} />
+
+                {!isInGroupBuying && (
+                  <View style={styles.voucherSection}>
+                    <View style={styles.voucherHeader}>
+                      <Ticket color="red" size={24} />
+                      <Text style={styles.voucherTitle}>
+                        {ProjectInformationEnum.name} {t("cart.voucher")}
+                      </Text>
+                    </View>
+                    <VoucherDialog
+                      triggerComponent={
+                        <Button
+                          variant="link"
+                          className="text-blue-500 h-auto p-0 hover:no-underline"
+                        >
+                          {chosenPlatformVoucher ? (
+                            chosenPlatformVoucher?.discountType ===
+                              DiscountTypeEnum.AMOUNT &&
+                            platformVoucherDiscount > 0 ? (
+                              <div className="flex gap-2 items-center">
+                                {t("voucher.discountAmount", {
+                                  amount: platformVoucherDiscount,
+                                })}
+                                <Pen />
+                              </div>
+                            ) : (
+                              <div className="flex gap-2 items-center">
+                                {t("voucher.discountAmount", {
+                                  amount: platformVoucherDiscount,
+                                })}
+                                <Pen />
+                              </div>
+                            )
+                          ) : bestPlatformVoucher?.bestVoucher ? (
+                            bestPlatformVoucher?.bestVoucher?.discountType ===
+                              DiscountTypeEnum.AMOUNT &&
+                            bestPlatformVoucher?.bestVoucher?.discountValue ? (
+                              t("voucher.bestDiscountAmountDisplay", {
+                                amount:
+                                  bestPlatformVoucher?.bestVoucher
+                                    ?.discountValue,
+                              })
+                            ) : (
+                              t("voucher.bestDiscountPercentageDisplay", {
+                                percentage:
+                                  bestPlatformVoucher?.bestVoucher
+                                    ?.discountValue * 100,
+                              })
+                            )
+                          ) : (
+                            t("cart.selectVoucher")
+                          )}
+                        </Button>
+                      }
+                      onConfirmVoucher={setChosenPlatformVoucher}
+                      selectedCartItems={[]}
+                      chosenPlatformVoucher={chosenPlatformVoucher}
+                      cartByBrand={selectedCartItem}
+                      bestPlatFormVoucher={bestPlatformVoucher}
+                    />
+                  </View>
+                )}
+
+                {!isInGroupBuying && (
+                  <PaymentSelection
+                    form={form}
+                    hasPreOrderProduct={hasPreOrderProduct()}
+                  />
+                )}
+
+                <CheckoutTotal
+                  formId={formId}
+                  isLoading={isLoading}
+                  totalProductDiscount={totalProductDiscount}
+                  totalProductCost={totalProductCost}
+                  totalBrandDiscount={totalBrandDiscount}
+                  totalPlatformDiscount={platformVoucherDiscount ?? 0}
+                  totalSavings={totalSavings}
+                  totalPayment={totalPayment}
+                />
+              </View> */}
+            </View>
+          </View>
+        </ScrollView>
+      )}
+      {(!selectedCartItem || Object.keys(selectedCartItem)?.length === 0) && (
+        <Empty
+          title={t("empty.checkout.title")}
+          description={t("empty.checkout.description")}
+          link={"/"}
+          linkText={t("empty.checkout.button")}
+        />
+      )}
+    </SafeAreaView>
   );
 };
 
 export default checkout;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  cartContainer: {
+    flex: 1,
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "flex-start",
+    paddingHorizontal: 4,
+    paddingVertical: 10,
+    backgroundColor: myTheme.background,
+  },
+  container: {
+    flex: 1,
+    // position: "relative",
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "flex-start",
+  },
+  emptyContainer: {
+    flex: 1,
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    backgroundColor: myTheme.background,
+  },
+  contentContainer: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  innerContainer: {
+    flex: 1,
+    paddingVertical: 20,
+  },
+  formContainer: {
+    flexDirection: "row",
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  leftColumn: {
+    flex: 0.65,
+    marginRight: 6,
+  },
+  rightColumn: {
+    flex: 0.35,
+    marginLeft: 6,
+  },
+  voucherSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "white",
+    borderRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  voucherHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  voucherTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+});
