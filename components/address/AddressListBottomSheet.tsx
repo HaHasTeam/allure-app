@@ -43,6 +43,8 @@ interface AddressListBottomSheetProps {
   setIsModalVisible: Dispatch<SetStateAction<boolean>>;
   bottomSheetModalRef: React.RefObject<BottomSheetModal>;
   setValue: UseFormSetValue<z.infer<typeof CreateOrderSchema>>;
+  toggleModalVisibility: () => void;
+  isModalVisibility: boolean;
 }
 export default function AddressListBottomSheet({
   addresses,
@@ -52,6 +54,8 @@ export default function AddressListBottomSheet({
   setIsModalVisible,
   bottomSheetModalRef,
   setValue,
+  toggleModalVisibility,
+  isModalVisibility,
 }: AddressListBottomSheetProps) {
   const { t } = useTranslation();
   const [isAddVisible, setIsAddVisible] = useState(false);
@@ -65,7 +69,7 @@ export default function AddressListBottomSheet({
     }
     setIsAddVisible(!isAddVisible); // Toggle the state
   };
-  const snapPoints = useMemo(() => ["50%", "60%", "100%"], []);
+  const snapPoints = useMemo(() => ["60%", "100%"], []);
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -79,7 +83,6 @@ export default function AddressListBottomSheet({
     []
   );
 
-  const [open, setOpen] = useState(false);
   const [selectedAddressId, setSelectedAddress] = useState(
     defaultAddress?.id ?? ""
   );
@@ -105,7 +108,7 @@ export default function AddressListBottomSheet({
         addresses?.find((address) => address.id === selectedAddressId) ?? null;
       setChosenAddress?.(customChosenAddress);
     }
-    setOpen(false); // Close the dialog
+    toggleModalVisibility(); // Close the dialog
   };
 
   useEffect(() => {
@@ -146,10 +149,12 @@ export default function AddressListBottomSheet({
             {
               borderColor: myTheme.primary,
               backgroundColor: hexToRgba(myTheme.primary, 0.15),
+              gap: 4,
+              alignItems: "center",
             },
           ]}
         >
-          <AntDesign name="pluscircle" color={myTheme.primary} />
+          <AntDesign name="pluscircleo" color={myTheme.primary} size={16} />
           <Text style={{ color: myTheme.primary }}>
             {t("address.addNewAddress")}
           </Text>
@@ -157,6 +162,7 @@ export default function AddressListBottomSheet({
         <AddAddressBottomSheet
           bottomSheetModalRef={bottomSheetAddModalRef}
           setIsModalVisible={setIsAddVisible}
+          toggleModalVisibility={toggleModalAddVisibility}
         />
 
         <View style={styles.listContainer}>
@@ -181,12 +187,17 @@ export default function AddressListBottomSheet({
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.outlineButton]}
-              onPress={() => setOpen(false)}
+              onPress={() => toggleModalVisibility()}
             >
-              <Text>{t("dialog.cancel")}</Text>
+              <Text style={styles.outlineBtnText}>{t("dialog.cancel")}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={handleConfirm}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                handleConfirm();
+              }}
+            >
               <Text style={styles.buttonText}>{t("dialog.ok")}</Text>
             </TouchableOpacity>
           </View>
@@ -197,6 +208,9 @@ export default function AddressListBottomSheet({
 }
 
 const styles = StyleSheet.create({
+  outlineBtnText: {
+    color: myTheme.primary,
+  },
   title: {
     fontSize: 20,
     fontWeight: "bold",
@@ -241,6 +255,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     backgroundColor: myTheme.primary,
+    borderColor: myTheme.primary,
   },
   outlineButton: {
     backgroundColor: "transparent",

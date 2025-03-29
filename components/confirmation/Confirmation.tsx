@@ -34,7 +34,7 @@ const Confirmation = ({
 }: ConfirmationProps) => {
   const { t } = useTranslation();
   // bottom sheet for classification
-  const snapPoints = useMemo(() => ["23%", "30%", "50%", "60%", "100%"], []);
+  const snapPoints = useMemo(() => ["26%", "30%", "50%", "60%", "100%"], []);
   const renderBackdrop = React.useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop

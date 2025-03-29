@@ -1,3 +1,4 @@
+import { myTheme } from "@/constants";
 import React from "react";
 import { View, ActivityIndicator, Text, StyleSheet } from "react-native";
 
@@ -27,12 +28,12 @@ export default function LoadingIcon({
   };
 
   const colorMap = {
-    primary: "#007bff",
-    secondary: "#6c757d",
-    accent: "#17a2b8",
-    white: "#ffffff",
-    black: "#000000",
-    primaryBackground: "#007bff",
+    primary: myTheme.primaryForeground,
+    secondary: myTheme.secondary,
+    accent: myTheme.accent,
+    white: myTheme.white,
+    black: myTheme.black,
+    primaryBackground: myTheme.primary,
   };
 
   return (

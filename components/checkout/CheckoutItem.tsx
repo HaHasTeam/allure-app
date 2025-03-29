@@ -100,7 +100,7 @@ const CheckoutItem = ({
   const { groupBuying } = useCartStore();
   const criteria = groupBuying?.groupProduct.criterias[0];
   return (
-    <View>
+    <View style={styles.gap}>
       {/* Brand Header */}
       {brand && (
         <BrandSection
@@ -191,28 +191,37 @@ const CheckoutItem = ({
                 {...register(messageFieldName)}
               />
             </View>
-            <View style={styles.voucherContainer}>
-              <Feather name="tag" size={16} color="red" />
-              <Text>
-                {" "}
-                {chosenBrandVoucher
-                  ? chosenBrandVoucher?.discountType ===
-                      DiscountTypeEnum.AMOUNT && voucherDiscount
-                    ? t("voucher.discountAmount", { amount: voucherDiscount })
-                    : t("voucher.discountAmount", { amount: voucherDiscount })
-                  : bestVoucherForBrand?.bestVoucher
-                  ? bestVoucherForBrand?.bestVoucher?.discountType ===
-                      DiscountTypeEnum.AMOUNT &&
-                    bestVoucherForBrand?.bestVoucher?.discountValue
-                    ? t("voucher.bestDiscountAmountDisplay", {
-                        amount: bestVoucherForBrand?.bestVoucher?.discountValue,
-                      })
-                    : t("voucher.bestDiscountPercentageDisplay", {
-                        percentage:
-                          bestVoucherForBrand?.bestVoucher?.discountValue * 100,
-                      })
-                  : null}
-              </Text>
+            <View
+              style={[
+                styles.voucherContainer,
+                (!bestVoucherForBrand || !bestVoucherForBrand.bestVoucher) &&
+                  styles.flex,
+              ]}
+            >
+              <View style={styles.voucherContentContainer}>
+                <Feather name="tag" size={16} color="red" />
+                <Text>
+                  {chosenBrandVoucher
+                    ? chosenBrandVoucher?.discountType ===
+                        DiscountTypeEnum.AMOUNT && voucherDiscount
+                      ? t("voucher.discountAmount", { amount: voucherDiscount })
+                      : t("voucher.discountAmount", { amount: voucherDiscount })
+                    : bestVoucherForBrand?.bestVoucher
+                    ? bestVoucherForBrand?.bestVoucher?.discountType ===
+                        DiscountTypeEnum.AMOUNT &&
+                      bestVoucherForBrand?.bestVoucher?.discountValue
+                      ? t("voucher.bestDiscountAmountDisplay", {
+                          amount:
+                            bestVoucherForBrand?.bestVoucher?.discountValue,
+                        })
+                      : t("voucher.bestDiscountPercentageDisplay", {
+                          percentage:
+                            bestVoucherForBrand?.bestVoucher?.discountValue *
+                            100,
+                        })
+                    : null}
+                </Text>
+              </View>
               <VoucherBrandList
                 triggerText={t("cart.viewMoreVoucher")}
                 brandName={brand?.name ?? ""}
@@ -286,6 +295,12 @@ const CheckoutItem = ({
 export default CheckoutItem;
 
 const styles = StyleSheet.create({
+  flex: {
+    flexDirection: "row",
+  },
+  gap: {
+    gap: 6,
+  },
   container: {
     width: "100%",
     backgroundColor: "white",
@@ -339,11 +354,12 @@ const styles = StyleSheet.create({
     padding: 8,
     width: "100%",
   },
-  voucherContainer: {
+  voucherContentContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 5,
   },
+  voucherContainer: { gap: 3 },
   totalContainer: {
     flexDirection: "row",
     justifyContent: "space-between",

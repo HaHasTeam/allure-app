@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     paddingHorizontal: 4,
     paddingVertical: 10,
-    backgroundColor: myTheme.background,
+    backgroundColor: myTheme.white,
   },
   container: {
     flex: 1,

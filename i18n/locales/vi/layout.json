@@ -50,7 +50,8 @@
     "exclusiveBeautyOffersTitle": "Ưu đãi sắc đẹp độc quyền",
     "preOderCardTitle": "Đơn đặt trước",
     "groupBuyingDealsCardTitle": "Ưu đãi mua chung",
-    "recommendProductsTitle": "Gợi ý sản phẩm"
+    "recommendProductsTitle": "Gợi ý sản phẩm",
+    "preOrderTitle": "Sản phẩm đặt trước"
   },
   "productCard": {
     "currentPrice": "{{price, currency}}",
@@ -182,6 +183,14 @@
       "title": "Không tìm thấy kết quả",
       "description": "Hãy thử điều chỉnh tìm kiếm của bạn để tìm những gì bạn đang tìm.",
       "button": "Tìm lại"
+    },
+    "preOrder": {
+      "title": "Không có sản phẩm đặt trước",
+      "description": "Hiện tại không có sản phẩm nào đang trong giai đoạn đặt trước. Vui lòng quay lại sau!"
+    },
+    "flashSale": {
+      "title": "Không có sản phẩm Flash Sale",
+      "description": "Hiện tại không có sản phẩm Flash Sale nào. Vui lòng quay lại sau để xem các ưu đãi mới nhất!"
     },
     "groupBuying": {
       "title": "Không có sản phẩm mua chung",
@@ -1028,11 +1037,11 @@
     "BAN": "Bị cấm",
     "PENDING": "Đang chờ duyệt",
     "PRE_ORDER": "Đặt trước",
-    "OFFICIAL": "Đang hiển thị",
+    "OFFICIAL": "Đang hiển thị",
     "OUT_OF_STOCK": "Hết hàng",
     "SOLD_OUT": "Hết hàng",
     "ALMOST_OUT": "Sắp hết hàng",
-    "button_INACTIVE": "Ngừng hiển thị",
+    "button_INACTIVE": "Ngừng hoạt động",
     "button_ACTIVE": "Kích hoạt",
     "button_OFFICIAL": "Kích hoạt"
   },

@@ -15,6 +15,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { myTheme } from "@/constants";
 import { hexToRgba } from "@/utils/color";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import AddressListBottomSheet from "./AddressListBottomSheet";
 
 interface AddressSectionProps {
   setValue: UseFormSetValue<z.infer<typeof CreateOrderSchema>>;
@@ -137,13 +138,15 @@ export default function AddressSection({
           />
         )}
       </View>
-      <AddressListDialog
+      <AddressListBottomSheet
         addresses={addresses}
         defaultAddress={defaultAddress}
         setChosenAddress={setChosenAddress}
         bottomSheetModalRef={bottomSheetModalRef}
         setIsModalVisible={setIsVisible}
         setValue={setValue}
+        toggleModalVisibility={toggleModalVisibility}
+        isModalVisibility={isVisible}
       />
     </View>
   );

@@ -268,6 +268,7 @@ const checkout = () => {
   });
   async function onSubmit(values: z.infer<typeof CreateOrderSchema>) {
     try {
+      console.log(values);
       setIsLoading(true);
       const orders = OrderItemCreation({
         values,
@@ -525,6 +526,8 @@ const checkout = () => {
                   totalPlatformDiscount={platformVoucherDiscount ?? 0}
                   totalSavings={totalSavings}
                   totalPayment={totalPayment}
+                  handleSubmit={handleSubmit}
+                  onSubmit={onSubmit}
                 />
               </View>
             </View>
@@ -551,6 +554,10 @@ const styles = StyleSheet.create({
   },
   spaceBetween: {
     justifyContent: "space-between",
+  },
+  commonFlexColumn: {
+    flexDirection: "column",
+    gap: 10,
   },
   commonFlex: {
     flexDirection: "row",
@@ -596,9 +603,8 @@ const styles = StyleSheet.create({
   leftColumn: {},
   rightColumn: {},
   voucherSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: "column",
+    gap: 6,
     padding: 16,
     backgroundColor: "white",
     borderRadius: 8,
@@ -613,7 +619,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   voucherTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
   },
 });

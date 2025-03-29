@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import useHandleServerError from "@/hooks/useHandleServerError";
-import { useToast } from "@/hooks/useToast";
 import { IAddress } from "@/types/address";
 import { AddressEnum } from "@/types/enum";
 
@@ -32,35 +31,34 @@ import {
   BottomSheetView,
   TouchableWithoutFeedback,
 } from "@gorhom/bottom-sheet";
-import {
-  ActivityIndicatorComponent,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native";
 import { Text } from "react-native";
 import { myTheme } from "@/constants";
+import { useToast } from "@/contexts/ToastContext";
+import { ActivityIndicator } from "react-native";
 
 interface UpdateAddressDialogProps {
   setIsModalVisible: Dispatch<SetStateAction<boolean>>;
   bottomSheetModalRef: React.RefObject<BottomSheetModal>;
   address: IAddress;
+  toggleModalVisible: () => void;
 }
 const UpdateAddressDialog = ({
   address,
   setIsModalVisible,
   bottomSheetModalRef,
+  toggleModalVisible,
 }: UpdateAddressDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
   const id = useId();
-  const { successToast } = useToast();
+  const { showToast } = useToast();
   const handleServerError = useHandleServerError();
   const queryClient = useQueryClient();
   const CreateAddressSchema = getCreateAddressSchema();
-  const snapPoints = useMemo(() => ["23%", "30%", "50%", "60%", "100%"], []);
+  const snapPoints = useMemo(() => ["60%", "100%"], []);
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -76,7 +74,7 @@ const UpdateAddressDialog = ({
 
   const defaultValues = {
     fullName: address?.fullName ?? "",
-    phoneNumber: address?.phone ?? "",
+    phone: address?.phone ?? "",
     detailAddress: address?.detailAddress ?? "",
     ward: address?.ward ?? "",
     district: address?.district ?? "",
@@ -104,16 +102,14 @@ const UpdateAddressDialog = ({
     defaultValues: defaultValues,
   });
   const handleReset = () => {
-    reset();
+    reset(defaultValues);
     setOpen(false);
   };
   const { mutateAsync: updateAddressFn } = useMutation({
     mutationKey: [updateAddressApi.mutationKey],
     mutationFn: updateAddressApi.fn,
     onSuccess: () => {
-      successToast({
-        message: `${t("address.updateSuccess")}`,
-      });
+      showToast(`${t("address.updateSuccess")}`, "success", 4000);
       queryClient.invalidateQueries({
         queryKey: [getAddressByIdApi.queryKey, address?.id as string],
       });
@@ -121,10 +117,12 @@ const UpdateAddressDialog = ({
         queryKey: [getMyAddressesApi.queryKey],
       });
       handleReset();
+      toggleModalVisible();
     },
   });
   async function onSubmit(values: z.infer<typeof CreateAddressSchema>) {
     try {
+      console.log("testAllure", values);
       setIsLoading(true);
       const transformedValues = {
         ...values,
@@ -154,7 +152,7 @@ const UpdateAddressDialog = ({
   return (
     <View>
       {isLoading && (
-        <ActivityIndicatorComponent color={myTheme.primary} size={"small"} />
+        <ActivityIndicator color={myTheme.primary} size={"small"} />
       )}
 
       <BottomSheetModal
@@ -170,40 +168,40 @@ const UpdateAddressDialog = ({
         </TouchableWithoutFeedback>
         <BottomSheetView style={styles.contentContainer}>
           <Text style={styles.title}>{t("address.updateAddress")}</Text>
-          <Form>
-            {/* Form Address */}
-            <ScrollView style={styles.listContainer}>
-              <FormAddressContent
-                control={control}
-                errors={errors}
-                watch={watch}
-                resetField={resetField}
-                initialAddress={defaultValues}
-              />
-            </ScrollView>
+          {/* Form Address */}
+          <ScrollView style={styles.listContainer}>
+            <FormAddressContent
+              control={control}
+              errors={errors}
+              watch={watch}
+              resetField={resetField}
+              initialAddress={defaultValues}
+            />
+          </ScrollView>
 
-            <View>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={[styles.button, styles.outlineButton]}
-                  onPress={() => setOpen(false)}
-                >
-                  <Text>{t("dialog.cancel")}</Text>
-                </TouchableOpacity>
+          <View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[styles.button, styles.outlineButton]}
+                onPress={() => toggleModalVisible()}
+              >
+                <Text style={styles.buttonOutlineText}>
+                  {t("dialog.cancel")}
+                </Text>
+              </TouchableOpacity>
 
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={handleSubmit(onSubmit)}
-                >
-                  {isLoading ? (
-                    <LoadingIcon color="primaryBackground" />
-                  ) : (
-                    <Text style={styles.buttonText}>{t("dialog.ok")} </Text>
-                  )}
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleSubmit(onSubmit)}
+              >
+                {isLoading ? (
+                  <LoadingIcon color="primaryBackground" />
+                ) : (
+                  <Text style={styles.buttonText}>{t("dialog.ok")} </Text>
+                )}
+              </TouchableOpacity>
             </View>
-          </Form>
+          </View>
         </BottomSheetView>
       </BottomSheetModal>
     </View>
@@ -257,6 +255,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     backgroundColor: myTheme.primary,
+    borderColor: myTheme.primary,
   },
   outlineButton: {
     backgroundColor: "transparent",
@@ -264,6 +263,10 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: myTheme.white,
+    fontWeight: "bold",
+  },
+  buttonOutlineText: {
+    color: myTheme.primary,
     fontWeight: "bold",
   },
 });

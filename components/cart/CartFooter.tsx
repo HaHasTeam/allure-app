@@ -25,11 +25,11 @@ import {
   removeAllCartItemApi,
   removeMultipleCartItemApi,
 } from "@/hooks/api/cart";
-import { useToast } from "@/hooks/useToast";
 import { useRouter } from "expo-router";
 import { hexToRgba } from "@/utils/color";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import VoucherPlatformList from "../voucher/VoucherPlatformList";
+import { useToast } from "@/contexts/ToastContext";
 
 interface CartFooterProps {
   cartItemCountAll: number;
@@ -69,6 +69,7 @@ export default function CartFooter({
 }: CartFooterProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const { showToast } = useToast();
   const [openWarningDialog, setOpenWarningDialog] = useState(false);
   const [openVoucherList, setOpenVoucherList] = useState(false);
   const [openTotalPrice, setOpenTotalPrice] = useState(false);
@@ -123,7 +124,37 @@ export default function CartFooter({
   const handleCheckout = () => {
     if (selectedCartItems && selectedCartItems?.length > 0) {
       if (insufficientStockItems?.length > 0 || soldOutItems?.length > 0) {
-        setOpenWarningDialog(true);
+        showToast(
+          insufficientStockItems.length > 0
+            ? t("warning.cart.insufficientStockDescription", {
+                products: insufficientStockItems
+                  .map(
+                    (item) =>
+                      item.productClassification?.preOrderProduct?.product
+                        ?.name ??
+                      item.productClassification?.productDiscount?.product
+                        ?.name ??
+                      item.productClassification?.product?.name
+                  )
+                  .join(", "),
+              })
+            : soldOutItems?.length > 0
+            ? t("warning.cart.insufficientStockDescription", {
+                products: insufficientStockItems
+                  .map(
+                    (item) =>
+                      item.productClassification?.preOrderProduct?.product
+                        ?.name ??
+                      item.productClassification?.productDiscount?.product
+                        ?.name ??
+                      item.productClassification?.product?.name
+                  )
+                  .join(", "),
+              })
+            : t("warning.cart.description"),
+          "error",
+          4000
+        );
       } else {
         router.push("/checkout");
       }

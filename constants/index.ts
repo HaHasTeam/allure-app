@@ -26,26 +26,45 @@ export const myTheme = {
   lightGrey: "#f6faf9",
   lightPrimary: "#e5f7f7",
   grey: "#697B7A",
-  primary: "#e62e68", // hsl(345, 82%, 69%)
-  primaryForeground: "#ffffff", // hsl(0, 0%, 100%)
+  // primary: "#e62e68", // hsl(345, 82%, 69%)
+  // primaryForeground: "#ffffff", // hsl(0, 0%, 100%)
   // background: "#fbe7eb", // hsl(345, 60%, 98%)
-  background: "#faf3f4", // hsl(351, 77.80%, 98.20%)
-  foreground: "#130003", // hsl(345, 57%, 0%)
-  muted: "#e8c9d0", // hsl(345, 24%, 91%)
-  mutedForeground: "#646464", // hsl(0, 0%, 39.22%)
-  popover: "#fbe7eb", // hsl(345, 60%, 98%)
-  popoverForeground: "#130003", // hsl(345, 57%, 0%)
-  card: "#fbe7eb", // hsl(345, 60%, 98%)
-  cardForeground: "#130003", // hsl(345, 57%, 0%)
-  border: "#e3bfc5", // hsl(345, 9%, 89%)
-  input: "#e3bfc5", // hsl(345, 9%, 89%)
-  secondary: "#e7bfc8", // hsl(345, 18%, 90%)
-  secondaryForeground: "#66323d", // hsl(345, 18%, 30%)
-  accent: "#dbc2c8", // hsl(345, 26%, 81%)
-  accentForeground: "#49202c", // hsl(345, 26%, 21%)
-  destructive: "#d70015", // hsl(7.08, 97.99%, 39.02%)
-  destructiveForeground: "#f0ebef", // hsl(0, 19.05%, 94.3%)
-  ring: "#e62e68", // hsl(345, 82%, 69%)
+  // background: "#faf3f4", // hsl(351, 77.80%, 98.20%)
+  // foreground: "#130003", // hsl(345, 57%, 0%)
+  // muted: "#e8c9d0", // hsl(345, 24%, 91%)
+  // mutedForeground: "#646464", // hsl(0, 0%, 39.22%)
+  // popover: "#fbe7eb", // hsl(345, 60%, 98%)
+  // popoverForeground: "#130003", // hsl(345, 57%, 0%)
+  // card: "#fbe7eb", // hsl(345, 60%, 98%)
+  // cardForeground: "#130003", // hsl(345, 57%, 0%)
+  // border: "#e3bfc5", // hsl(345, 9%, 89%)
+  // input: "#e3bfc5", // hsl(345, 9%, 89%)
+  // secondary: "#e7bfc8", // hsl(345, 18%, 90%)
+  // secondaryForeground: "#66323d", // hsl(345, 18%, 30%)
+  // accent: "#dbc2c8", // hsl(345, 26%, 81%)
+  // accentForeground: "#49202c", // hsl(345, 26%, 21%)
+  // destructive: "#d70015", // hsl(7.08, 97.99%, 39.02%)
+  // destructiveForeground: "#f0ebef", // hsl(0, 19.05%, 94.3%)
+  // ring: "#e62e68", // hsl(345, 82%, 69%)
+  background: "#feebf1" /* HSL: 345 60% 98% */,
+  foreground: "#000000" /* HSL: 345 57% 0% */,
+  muted: "#eed8de" /* HSL: 345 24% 91% */,
+  mutedForeground: "#646464" /* HSL: 0 0% 39.22% */,
+  popover: "#feebf1" /* HSL: 345 60% 98% */,
+  popoverForeground: "#000000" /* HSL: 345 57% 0% */,
+  card: "#feebf1" /* HSL: 345 60% 98% */,
+  cardForeground: "#000000" /* HSL: 345 57% 0% */,
+  border: "#e8e1e3" /* HSL: 345 9% 89% */,
+  input: "#e8e1e3" /* HSL: 345 9% 89% */,
+  primary: "#f96c9c" /* HSL: 345 82% 69% */,
+  primaryForeground: "#ffffff" /* HSL: 0 0% 100% */,
+  secondary: "#eedce1" /* HSL: 345 18% 90% */,
+  secondaryForeground: "#7c5462" /* HSL: 345 18% 30% */,
+  accent: "#e0c3cc" /* HSL: 345 26% 81% */,
+  accentForeground: "#582f3b" /* HSL: 345 26% 21% */,
+  destructive: "#ce1717" /* HSL: 7.08 97.99% 39.02% */,
+  destructiveForeground: "#f1f0f0" /* HSL: 0 19.05% 94.3% */,
+  ring: "#f96c9c" /* HSL: 345 82% 69% */,
   blue: {
     "50": "#eff6ff",
     "100": "#dbeafe",
@@ -335,25 +354,44 @@ export const myTheme = {
 };
 
 export const myThemeDark = {
-  background: "#0d0507", // hsl(345, 40%, 2%)
-  foreground: "#fae6ea", // hsl(345, 24%, 98%)
-  muted: "#1e1013", // hsl(345, 24%, 9%)
-  mutedForeground: "#b6a4aa", // hsl(345, 9%, 71%)
-  popover: "#0d0507", // hsl(345, 40%, 2%)
-  popoverForeground: "#fae6ea", // hsl(345, 24%, 98%)
-  card: "#0d0507", // hsl(345, 40%, 2%)
-  cardForeground: "#fae6ea", // hsl(345, 24%, 98%)
-  border: "#25151a", // hsl(345, 9%, 13%)
-  input: "#25151a", // hsl(345, 9%, 13%)
-  primary: "#e62e68", // hsl(345, 82%, 69%)
-  primaryForeground: "#1a0207", // hsl(345, 82%, 9%)
-  secondary: "#2b181c", // hsl(345, 15%, 17%)
-  secondaryForeground: "#c699a5", // hsl(345, 15%, 77%)
-  accent: "#3a2028", // hsl(345, 22%, 23%)
-  accentForeground: "#d8aebc", // hsl(345, 22%, 83%)
-  destructive: "#c60000", // hsl(0, 90%, 48%)
-  destructiveForeground: "#ffffff", // hsl(0, 0%, 100%)
-  ring: "#e62e68", // hsl(345, 82%, 69%)
+  // background: "#0d0507", // hsl(345, 40%, 2%)
+  // foreground: "#fae6ea", // hsl(345, 24%, 98%)
+  // muted: "#1e1013", // hsl(345, 24%, 9%)
+  // mutedForeground: "#b6a4aa", // hsl(345, 9%, 71%)
+  // popover: "#0d0507", // hsl(345, 40%, 2%)
+  // popoverForeground: "#fae6ea", // hsl(345, 24%, 98%)
+  // card: "#0d0507", // hsl(345, 40%, 2%)
+  // cardForeground: "#fae6ea", // hsl(345, 24%, 98%)
+  // border: "#25151a", // hsl(345, 9%, 13%)
+  // input: "#25151a", // hsl(345, 9%, 13%)
+  // primary: "#e62e68", // hsl(345, 82%, 69%)
+  // primaryForeground: "#1a0207", // hsl(345, 82%, 9%)
+  // secondary: "#2b181c", // hsl(345, 15%, 17%)
+  // secondaryForeground: "#c699a5", // hsl(345, 15%, 77%)
+  // accent: "#3a2028", // hsl(345, 22%, 23%)
+  // accentForeground: "#d8aebc", // hsl(345, 22%, 83%)
+  // destructive: "#c60000", // hsl(0, 90%, 48%)
+  // destructiveForeground: "#ffffff", // hsl(0, 0%, 100%)
+  // ring: "#e62e68", // hsl(345, 82%, 69%)
+  background: "#080405" /* HSL: 345 40% 2% */,
+  foreground: "#f8edf2" /* HSL: 345 24% 98% */,
+  muted: "#180c10" /* HSL: 345 24% 9% */,
+  mutedForeground: "#b7a4ac" /* HSL: 345 9% 71% */,
+  popover: "#080405" /* HSL: 345 40% 2% */,
+  popoverForeground: "#f8edf2" /* HSL: 345 24% 98% */,
+  card: "#080405" /* HSL: 345 40% 2% */,
+  cardForeground: "#f8edf2" /* HSL: 345 24% 98% */,
+  border: "#221518" /* HSL: 345 9% 13% */,
+  input: "#221518" /* HSL: 345 9% 13% */,
+  primary: "#f96c9c" /* HSL: 345 82% 69% */,
+  primaryForeground: "#51111e" /* HSL: 345 82% 9% */,
+  secondary: "#2c1921" /* HSL: 345 15% 17% */,
+  secondaryForeground: "#cd9eb0" /* HSL: 345 15% 77% */,
+  accent: "#3d1f28" /* HSL: 345 22% 23% */,
+  accentForeground: "#d7aeba" /* HSL: 345 22% 83% */,
+  destructive: "#f20000" /* HSL: 0 90% 48% */,
+  destructiveForeground: "#ffffff" /* HSL: 0 0% 100% */,
+  ring: "#f96c9c" /* HSL: 345 82% 69% */,
 };
 
 export const myDeviceHeight = {

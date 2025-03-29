@@ -16,6 +16,11 @@ import { LoaderScreen, TextField, View } from "react-native-ui-lib";
 
 import MyLink from "@/components/common/MyLink";
 import MyText from "@/components/common/MyText";
+import HomeBanner from "@/components/home/HomeBanner";
+import BeautyOffers from "@/components/home/BeautyOffers";
+import FlashSale from "@/components/home/FlashSale";
+import RecommendProduct from "@/components/home/RecommendProduct";
+import PreOrderProductSections from "@/components/home/PreOrderProductSection";
 
 interface IHomeLayout {
   title: string;
@@ -32,7 +37,13 @@ export default function HomeScreen() {
           style={{ flex: 1, backgroundColor: "#FFF" }}
           keyboardVerticalOffset={100}
         >
-          <MyText text="hello" />
+          <ScrollView>
+            <HomeBanner />
+            <BeautyOffers />
+            <FlashSale />
+            <RecommendProduct />
+            <PreOrderProductSections />
+          </ScrollView>
         </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </>

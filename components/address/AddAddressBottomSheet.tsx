@@ -13,7 +13,6 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import useHandleServerError from "@/hooks/useHandleServerError";
-import { useToast } from "@/hooks/useToast";
 import { AddressEnum } from "@/types/enum";
 
 import FormAddressContent from "./FormAddressContent";
@@ -29,7 +28,7 @@ import { createAddressApi, getMyAddressesApi } from "@/hooks/api/address";
 import useAuth from "@/hooks/api/useAuth";
 import useUser from "@/hooks/api/useUser";
 import {
-  ActivityIndicatorComponent,
+  ActivityIndicator,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -38,25 +37,28 @@ import {
 import { myTheme } from "@/constants";
 import { StyleSheet } from "react-native";
 import LoadingIcon from "../loading/LoadingIcon";
+import { useToast } from "@/contexts/ToastContext";
 
 interface AddAddressBottomSheetProps {
   setIsModalVisible: Dispatch<SetStateAction<boolean>>;
   bottomSheetModalRef: React.RefObject<BottomSheetModal>;
+  toggleModalVisibility: () => void;
 }
 const AddAddressBottomSheet = ({
   setIsModalVisible,
   bottomSheetModalRef,
+  toggleModalVisibility,
 }: AddAddressBottomSheetProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
   const { getProfile } = useUser();
   const id = useId();
-  const { successToast } = useToast();
+  const { showToast } = useToast();
   const handleServerError = useHandleServerError();
   const queryClient = useQueryClient();
   const CreateAddressSchema = getCreateAddressSchema();
-  const snapPoints = useMemo(() => ["23%", "30%", "50%", "60%", "100%"], []);
+  const snapPoints = useMemo(() => ["50%", "60%", "100%"], []);
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -109,13 +111,12 @@ const AddAddressBottomSheet = ({
     mutationKey: [createAddressApi.mutationKey],
     mutationFn: createAddressApi.fn,
     onSuccess: () => {
-      successToast({
-        message: `${t("address.addSuccess")}`,
-      });
+      showToast(`${t("address.addSuccess")}`, "success", 4000);
       queryClient.invalidateQueries({
         queryKey: [getMyAddressesApi.queryKey],
       });
       handleReset();
+      toggleModalVisibility();
     },
   });
   async function onSubmit(values: z.infer<typeof CreateAddressSchema>) {
@@ -152,7 +153,7 @@ const AddAddressBottomSheet = ({
   return (
     <View>
       {isLoading && (
-        <ActivityIndicatorComponent color={myTheme.primary} size={"small"} />
+        <ActivityIndicator color={myTheme.primary} size={"small"} />
       )}
 
       <BottomSheetModal
@@ -183,7 +184,7 @@ const AddAddressBottomSheet = ({
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={[styles.button, styles.outlineButton]}
-                onPress={() => setOpen(false)}
+                onPress={() => toggleModalVisibility()}
               >
                 <Text>{t("dialog.cancel")}</Text>
               </TouchableOpacity>

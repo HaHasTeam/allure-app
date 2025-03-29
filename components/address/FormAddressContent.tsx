@@ -19,7 +19,12 @@ import {
   getWardsByDistrictApi,
 } from "@/hooks/api/address";
 import { ScrollView, Text, View } from "react-native";
-import { Checkbox, RadioButton, TextField } from "react-native-ui-lib";
+import {
+  Checkbox,
+  RadioButton,
+  RadioGroup,
+  TextField,
+} from "react-native-ui-lib";
 import { myTheme } from "@/constants";
 
 interface FormAddressContentProps {
@@ -99,7 +104,7 @@ export default function FormAddressContent({
     }
   }, [province?.districts, initialAddress?.district]);
   return (
-    <View style={{ flex: 1, padding: 16 }}>
+    <View style={{ flex: 1 }}>
       <ScrollView>
         {/* Full Name Input */}
         <View style={{ marginVertical: 8 }}>
@@ -280,6 +285,34 @@ export default function FormAddressContent({
             )}
           />
         </View>
+        {/* Notes */}
+        <View style={{ marginVertical: 8 }}>
+          <Text style={{ marginBottom: 8 }}>{t("address.notes")}</Text>
+          <Controller
+            control={control}
+            name="notes"
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <View>
+                <TextField
+                  multiline
+                  numberOfLines={4}
+                  placeholder={t("address.enterNotes")}
+                  onChangeText={onChange}
+                  value={value}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: error ? "red" : myTheme.primary,
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                    height: 100,
+                  }}
+                />
+                {error && <Text style={{ color: "red" }}>{error.message}</Text>}
+              </View>
+            )}
+          />
+        </View>
 
         {/* Address Type Radio */}
         <View style={{ marginVertical: 8 }}>
@@ -295,35 +328,40 @@ export default function FormAddressContent({
                     justifyContent: "space-between",
                   }}
                 >
-                  {Object.values(AddressEnum).map((type) => (
-                    <View
-                      key={type}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
-                    >
-                      <RadioButton
-                        value={value}
-                        selected={value === selectedType}
-                        onPress={() => {
-                          handleTypeSelection(type);
-                          onChange(type);
+                  <RadioGroup
+                    initialValue={value}
+                    onValueChange={onChange}
+                    style={{
+                      width: "100%",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    {Object.values(AddressEnum).map((type) => (
+                      <View
+                        key={type}
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 6,
                         }}
-                        color={myTheme.primary}
-                        size={18}
-                      />
-                      <Text>
-                        {t(
-                          `address.addressTypeValue${
-                            type.charAt(0) + type.slice(1).toLocaleLowerCase()
-                          }`,
-                          { type }
-                        )}
-                      </Text>
-                    </View>
-                  ))}
+                      >
+                        <RadioButton
+                          value={type}
+                          color={myTheme.primary}
+                          label={t(
+                            `address.addressTypeValue${
+                              type.charAt(0) + type.slice(1).toLocaleLowerCase()
+                            }`,
+                            { type }
+                          )}
+                          size={18}
+                        />
+                      </View>
+                    ))}
+                  </RadioGroup>
                 </View>
                 {error && <Text style={{ color: "red" }}>{error.message}</Text>}
               </View>

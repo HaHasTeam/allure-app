@@ -8,6 +8,9 @@ import { hexToRgba } from "@/utils/color";
 import { myTheme } from "@/constants";
 import LoadingIcon from "../loading/LoadingIcon";
 import { Link } from "expo-router";
+import { UseFormHandleSubmit } from "react-hook-form";
+import { z } from "zod";
+import { CreateOrderSchema } from "@/schema/order.schema";
 
 interface CheckoutTotalProps {
   totalProductDiscount: number;
@@ -18,6 +21,8 @@ interface CheckoutTotalProps {
   totalPayment: number;
   isLoading: boolean;
   formId: string;
+  handleSubmit: UseFormHandleSubmit<z.infer<typeof CreateOrderSchema>>;
+  onSubmit: (values: z.infer<typeof CreateOrderSchema>) => void;
 }
 export default function CheckoutTotal({
   totalProductDiscount,
@@ -28,6 +33,8 @@ export default function CheckoutTotal({
   isLoading,
   totalPayment,
   formId,
+  handleSubmit,
+  onSubmit,
 }: CheckoutTotalProps) {
   const { t } = useTranslation();
   const { groupBuying, groupBuyingOrder } = useCartStore();
@@ -133,6 +140,7 @@ export default function CheckoutTotal({
                 : myTheme.destructive,
             },
           ]}
+          onPress={handleSubmit(onSubmit)}
         >
           {isLoading ? (
             <LoadingIcon color="primaryBackground" />

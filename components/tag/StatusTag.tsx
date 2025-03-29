@@ -55,6 +55,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: myTheme.primary,
     borderRadius: 4,
+    paddingVertical: 3,
+    paddingHorizontal: 4,
   },
   defaultTag: { color: myTheme.gray[800], backgroundColor: myTheme.gray[200] },
   bestVoucher: {

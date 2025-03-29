@@ -50,7 +50,8 @@
     "exclusiveBeautyOffersTitle": "Exclusive Beauty Offers",
     "preOderCardTitle": "Pre-orders",
     "groupBuyingDealsCardTitle": "Group-Buying Deals",
-    "recommendProductsTitle": "Recommend Products"
+    "recommendProductsTitle": "Recommend Products",
+    "preOrderTitle": "Pre-order products"
   },
   "productCard": {
     "currentPrice": "{{price, currency}}",
@@ -181,6 +182,18 @@
     "brandHasGroupProduct": {
       "title": "There no brands selling group-buying products",
       "description": "Please come back later to check out the latest group-buying deals from your favorite brands."
+    },
+    "flashSale": {
+      "title": "No Flash Sale Products",
+      "description": "There are currently no Flash Sale products available. Please check back later for new deals!"
+    },
+    "recommendProducts": {
+      "title": "No Recommended Products",
+      "description": "There are currently no recommended products. Please check back later!"
+    },
+    "preOrder": {
+      "title": "No Pre-order Products",
+      "description": "There are currently no products available for pre-order. Please check back later!"
     },
     "groupBuying": {
       "title": "No group buying deals available",

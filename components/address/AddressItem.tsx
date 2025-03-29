@@ -8,7 +8,7 @@ import { RadioButton } from "react-native-ui-lib";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import StatusTag from "../tag/StatusTag";
 import { hexToRgba } from "@/utils/color";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRef, useState } from "react";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
@@ -38,56 +38,74 @@ const AddressItem = ({
   return (
     <View style={styles.container}>
       <View style={styles.contentWrapper}>
-        {isShowRadioItem ? (
-          <View style={styles.radioContainer}>
-            <RadioButton
-              selected={address?.id === selectedAddressId}
-              id={address?.id}
-              onPress={() => handleAddressSelection(address?.id)}
-              size={16}
-              color={myTheme.primary}
-            />
-          </View>
-        ) : null}
-        <View style={styles.addressDetails}>
-          <View style={styles.headerSection}>
-            <View style={styles.nameSection}>
-              <View style={styles.namePart}>
-                <View
-                  style={[
-                    styles.circleIcon,
-                    { backgroundColor: hexToRgba(myTheme.secondary, 0.5) },
-                  ]}
-                >
-                  <AntDesign name="user" color={myTheme.gray[500]} size={16} />
+        {/* content */}
+        <View style={styles.flex}>
+          {isShowRadioItem ? (
+            <View style={styles.radioContainer}>
+              <RadioButton
+                selected={address?.id === selectedAddressId}
+                id={address?.id}
+                onPress={() => handleAddressSelection(address?.id)}
+                size={16}
+                color={myTheme.primary}
+              />
+            </View>
+          ) : null}
+          <View style={styles.addressDetails}>
+            <View style={styles.headerSection}>
+              <View style={styles.nameSection}>
+                <View style={styles.namePart}>
+                  <View
+                    style={[
+                      styles.circleIcon,
+                      { backgroundColor: hexToRgba(myTheme.secondary, 0.5) },
+                    ]}
+                  >
+                    <AntDesign
+                      name="user"
+                      color={myTheme.gray[500]}
+                      size={16}
+                    />
+                  </View>
+                  <Text style={styles.nameText}>{address?.fullName ?? ""}</Text>
                 </View>
-                <Text style={styles.nameText}>{address?.fullName ?? ""}</Text>
-              </View>
-
-              <View style={styles.phonePart}>
-                <View
-                  style={[
-                    styles.circleIcon,
-                    { backgroundColor: hexToRgba(myTheme.secondary, 0.5) },
-                  ]}
-                >
-                  <AntDesign name="phone" color={myTheme.gray[500]} size={16} />
-                </View>
-                <Text>{address?.phone ?? ""}</Text>
               </View>
             </View>
-
-            <TouchableOpacity
-              style={styles.buttonLink}
-              onPress={() => toggleModalVisibility()}
+          </View>
+          <View>
+            <View style={[styles.flex, styles.alignCenter]}>
+              <View>{address?.isDefault && <StatusTag tag="Default" />}</View>
+              {/* update */}
+              <TouchableOpacity
+                style={styles.buttonLink}
+                onPress={() => toggleModalVisibility()}
+              >
+                {/* <Text style={}>{t("address.update")}</Text> */}
+                <MaterialCommunityIcons
+                  name="pencil"
+                  style={styles.buttonLinkText}
+                />
+              </TouchableOpacity>
+              <UpdateAddressDialog
+                address={address}
+                bottomSheetModalRef={bottomSheetModalRef}
+                setIsModalVisible={setIsModalVisible}
+                toggleModalVisible={toggleModalVisibility}
+              />
+            </View>
+          </View>
+        </View>
+        <View style={styles.phoneAddressContainer}>
+          <View style={styles.phonePart}>
+            <View
+              style={[
+                styles.circleIcon,
+                { backgroundColor: hexToRgba(myTheme.secondary, 0.5) },
+              ]}
             >
-              <Text style={styles.buttonLinkText}>{t("address.update")}</Text>
-            </TouchableOpacity>
-            <UpdateAddressDialog
-              address={address}
-              bottomSheetModalRef={bottomSheetModalRef}
-              setIsModalVisible={setIsModalVisible}
-            />
+              <AntDesign name="phone" color={myTheme.gray[500]} size={16} />
+            </View>
+            <Text>{address?.phone ?? ""}</Text>
           </View>
           <View style={styles.addressLine}>
             <View
@@ -101,7 +119,6 @@ const AddressItem = ({
             <Text style={styles.addressText}>{address?.fullAddress ?? ""}</Text>
           </View>
         </View>
-        <View>{address?.isDefault && <StatusTag tag="Default" />}</View>
       </View>
     </View>
   );
@@ -110,6 +127,13 @@ const AddressItem = ({
 export default AddressItem;
 
 const styles = StyleSheet.create({
+  phoneAddressContainer: {
+    gap: 8,
+    marginLeft: 24,
+  },
+  alignCenter: {
+    alignItems: "center",
+  },
   buttonLinkText: {
     color: myTheme.blue[500],
   },
@@ -125,10 +149,13 @@ const styles = StyleSheet.create({
     borderColor: "#D1D5DB",
     borderRadius: 8,
   },
-  contentWrapper: {
-    padding: 8,
+  flex: {
     flexDirection: "row",
     gap: 8,
+  },
+  contentWrapper: {
+    padding: 8,
+    gap: 6,
   },
   radioContainer: {
     height: 32,
@@ -140,21 +167,19 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   headerSection: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    // flexDirection: "row",
+    // justifyContent: "center",
+    // alignItems: "center",
   },
   nameSection: {
-    flexDirection: "row",
-    alignItems: "center",
+    // flexDirection: "row",
+    // alignItems: "center",
     gap: 8,
   },
   namePart: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    borderRightWidth: 1,
-    borderRightColor: "#D1D5DB",
     paddingRight: 8,
   },
   phonePart: {
