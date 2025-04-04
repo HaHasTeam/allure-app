@@ -58,6 +58,7 @@ function AppLayout() {
         />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
           <Stack.Screen
             name="(profile)/editprofile"
             options={{
@@ -101,6 +102,12 @@ function AppLayout() {
                   }}
                 />
               ),
+            }}
+          />
+          <Stack.Screen
+            name="(products)/product-detail/[productId]"
+            options={{
+              headerShown: false,
             }}
           />
 

@@ -25,9 +25,6 @@
       }
     },
     "production": {
-      "android": {
-        "buildType": "apk"
-      },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://allure-api.kelvinpham.online/allure",
         "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "minh",

@@ -1,15 +1,13 @@
 import Feather from "@expo/vector-icons/Feather";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Header } from "@react-navigation/elements";
 import { Tabs, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ImageBackground, StyleSheet, TouchableOpacity } from "react-native";
+import { ImageBackground, StyleSheet } from "react-native";
 import { Avatar, View } from "react-native-ui-lib";
 
 import {
   myDeviceWidth,
   myFontWeight,
-  myTextColor,
   myTheme,
   width,
 } from "../../../constants/index";
@@ -20,7 +18,6 @@ import { TUserPa } from "@/types/user";
 import ShopHeader from "@/components/header/ShopHeader";
 
 export default function TabLayout() {
-  const router = useRouter();
   const { getProfile } = useUser();
   const [user, setUser] = useState<TUserPa>({
     email: "",
@@ -74,10 +71,6 @@ export default function TabLayout() {
             <ShopHeader
               cartItemCount={3} // Replace with your actual cart count
               notificationCount={5} // Replace with your actual notification count
-              onSearchChange={(text) => {
-                // Handle search text changes here
-                console.log("Search text:", text);
-              }}
             />
           ),
           tabBarIcon: ({ color, focused }) => (
@@ -99,6 +92,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
+          headerShown: false,
           title: "Explore",
           tabBarIcon: ({ color, focused }) => (
             <View

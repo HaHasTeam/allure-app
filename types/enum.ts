@@ -37,6 +37,13 @@ export enum ProductEnum {
   BANNED = "BANNED",
   PRE_ORDER = "PRE_ORDER",
 }
+export enum ProductTagEnum {
+  BEST_SELLER = "BEST_SELLER",
+  HOT = "HOT",
+  NEW = "NEW",
+  PRICE_ASC = "PRICE_ASC",
+  PRICE_DESC = "PRICE_DESC",
+}
 
 export enum FileEnum {
   CERTIFICATE = "CERTIFICATE",
