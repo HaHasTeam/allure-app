@@ -795,7 +795,7 @@
     },
     "proof": "Hình ảnh và video bằng chứng",
     "returnRequestApprovedTitle": "Yêu Cầu Trả Hàng Đã Được Chấp Thuận",
-    "returnRequestApprovedMessage": "Yêu cầu trả hàng của bạn đã được chấp thuận. Vui lòng chuẩn bị, đóng gói và gửi hàng trong vòng {{count}} ngày. Hãy nhớ chụp ảnh và quay video rõ ràng để làm bằng chứng về tình trạng sản phẩm và bao bì nhé.",
+    "returnRequestApprovedMessage": "Yêu cầu trả hàng của bạn đã được chấp thuận. Vui lòng chuẩn bị và đóng gói hàng trong vòng {{count}} ngày. Shipper của thương hiệu chúng tôi sẽ liên hệ bạn để sắp xếp lấy hàng. Hãy nhớ chụp ảnh và quay video rõ ràng để làm bằng chứng về tình trạng sản phẩm và bao bì nhé.",
     "rejectCancelOrderReason": {
       "SHIPPED": "Đơn hàng đã được giao cho đơn vị vận chuyển và không thể hủy.",
       "PROCESSED": "Đơn hàng đã được xử lý và sẵn sàng giao hàng.",
@@ -803,7 +803,9 @@
       "SUSPICIOUS_ACTIVITY": "Yêu cầu hủy đơn hàng có dấu hiệu gian lận hoặc đáng ngờ.",
       "OTHER": "Khác"
     },
-    "processSuccess": "Yêu cầu hủy đơn đã được xử lý thành công!"
+    "processSuccess": "Yêu cầu hủy đơn đã được xử lý thành công!",
+    "time": "Lúc",
+    "by": "Bởi"
   },
   "toast": {
     "success": "Yêu cầu của bạn đã được xử lý thành công, tiếp tục công việc của bạn.",
