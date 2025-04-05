@@ -30,6 +30,7 @@ import { hexToRgba } from "@/utils/color";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import VoucherPlatformList from "../voucher/VoucherPlatformList";
 import { useToast } from "@/contexts/ToastContext";
+import Confirmation from "../confirmation/Confirmation";
 
 interface CartFooterProps {
   cartItemCountAll: number;
@@ -69,10 +70,24 @@ export default function CartFooter({
 }: CartFooterProps) {
   const { t } = useTranslation();
   const router = useRouter();
+  const handleServerError = useHandleServerError();
   const { showToast } = useToast();
+  const queryClient = useQueryClient();
   const [openWarningDialog, setOpenWarningDialog] = useState(false);
   const [openVoucherList, setOpenVoucherList] = useState(false);
   const [openTotalPrice, setOpenTotalPrice] = useState(false);
+  const [openConfirmDeleteAllCartDialog, setOpenConfirmDeleteAllCartDialog] =
+    useState(false);
+
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const toggleModalVisibility = () => {
+    if (openConfirmDeleteAllCartDialog) {
+      bottomSheetModalRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetModalRef.current?.present(); // Open modal if it's not visible
+    }
+    setOpenConfirmDeleteAllCartDialog(!openConfirmDeleteAllCartDialog); // Toggle the state
+  };
 
   const bottomSheetPlatformVoucherModalRef = useRef<BottomSheetModal>(null);
   const togglePlatformVoucherVisibility = () => {
@@ -161,6 +176,34 @@ export default function CartFooter({
     } else setOpenWarningDialog(true);
   };
 
+  // handle remove cart items api starts
+  const { mutateAsync: removeAllCartItemFn } = useMutation({
+    mutationKey: [removeAllCartItemApi.mutationKey],
+    mutationFn: removeAllCartItemApi.fn,
+    onSuccess: () => {
+      showToast(
+        t("delete.cart.success", { amount: t("delete.cart.All") }),
+        "success",
+        4000
+      ),
+        queryClient.invalidateQueries({
+          queryKey: [getMyCartApi.queryKey],
+        });
+    },
+  });
+
+  // handle remove cart items function starts
+  async function handleRemoveAllCartItem() {
+    try {
+      await removeAllCartItemFn();
+    } catch (error) {
+      console.log(error);
+      handleServerError({
+        error,
+      });
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -247,13 +290,24 @@ export default function CartFooter({
           <View style={styles.rightSection}>
             <View style={styles.totalSection}>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>
-                  {t("cart.total")} ({cartItemCount} {t("cart.products")}):
-                </Text>
-                <View style={styles.priceContainer}>
-                  <Text style={styles.finalPrice}>
-                    {t("productCard.price", { price: totalFinalPrice })}
+                <View style={styles.buttonGroup}>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => toggleModalVisibility()}
+                  >
+                    <Feather name="trash-2" size={24} color={myTheme.white} />
+                    <Text style={styles.buttonText}>{t("cart.removeAll")}</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.commonFlex}>
+                  <Text style={styles.totalLabel}>
+                    {t("cart.total")} ({cartItemCount} {t("cart.products")}):
                   </Text>
+                  <View style={styles.priceContainer}>
+                    <Text style={styles.finalPrice}>
+                      {t("productCard.price", { price: totalFinalPrice })}
+                    </Text>
+                  </View>
                 </View>
               </View>
               {savedPrice && savedPrice > 0 ? (
@@ -304,7 +358,23 @@ export default function CartFooter({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </View>{" "}
+      <Confirmation
+        action="delete"
+        item="cart"
+        title={t("delete.cart.title", { amount: t("delete.cart.all") })}
+        description={t("delete.cart.description", {
+          amount: t("delete.cart.all"),
+        })}
+        onConfirm={() => {
+          // Handle delete multiple confirmation
+          handleRemoveAllCartItem();
+          setOpenConfirmDeleteAllCartDialog(false);
+        }}
+        bottomSheetModalRef={bottomSheetModalRef}
+        setIsModalVisible={setOpenConfirmDeleteAllCartDialog}
+        toggleModalVisibility={toggleModalVisibility}
+      />
     </View>
   );
 }
@@ -376,9 +446,19 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     gap: 8,
   },
+  deleteButton: {
+    backgroundColor: myTheme.destructive,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
   buttonText: {
     color: myTheme.white,
     fontSize: 14,
+    fontWeight: 600,
   },
   rightSection: {
     width: "100%",

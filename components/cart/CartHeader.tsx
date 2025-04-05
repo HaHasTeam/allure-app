@@ -186,7 +186,7 @@ export default function CartHeader({
               </Text>
             </TouchableOpacity>
           </View>
-          <View style={styles.buttonGroup}>
+          {/* <View style={styles.buttonGroup}>
             <TouchableOpacity
               style={styles.commonButton}
               onPress={() => toggleModalVisibility()}
@@ -194,29 +194,30 @@ export default function CartHeader({
               <Feather name="trash-2" size={24} color={myTheme.red[500]} />
               <Text style={styles.buttonText}>{t("cart.removeAll")}</Text>
             </TouchableOpacity>
-          </View>
-        </View>
-        {selectedCartItems && selectedCartItems?.length > 0 && (
-          <View style={styles.moreAction}>
-            <TouchableOpacity
-              style={styles.clearAllContainer}
-              onPress={() => setSelectedCartItems([])}
-            >
-              <Feather name="x-circle" size={20} color={myTheme.gray[400]} />
-              <Text style={styles.checkboxLabel}>{t("cart.clearAll")}</Text>
-            </TouchableOpacity>
+          </View> */}
 
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => toggleModalMultiVisibility()}
-            >
-              <Feather name="trash-2" size={20} color="red" />
-              <Text style={styles.deleteText}>{t("cart.remove")}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          {selectedCartItems && selectedCartItems?.length > 0 && (
+            <View style={styles.moreAction}>
+              <TouchableOpacity
+                style={styles.clearAllContainer}
+                onPress={() => setSelectedCartItems([])}
+              >
+                <Feather name="x-circle" size={20} color={myTheme.gray[400]} />
+                <Text style={styles.checkboxLabel}>{t("filter.reset")}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.deleteButton}
+                onPress={() => toggleModalMultiVisibility()}
+              >
+                <Feather name="trash-2" size={20} color="red" />
+                <Text style={styles.deleteText}>{t("cart.remove")}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </View>
-      <Confirmation
+      {/* <Confirmation
         action="delete"
         item="cart"
         title={t("delete.cart.title", { amount: t("delete.cart.all") })}
@@ -231,7 +232,7 @@ export default function CartHeader({
         bottomSheetModalRef={bottomSheetModalRef}
         setIsModalVisible={setOpenConfirmDeleteAllCartDialog}
         toggleModalVisibility={toggleModalVisibility}
-      />
+      /> */}
       <Confirmation
         action="delete"
         item="cart"

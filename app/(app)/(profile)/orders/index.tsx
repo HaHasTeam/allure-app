@@ -271,20 +271,26 @@ export default function ProfileOrder() {
               )}
             </View>
 
-            {(activeTab === "request" && requests?.length === 0) ||
-            (activeTab !== "request" && orders?.length === 0) ? (
+            {(activeTab === "request" &&
+              !isLoading &&
+              requests?.length === 0) ||
+            (activeTab !== "request" && !isLoading && orders?.length === 0) ? (
               renderEmpty()
-            ) : activeTab === "request" && requests?.length > 0 ? (
+            ) : activeTab === "request" &&
+              !isLoading &&
+              requests?.length > 0 ? (
               <FlatList
                 data={requests}
+                showsHorizontalScrollIndicator={false}
                 renderItem={renderRequestItem}
                 keyExtractor={(item) => item?.id.toString()}
                 contentContainerStyle={styles.listContainer}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
               />
-            ) : activeTab !== "request" && orders?.length > 0 ? (
+            ) : activeTab !== "request" && !isLoading && orders?.length > 0 ? (
               <FlatList
                 data={orders}
+                showsHorizontalScrollIndicator={false}
                 renderItem={renderOrderItem}
                 keyExtractor={(item) => item?.id.toString()}
                 contentContainerStyle={styles.listContainer}

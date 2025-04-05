@@ -187,8 +187,8 @@ export const OrderRequestFilter = ({ onFilterChange }: FilterProps) => {
                 onPress={clearFilters}
               >
                 <MyText
-                  text={t("request.clearAll")}
-                  styleProps={{ color: myTheme.destructive[80] }}
+                  text={t("filter.reset")}
+                  styleProps={{ color: myTheme.gray[500] }}
                 />
               </TouchableOpacity>
             ) : null

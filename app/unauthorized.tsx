@@ -17,7 +17,7 @@ const UnauthorizedScreen = () => {
       <Stack.Screen options={{ title: t("error.forbiddenTitle") }} />
       <View style={styles.container}>
         <View style={styles.imageContainer}>
-          <Image source={forbidden} resizeMode="cover" />
+          <Image source={forbidden} resizeMode="contain" style={styles.image} />
         </View>
 
         <View style={styles.content}>

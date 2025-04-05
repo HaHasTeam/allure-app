@@ -658,6 +658,7 @@
     "BANK_TRANSFER": "Credit Card/Debit Card"
   },
   "order": {
+    "myOrder": "My Orders",
     "requestManagement": "Request Management",
     "loading": "Loading order...",
     "viewDetail": "View details",

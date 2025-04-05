@@ -654,6 +654,7 @@
     "BANK_TRANSFER": "Thẻ tín dụng/ghi nợ"
   },
   "order": {
+    "myOrder": "Đơn Hàng Của Tôi",
     "requestManagement": "Quản Lý Yêu Cầu",
     "loading": "Đang tải đơn hàng...",
     "viewDetail": "Xem chi tiết",
