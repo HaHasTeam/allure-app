@@ -36,7 +36,7 @@ export default function SearchOrders({ onSearch }: SearchOrdersProps) {
         <View style={styles.searchWrapper}>
           <Feather
             name="search"
-            size={20}
+            size={16}
             color={myTheme.mutedForeground}
             style={styles.searchIcon}
           />
@@ -71,11 +71,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 8,
     overflow: "hidden",
-    elevation: 2, // Shadow for Android
-    shadowColor: "#000", // Shadow for iOS
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
   },
   searchWrapper: {
     flex: 1,
@@ -93,26 +88,26 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 0,
-    paddingVertical: 10,
+    paddingVertical: 6,
     paddingHorizontal: 8,
-    fontSize: 16,
+    fontSize: 12,
   },
   submitButton: {
     backgroundColor: myTheme.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     borderTopRightRadius: 6,
     borderBottomRightRadius: 6,
   },
   submitButtonText: {
     color: myTheme.primaryForeground,
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "500",
   },
   resetButton: {
     marginLeft: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 11,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     borderWidth: 1,
     borderColor: hexToRgba(myTheme.primary, 0.4),
     borderRadius: 6,
@@ -120,7 +115,7 @@ const styles = StyleSheet.create({
   },
   resetButtonText: {
     color: myTheme.primary,
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "500",
   },
 });

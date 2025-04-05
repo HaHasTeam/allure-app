@@ -205,14 +205,20 @@ export const OrderRequestFilter = ({ onFilterChange }: FilterProps) => {
               ? `${t("request.typeSelected")}: ${typeFilters.length}`
               : t("request.selectType")
           }
-          onChange={(value) => toggleType(value)}
+          onChange={toggleType}
           showSearch
           searchPlaceholder={t("request.searchType")}
-          searchStyle={styles.searchInput}
           containerStyle={styles.pickerContainer}
-        >
-          {requestTypes.map((item) => renderTypeItem(item))}
-        </Picker>
+          floatingPlaceholder
+          enableModalBlur={false}
+          topBarProps={{ title: "Filters" }}
+          mode={Picker.modes.MULTI}
+          searchStyle={{
+            color: myTheme.primary,
+            placeholderTextColor: myTheme.gray[500],
+          }}
+          items={requestTypes}
+        ></Picker>
       </View>
 
       {/* Request Status Filter */}
@@ -227,8 +233,15 @@ export const OrderRequestFilter = ({ onFilterChange }: FilterProps) => {
           onChange={(value) => toggleStatus(value)}
           showSearch
           searchPlaceholder={t("request.searchStatus")}
-          searchStyle={styles.searchInput}
           containerStyle={styles.pickerContainer}
+          enableModalBlur={false}
+          topBarProps={{ title: "Filters" }}
+          mode={Picker.modes.MULTI}
+          searchStyle={{
+            color: myTheme.primary,
+            placeholderTextColor: myTheme.gray[500],
+          }}
+          items={requestTypes}
         >
           {requestStatuses.map((item) => renderStatusItem(item))}
         </Picker>
