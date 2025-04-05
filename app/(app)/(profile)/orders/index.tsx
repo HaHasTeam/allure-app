@@ -1,4 +1,11 @@
-import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
+import {
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React from "react";
 
 import { useMutation } from "@tanstack/react-query";
@@ -24,6 +31,7 @@ import Empty from "@/components/empty";
 import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
 import { myTheme } from "@/constants";
 import { Picker } from "react-native-ui-lib";
+import TriggerList from "@/components/ui/tabs";
 
 export default function ProfileOrder() {
   const { t } = useTranslation();
@@ -236,14 +244,32 @@ export default function ProfileOrder() {
     ));
   };
 
+  const renderItem = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      style={[
+        styles.triggerButton,
+        activeTab === item.value && styles.activeTrigger,
+      ]}
+      onPress={() => setActiveTab(item.value)}
+    >
+      <Text
+        style={[
+          styles.triggerText,
+          activeTab === item.value && styles.activeText,
+        ]}
+      >
+        {item.text}
+      </Text>
+    </TouchableOpacity>
+  );
+
   return (
     <>
       {isLoading && <LoadingContentLayer />}
-
       <View style={styles.container}>
         <View style={styles.contentContainer}>
           {/* Dropdown for mobile */}
-          <View style={styles.pickerContainer}>
+          {/* <View style={styles.pickerContainer}>
             <Picker
               value={activeTab}
               onChange={(value) => setActiveTab((value as string) ?? "all")}
@@ -256,7 +282,11 @@ export default function ProfileOrder() {
             >
               {renderOptions()}
             </Picker>
-          </View>
+          </View> */}
+          <TriggerList
+            renderItem={renderItem}
+            simplifiedTriggers={simplifiedTriggers}
+          />
 
           <View style={styles.contentWrapper}>
             <View style={styles.searchContainer}>
@@ -305,14 +335,35 @@ export default function ProfileOrder() {
 }
 
 const styles = StyleSheet.create({
+  triggerButton: {
+    paddingHorizontal: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+    marginRight: 16,
+  },
+  activeTrigger: {
+    borderBottomColor: myTheme.primary,
+  },
+  triggerText: {
+    fontSize: 16,
+    color: "#666666",
+  },
+  activeText: {
+    color: myTheme.primary,
+    fontWeight: "600",
+  },
   container: {
     width: "100%",
     alignItems: "center",
+    flex: 1,
   },
   contentContainer: {
     width: "100%",
     padding: 16,
     maxWidth: Dimensions.get("window").width,
+    flex: 1,
   },
   pickerContainer: {
     marginBottom: 16,
@@ -324,6 +375,7 @@ const styles = StyleSheet.create({
   },
   contentWrapper: {
     marginTop: 8,
+    flex: 1,
   },
   searchContainer: {
     flexDirection: "row",

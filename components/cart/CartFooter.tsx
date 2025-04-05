@@ -358,7 +358,7 @@ export default function CartFooter({
             </TouchableOpacity>
           </View>
         </View>
-      </View>{" "}
+      </View>
       <Confirmation
         action="delete"
         item="cart"
