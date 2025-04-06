@@ -10,6 +10,8 @@ import {
 } from "react";
 import { Incubator, Colors } from "react-native-ui-lib";
 import { setGlobalToast } from "@/utils";
+import { myTheme } from "@/constants";
+import { hexToRgba } from "@/utils/color";
 
 // Define toast types
 export type ToastType = "success" | "error" | "info" | "warning";
@@ -43,10 +45,16 @@ interface ToastProviderProps {
 
 // Toast colors based on type
 const toastColors = {
-  success: Colors.green30,
-  error: Colors.red30,
-  info: Colors.blue30,
-  warning: Colors.orange30,
+  success: myTheme.green[100],
+  error: myTheme.red[100],
+  info: myTheme.blue[100],
+  warning: myTheme.yellow[100],
+};
+const textColors = {
+  success: myTheme.green[500],
+  error: myTheme.red[500],
+  info: myTheme.blue[500],
+  warning: myTheme.yellow[500],
 };
 
 export function ToastProvider({ children }: ToastProviderProps) {
@@ -91,7 +99,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
         position={"top"}
         message={message}
         backgroundColor={toastColors[type]}
-        messageStyle={{ color: Colors.white }}
+        messageStyle={{ color: textColors[type] }}
         onDismiss={hideToast}
         autoDismiss={duration}
         action={action}
@@ -100,7 +108,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
           marginTop: 50, // Add some top margin to avoid status bar
           width: "90%",
           alignSelf: "center",
-          borderRadius: 8,
+          borderRadius: 6,
         }}
       />
     </ToastContext.Provider>

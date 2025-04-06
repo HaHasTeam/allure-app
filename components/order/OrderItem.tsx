@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dispatch, SetStateAction, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useHandleServerError from "@/hooks/useHandleServerError";
-import { useToast } from "@/hooks/useToast";
 
 import { IBrand } from "@/types/brand";
 import { OrderEnum, RequestStatusEnum, ShippingStatusEnum } from "@/types/enum";
@@ -30,6 +29,7 @@ import MyText from "../common/MyText";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import ImageWithFallback from "../image/ImageWithFallBack";
 import { Feather, Ionicons } from "@expo/vector-icons";
+import { useToast } from "@/contexts/ToastContext";
 
 interface OrderItemProps {
   brand: IBrand | null;
@@ -98,7 +98,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
   });
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const { successToast } = useToast();
+  const { showToast } = useToast();
   const queryClient = useQueryClient();
   const handleServerError = useHandleServerError();
   const { mutateAsync: createCartItemFn } = useMutation({
@@ -108,10 +108,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
       queryClient.invalidateQueries({
         queryKey: [getMyCartApi.queryKey],
       });
-      successToast({
-        message: t("cart.addToCartSuccess"),
-        isShowDescription: false,
-      });
+      showToast(t("cart.addToCartSuccess"), "success", 4000);
     },
   });
 
@@ -141,9 +138,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
     mutationKey: [updateOrderStatusApi.mutationKey],
     mutationFn: updateOrderStatusApi.fn,
     onSuccess: async () => {
-      successToast({
-        message: t("order.receivedOrderStatusSuccess"),
-      });
+      showToast(t("order.receivedOrderStatusSuccess"), "success", 4000);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [getOrderByIdApi.queryKey] }),
         queryClient.invalidateQueries({
