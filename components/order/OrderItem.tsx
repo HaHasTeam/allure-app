@@ -45,6 +45,8 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
     useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [openCancelOrderDialog, setOpenCancelOrderDialog] = useState(false);
+  const [openRequestReturnOrderDialog, setOpenRequestReturnOrderDialog] =
+    useState<boolean>(false);
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const toggleModalVisibility = () => {
@@ -62,7 +64,16 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
     } else {
       bottomSheetModalRequestCancelRef.current?.present(); // Open modal if it's not visible
     }
-    setOpenCancelOrderDialog(!openRequestCancelOrderDialog); // Toggle the state
+    setOpenRequestCancelOrderDialog(!openRequestCancelOrderDialog); // Toggle the state
+  };
+  const bottomSheetModalRequestReturnRef = useRef<BottomSheetModal>(null);
+  const toggleModalRequestReturnVisibility = () => {
+    if (openRequestReturnOrderDialog) {
+      bottomSheetModalRequestReturnRef.current?.close(); // Close modal if it's visible
+    } else {
+      bottomSheetModalRequestReturnRef.current?.present(); // Open modal if it's not visible
+    }
+    setOpenRequestReturnOrderDialog(!openRequestReturnOrderDialog); // Toggle the state
   };
 
   const { data: cancelAndReturnRequestData } = useQuery({
@@ -248,7 +259,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                   styleProps={styles.chatButtonText}
                 />
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.viewShopButton}
                 onPress={() => router.push(`/brands/${brand?.id}`)}
               >
@@ -257,7 +268,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                   text={t("brand.viewShop")}
                   styleProps={styles.viewShopText}
                 />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
           {/* Order and request status */}
@@ -338,7 +349,12 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                     text={t(
                       `request.status.BRAND_${cancelAndReturnRequestData?.data?.cancelRequest?.status}`
                     )}
-                    styleProps={styles.statusBadgeText}
+                    styleProps={[
+                      styles.statusBadgeText,
+                      getRequestStatusColor(
+                        cancelAndReturnRequestData?.data?.cancelRequest?.status
+                      ),
+                    ]}
                   />
                 </View>
               </View>
@@ -362,7 +378,13 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                       text={t(
                         `request.status.BRAND_${cancelAndReturnRequestData?.data?.refundRequest?.status}`
                       )}
-                      styleProps={styles.statusBadgeText}
+                      styleProps={[
+                        styles.statusBadgeText,
+                        getRequestStatusColor(
+                          cancelAndReturnRequestData?.data?.refundRequest
+                            ?.status
+                        ),
+                      ]}
                     />
                   </View>
                 </View>
@@ -393,7 +415,14 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                               text={t(
                                 `request.status.ADMIN_${cancelAndReturnRequestData?.data?.refundRequest?.rejectedRefundRequest?.status}`
                               )}
-                              styleProps={styles.statusBadgeText}
+                              styleProps={[
+                                styles.statusBadgeText,
+                                getRequestStatusColor(
+                                  cancelAndReturnRequestData?.data
+                                    ?.refundRequest?.rejectedRefundRequest
+                                    ?.status
+                                ),
+                              ]}
                             />
                           </View>
                         </View>
@@ -431,7 +460,13 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                       text={t(
                         `request.status.ADMIN_${cancelAndReturnRequestData?.data?.refundRequest?.status}`
                       )}
-                      styleProps={styles.statusBadgeText}
+                      styleProps={[
+                        styles.statusBadgeText,
+                        getRequestStatusColor(
+                          cancelAndReturnRequestData?.data?.refundRequest
+                            ?.status ?? ""
+                        ),
+                      ]}
                     />
                   </View>
                 </View>
@@ -470,7 +505,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                 ShippingStatusEnum.WAIT_FOR_CONFIRMATION) && (
               <TouchableOpacity
                 style={styles.outlineButton}
-                onPress={() => setOpenCancelOrderDialog(true)}
+                onPress={() => toggleModalVisibility()}
               >
                 <MyText
                   text={t("order.cancelOrder")}
@@ -483,7 +518,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
               !cancelAndReturnRequestData?.data?.cancelRequest && (
                 <TouchableOpacity
                   style={styles.outlineButton}
-                  onPress={() => setOpenRequestCancelOrderDialog(true)}
+                  onPress={() => toggleModalRequestCancelVisibility()}
                 >
                   <MyText
                     text={t("order.cancelOrder")}
@@ -495,7 +530,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
             {showReturnButton && (
               <TouchableOpacity
                 style={styles.outlineButton}
-                onPress={() => setOpenReqReturnDialog(true)}
+                onPress={() => toggleModalRequestReturnVisibility()}
               >
                 <MyText
                   text={t("order.returnOrder")}
@@ -512,7 +547,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                 }}
               >
                 {isLoading ? (
-                  <LoadingIcon color="primaryBackground" />
+                  <LoadingIcon color="primaryBackground" size="small" />
                 ) : (
                   <MyText
                     text={t("order.received")}
@@ -528,7 +563,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                 onPress={() => handleCreateCartItem()}
               >
                 {isProcessing ? (
-                  <LoadingIcon color="primaryBackground" />
+                  <LoadingIcon color="primaryBackground" size="small" />
                 ) : (
                   <MyText
                     text={t("order.buyAgain")}
@@ -554,11 +589,12 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
         toggleModalVisibility={toggleModalRequestCancelVisibility}
         onOpenChange={setOpenRequestCancelOrderDialog}
         orderId={orderItem?.id ?? ""}
+        setIsTrigger={setIsTrigger}
       />
       <RequestReturnOrderDialog
-        open={openReqReturnDialog}
-        setOpen={setOpenReqReturnDialog}
-        onOpenChange={setOpenReqReturnDialog}
+        bottomSheetModalRef={bottomSheetModalRequestReturnRef}
+        setIsModalVisible={setOpenRequestReturnOrderDialog}
+        toggleModalVisibility={toggleModalRequestReturnVisibility}
         setIsTrigger={setIsTrigger}
         orderId={orderItem?.id ?? ""}
       />
@@ -577,7 +613,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   container: {
-    padding: 16,
+    padding: 10,
   },
   header: {
     flexDirection: "column-reverse",
@@ -588,8 +624,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   brandContainer: {
-    flexDirection: "column",
+    flexDirection: "row",
     gap: 8,
+    flexWrap: "wrap",
   },
   brandNameContainer: {
     flexDirection: "row",
@@ -597,7 +634,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   brandName: {
-    fontWeight: "500",
+    width: "100%",
+    flex: 1,
+    fontWeight: 500,
+    textOverflow: "ellipsis",
   },
   brandButtonsContainer: {
     flexDirection: "row",
@@ -613,6 +653,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 6,
     gap: 4,
+    width: "auto",
   },
   chatButtonText: {
     color: "white",
@@ -628,6 +669,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 6,
     gap: 8,
+    width: "auto",
   },
   viewShopText: {
     color: myTheme.primary,
@@ -665,7 +707,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   requestStatusContainer: {
-    marginTop: 8,
+    marginTop: 4,
     paddingVertical: 8,
     borderTopWidth: 1,
     borderBottomWidth: 1,
@@ -693,7 +735,6 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontWeight: "700",
     fontSize: 12,
-    color: "white",
   },
   rejectedRequestContainer: {
     marginTop: 4,
@@ -707,7 +748,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "flex-end",
     gap: 8,
-    paddingTop: 16,
+    paddingTop: 10,
   },
   lastUpdatedText: {
     color: "#374151",
@@ -722,9 +763,10 @@ const styles = StyleSheet.create({
   outlineButton: {
     borderWidth: 1,
     borderColor: myTheme.primary,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 6,
+    width: "auto",
   },
   outlineButtonText: {
     color: myTheme.primary,
@@ -734,6 +776,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
+    width: "auto",
   },
   primaryButtonText: {
     color: "white",

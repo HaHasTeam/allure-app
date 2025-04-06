@@ -1421,5 +1421,9 @@
       "ADMIN_REJECTED": "Quản trị viên đã từ chối",
       "BRAND_REJECTED": "Thương hiệu đã từ chối"
     }
+  },
+  "picker": {
+    "filters": "Bộ lọc",
+    "reasons": "Lý do"
   }
 }

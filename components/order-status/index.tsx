@@ -12,13 +12,13 @@ interface OrderStatusProps {
 export default function OrderStatus({
   tag,
   text,
-  size = "medium",
+  size = "small",
 }: OrderStatusProps) {
   const { t } = useTranslation();
 
   const styles = StyleSheet.create({
     container: {
-      padding: 8, // p-2 equivalent
+      padding: 6, // p-2 equivalent
       borderRadius: 9999, // rounded-full
       alignSelf: "baseline",
     },
@@ -26,14 +26,24 @@ export default function OrderStatus({
       textTransform: "uppercase",
       fontWeight: "bold",
     },
+    textSmall: {
+      fontSize: 10,
+    },
+    textMedium: {
+      fontSize: 12,
+    },
+    textLarge: {
+      fontSize: 16,
+    },
     sizeSmall: {
-      paddingHorizontal: 4, // px-1
-      fontSize: 12, // text-xs
+      paddingHorizontal: 8, // px-1
+      paddingVertical: 3,
+      fontSize: 10, // text-xs
     },
     sizeMedium: {
       paddingHorizontal: 8, // px-2
       paddingVertical: 4, // py-1
-      fontSize: 14, // text-sm (base)
+      fontSize: 12, // text-sm (base)
     },
     sizeMediumSm: {
       fontSize: 12, // sm:text-xs
@@ -144,10 +154,18 @@ export default function OrderStatus({
       : size === "large"
       ? [styles.sizeLarge, styles.sizeLargeMd, styles.sizeLargeSm]
       : [styles.sizeMedium, styles.sizeMediumSm];
+  const textSize =
+    size === "small"
+      ? styles.textSmall
+      : size === "large"
+      ? styles.textLarge
+      : styles.textMedium;
 
   return (
     <View style={[styles.container, bgColor, sizeStyle]}>
-      <Text style={[styles.text, tagColor]}>{text ? text : tagText}</Text>
+      <Text style={[styles.text, textSize, tagColor]}>
+        {text ? text : tagText}
+      </Text>
     </View>
   );
 }

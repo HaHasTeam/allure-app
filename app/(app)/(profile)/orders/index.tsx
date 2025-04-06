@@ -140,6 +140,7 @@ export default function ProfileOrder() {
           statusList: requestStatuses.length > 0 ? requestStatuses : undefined,
           search: searchQuery || undefined,
         };
+        console.log(requestTypes);
         await getMyRequestFn(requestFilters);
       } else {
         let statusFilters;
@@ -337,6 +338,7 @@ export default function ProfileOrder() {
 const styles = StyleSheet.create({
   triggerButton: {
     paddingHorizontal: 2,
+    paddingVertical: 3,
     justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: 2,
@@ -352,7 +354,7 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: myTheme.primary,
-    fontWeight: "600",
+    fontWeight: 600,
   },
   container: {
     width: "100%",
@@ -361,7 +363,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     width: "100%",
-    padding: 16,
+    padding: 10,
     maxWidth: Dimensions.get("window").width,
     flex: 1,
   },
@@ -390,7 +392,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   separator: {
-    height: 16,
+    height: 10,
   },
   orderItemContainer: {
     backgroundColor: myTheme.white,

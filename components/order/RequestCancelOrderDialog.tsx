@@ -32,6 +32,7 @@ import {
   TouchableWithoutFeedback,
 } from "@gorhom/bottom-sheet";
 import { useToast } from "@/contexts/ToastContext";
+import LoadingIcon from "../loading/LoadingIcon";
 
 interface RequestCancelOrderDialogProps {
   orderId: string;
@@ -250,7 +251,11 @@ export default function RequestCancelOrderDialog({
               disabled={isLoading}
             >
               <Text style={styles.buttonText}>
-                {isLoading ? "Loading..." : t(`button.ok`)}
+                {isLoading ? (
+                  <LoadingIcon color="white" size="small" />
+                ) : (
+                  t(`button.ok`)
+                )}
               </Text>
             </TouchableOpacity>
           </View>

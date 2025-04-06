@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 8,
     fontSize: 12,
+    textOverflow: "ellipsis",
   },
   submitButton: {
     backgroundColor: myTheme.primary,

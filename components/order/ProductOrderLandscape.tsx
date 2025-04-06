@@ -41,7 +41,9 @@ const ProductOrderLandscape = ({
         />
       </View>
       <View style={styles.contentContainer}>
-        <Text style={styles.productName}>{product?.name}</Text>
+        <Text style={styles.productName} numberOfLines={2}>
+          {product?.name}
+        </Text>
         {productClassification?.type === "CUSTOM" && (
           <Text style={styles.classificationText}>
             {t("order.classification")}:{" "}
@@ -52,7 +54,9 @@ const ProductOrderLandscape = ({
         )}
         <Text style={styles.quantity}>x{orderDetail?.quantity}</Text>
         {productType && productType !== "NORMAL" && (
-          <ProductTag tag={productType} /> // Assuming ProductTag is kept as is
+          <View style={styles.productTagContainer}>
+            <ProductTag tag={productType} />
+          </View>
         )}
       </View>
       <View style={styles.priceContainer}>
@@ -84,6 +88,12 @@ const ProductOrderLandscape = ({
 };
 
 const styles = StyleSheet.create({
+  productTagContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginTop: 4,
+  },
   container: {
     flexDirection: "row",
     gap: 16,
@@ -103,8 +113,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
+    textOverflow: "ellipsis",
   },
   classificationText: {
     fontSize: 14,

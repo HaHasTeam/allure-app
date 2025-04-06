@@ -1425,5 +1425,9 @@
       "ADMIN_REJECTED": "Rejected by Admin",
       "BRAND_REJECTED": "Rejected by Brand"
     }
+  },
+  "picker": {
+    "filters": "Filters",
+    "reasons": "Reasons"
   }
 }

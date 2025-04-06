@@ -162,7 +162,7 @@ const AlertMessage = ({
         style,
       ]}
     >
-      <View>
+      <View style={styles.fullWidth}>
         {title && (
           <Text
             style={[
@@ -227,14 +227,15 @@ const styles = StyleSheet.create({
   titleWithIcon: {
     marginLeft: 20,
   },
+  fullWidth: {
+    width: "100%",
+  },
   messageContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
-  message: {
-    flexShrink: 1,
-  },
+  message: {},
   button: {
     backgroundColor: myTheme.primary,
     padding: 8,

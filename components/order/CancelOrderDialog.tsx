@@ -35,8 +35,9 @@ import {
   TouchableWithoutFeedback,
 } from "@gorhom/bottom-sheet";
 import { useToast } from "@/contexts/ToastContext";
-import { Picker } from "react-native-ui-lib";
+import { Picker, PickerValue } from "react-native-ui-lib";
 import { myTheme } from "@/constants";
+import LoadingIcon from "../loading/LoadingIcon";
 
 interface CancelOrderDialogProps {
   orderId: string;
@@ -149,6 +150,14 @@ export default function CancelOrderDialog({
     setIsModalVisible(false);
   };
 
+  const renderPickerValue = (value: PickerValue) => {
+    return (
+      <Text style={styles.pickerText}>
+        {value ? value : t("order.cancelOrderReason.selectAReason")}
+      </Text>
+    );
+  };
+
   return (
     <BottomSheetModal
       ref={bottomSheetModalRef}
@@ -176,9 +185,12 @@ export default function CancelOrderDialog({
             name="reason"
             render={({ field: { onChange, value } }) => (
               <View style={styles.selectContainer}>
-                <Text style={styles.label}>
-                  {t("order.cancelOrderReason.reason")} *
-                </Text>
+                <View style={styles.labelContainer}>
+                  <Text style={styles.textRed}>* </Text>
+                  <Text style={styles.label}>
+                    {t("order.cancelOrderReason.reason")}
+                  </Text>
+                </View>
                 <Picker
                   value={value}
                   placeholder={t("order.cancelOrderReason.selectAReason")}
@@ -189,6 +201,9 @@ export default function CancelOrderDialog({
                     );
                   }}
                   style={styles.picker}
+                  containerStyle={styles.pickerContainer}
+                  topBarProps={{ title: t("picker.reasons") }}
+                  renderInput={() => renderPickerValue(value)}
                 >
                   {reasons.map((reason, index) => (
                     <Picker.Item
@@ -212,9 +227,12 @@ export default function CancelOrderDialog({
               name="otherReason"
               render={({ field: { onChange, value } }) => (
                 <View style={styles.textAreaContainer}>
-                  <Text style={styles.label}>
-                    {t("order.cancelOrderReason.otherReason")} *
-                  </Text>
+                  <View style={styles.labelContainer}>
+                    <Text style={styles.textRed}>* </Text>
+                    <Text style={styles.label}>
+                      {t("order.cancelOrderReason.otherReason")}
+                    </Text>
+                  </View>
                   <TextInput
                     style={styles.textArea}
                     onChangeText={onChange}
@@ -244,7 +262,7 @@ export default function CancelOrderDialog({
                 handleReset();
               }}
             >
-              <Text style={styles.buttonText}>{t(`button.cancel`)}</Text>
+              <Text style={styles.buttonOutlineText}>{t(`button.cancel`)}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonPrimary}
@@ -252,7 +270,11 @@ export default function CancelOrderDialog({
               disabled={isLoading}
             >
               <Text style={styles.buttonText}>
-                {isLoading ? "Loading..." : t(`button.ok`)}
+                {isLoading ? (
+                  <LoadingIcon color="white" size="small" />
+                ) : (
+                  t(`button.ok`)
+                )}
               </Text>
             </TouchableOpacity>
           </View>
@@ -263,6 +285,14 @@ export default function CancelOrderDialog({
 }
 
 const styles = StyleSheet.create({
+  pickerText: {
+    borderWidth: 1,
+    borderColor: myTheme.primary,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    fontSize: 12,
+  },
   heading: {
     fontSize: 18,
   },
@@ -284,7 +314,7 @@ const styles = StyleSheet.create({
     textAlign: "justify",
   },
   formField: {
-    marginVertical: 12,
+    marginTop: 12,
   },
   selectContainer: {
     flexDirection: "column",
@@ -292,9 +322,20 @@ const styles = StyleSheet.create({
   textAreaContainer: {
     flexDirection: "column",
   },
+  textRed: {
+    color: myTheme.destructive,
+    fontWeight: "bold",
+  },
+  labelContainer: {
+    flexDirection: "row",
+  },
   label: {
     fontSize: 16,
     marginBottom: 4,
+    fontWeight: 600,
+  },
+  pickerContainer: {
+    paddingVertical: 10,
   },
   picker: {
     borderWidth: 1,
@@ -322,20 +363,26 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   buttonOutline: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: myTheme.primary,
     borderRadius: 7,
   },
   buttonPrimary: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
     backgroundColor: myTheme.primary,
     borderRadius: 7,
+  },
+  buttonOutlineText: {
+    color: myTheme.primary,
+    textAlign: "center",
+    fontWeight: 600,
   },
   buttonText: {
     color: myTheme.white,
     textAlign: "center",
+    fontWeight: 600,
   },
 });

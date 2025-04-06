@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { OrderRequestTypeEnum, RequestStatusEnum } from "@/types/enum";
-import { myTheme } from "@/constants";
-import { Picker } from "react-native-ui-lib";
+import { myTextColor, myTheme } from "@/constants";
+import { Picker, PickerValue } from "react-native-ui-lib";
 import {
   FlatList,
   StyleSheet,
@@ -16,10 +16,7 @@ import { Feather } from "@expo/vector-icons";
 import { hexToRgba } from "@/utils/color";
 
 interface FilterProps {
-  onFilterChange: (
-    typeFilters: OrderRequestTypeEnum[],
-    statusFilters: RequestStatusEnum[]
-  ) => void;
+  onFilterChange: (typeFilters: any, statusFilters: any) => void;
 }
 
 interface IOrderRequestItem {
@@ -34,8 +31,8 @@ interface IRequestItem {
 }
 export const OrderRequestFilter = ({ onFilterChange }: FilterProps) => {
   const { t } = useTranslation();
-  const [typeFilters, setTypeFilters] = useState<OrderRequestTypeEnum[]>([]);
-  const [statusFilters, setStatusFilters] = useState<RequestStatusEnum[]>([]);
+  const [typeFilters, setTypeFilters] = useState<any>([]);
+  const [statusFilters, setStatusFilters] = useState<any>([]);
   const [typeOpen, setTypeOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
 
@@ -58,22 +55,22 @@ export const OrderRequestFilter = ({ onFilterChange }: FilterProps) => {
     { value: RequestStatusEnum.REJECTED, label: t("requestStatus.rejected") },
   ];
 
-  const toggleType = (value: OrderRequestTypeEnum) => {
-    const newValues = typeFilters.includes(value)
-      ? typeFilters.filter((item) => item !== value)
-      : [...typeFilters, value];
+  const toggleType = (value: PickerValue) => {
+    // const newValues = typeFilters.includes(value)
+    //   ? typeFilters.filter((item) => item !== value)
+    //   : [...typeFilters, value];
 
-    setTypeFilters(newValues);
-    onFilterChange(newValues, statusFilters);
+    setTypeFilters(value);
+    onFilterChange(value, statusFilters);
   };
 
-  const toggleStatus = (value: RequestStatusEnum) => {
-    const newValues = statusFilters.includes(value)
-      ? statusFilters.filter((item) => item !== value)
-      : [...statusFilters, value];
+  const toggleStatus = (value: PickerValue) => {
+    // const newValues = statusFilters.includes(value)
+    //   ? statusFilters.filter((item) => item !== value)
+    //   : [...statusFilters, value];
 
-    setStatusFilters(newValues);
-    onFilterChange(typeFilters, newValues);
+    setStatusFilters(value);
+    onFilterChange(typeFilters, value);
   };
 
   const clearFilters = () => {
@@ -101,10 +98,13 @@ export const OrderRequestFilter = ({ onFilterChange }: FilterProps) => {
         onPress={() => toggleFn(filter)}
       >
         <View style={styles.badgeContent}>
-          <MyText text={item?.label || ""} styleProps={{ color: textColor }} />
+          <MyText
+            text={item?.label || ""}
+            styleProps={{ fontSize: 12, color: textColor }}
+          />
           <MyText
             text="×"
-            styleProps={{ fontSize: 18, color: textColor, marginLeft: 4 }}
+            styleProps={{ fontSize: 12, color: textColor, marginLeft: 4 }}
           />
         </View>
       </TouchableOpacity>
@@ -143,117 +143,151 @@ export const OrderRequestFilter = ({ onFilterChange }: FilterProps) => {
     />
   );
 
+  const renderTypePickerValue = () => {
+    return (
+      <Text style={styles.pickerText}>
+        {typeFilters.length > 0
+          ? `${t("request.typeSelected")}: ${typeFilters.length}`
+          : t("request.selectType")}
+      </Text>
+    );
+  };
+
+  const renderStatusPickerValue = () => {
+    return (
+      <Text style={styles.pickerText}>
+        {statusFilters.length > 0
+          ? `${t("request.statusSelected")}: ${statusFilters.length}`
+          : t("request.selectStatus")}
+      </Text>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      {/* Show active filters */}
-      <View style={styles.filtersContainer}>
-        <FlatList
-          data={[
-            ...typeFilters.map((f) => ({
-              id: `type-${f}`,
-              type: "type",
-              value: f,
-            })),
-            ...statusFilters.map((f) => ({
-              id: `status-${f}`,
-              type: "status",
-              value: f,
-            })),
-          ]}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) =>
-            item.type === "type"
-              ? renderBadge(
-                  item.value,
-                  requestTypes,
-                  toggleType,
-                  myTheme.purple[100],
-                  myTheme.purple[600]
-                )
-              : renderBadge(
-                  item.value,
-                  requestStatuses,
-                  toggleStatus,
-                  myTheme.orange[100],
-                  myTheme.orange[600]
-                )
-          }
-          ListFooterComponent={() =>
-            typeFilters.length > 0 || statusFilters.length > 0 ? (
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={clearFilters}
-              >
-                <MyText
-                  text={t("filter.reset")}
-                  styleProps={{ color: myTheme.gray[500] }}
-                />
-              </TouchableOpacity>
-            ) : null
-          }
-        />
-      </View>
-
       {/* Request Type Filter */}
-      <View style={styles.filterSection}>
-        <Picker
-          value={typeFilters}
-          placeholder={
-            typeFilters.length > 0
-              ? `${t("request.typeSelected")}: ${typeFilters.length}`
-              : t("request.selectType")
-          }
-          onChange={toggleType}
-          showSearch
-          searchPlaceholder={t("request.searchType")}
-          containerStyle={styles.pickerContainer}
-          floatingPlaceholder
-          enableModalBlur={false}
-          topBarProps={{ title: "Filters" }}
-          mode={Picker.modes.MULTI}
-          searchStyle={{
-            color: myTheme.primary,
-            placeholderTextColor: myTheme.gray[500],
-          }}
-          items={requestTypes}
-        ></Picker>
-      </View>
+      <View style={styles.filterSectionContainer}>
+        <View style={styles.filterSection}>
+          <Picker
+            value={typeFilters}
+            placeholder={
+              typeFilters.length > 0
+                ? `${t("request.typeSelected")}: ${typeFilters.length}`
+                : t("request.selectType")
+            }
+            onChange={toggleType}
+            showSearch
+            searchPlaceholder={t("request.searchType")}
+            containerStyle={styles.pickerContainer}
+            color={myTheme.primary}
+            centered
+            enableModalBlur={false}
+            topBarProps={{ title: t("picker.filters") }}
+            mode={Picker.modes.MULTI}
+            items={requestTypes}
+            renderInput={renderTypePickerValue}
+          />
+        </View>
 
-      {/* Request Status Filter */}
-      <View style={styles.filterSection}>
-        <Picker
-          value={statusFilters}
-          placeholder={
-            statusFilters.length > 0
-              ? `${t("request.statusSelected")}: ${statusFilters.length}`
-              : t("request.selectStatus")
-          }
-          onChange={(value) => toggleStatus(value)}
-          showSearch
-          searchPlaceholder={t("request.searchStatus")}
-          containerStyle={styles.pickerContainer}
-          enableModalBlur={false}
-          topBarProps={{ title: "Filters" }}
-          mode={Picker.modes.MULTI}
-          searchStyle={{
-            color: myTheme.primary,
-            placeholderTextColor: myTheme.gray[500],
-          }}
-          items={requestTypes}
-        >
-          {requestStatuses.map((item) => renderStatusItem(item))}
-        </Picker>
+        {/* Request Status Filter */}
+        <View style={styles.filterSection}>
+          <Picker
+            value={statusFilters}
+            placeholder={
+              statusFilters.length > 0
+                ? `${t("request.statusSelected")}: ${statusFilters.length}`
+                : t("request.selectStatus")
+            }
+            onChange={(value) => toggleStatus(value)}
+            showSearch
+            searchPlaceholder={t("request.searchStatus")}
+            containerStyle={styles.pickerContainer}
+            enableModalBlur={false}
+            topBarProps={{ title: t("picker.filters") }}
+            mode={Picker.modes.MULTI}
+            items={requestStatuses}
+            color={myTheme.primary}
+            centered
+            renderInput={renderStatusPickerValue}
+          />
+        </View>
       </View>
+      {/* Show active filters */}
+      {(typeFilters.length > 0 || statusFilters.length > 0) && (
+        <View style={styles.filtersContainer}>
+          <FlatList
+            data={[
+              ...typeFilters.map((f: OrderRequestTypeEnum) => ({
+                id: `type-${f}`,
+                type: "type",
+                value: f,
+              })),
+              ...statusFilters.map((f: RequestStatusEnum) => ({
+                id: `status-${f}`,
+                type: "status",
+                value: f,
+              })),
+            ]}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) =>
+              item.type === "type"
+                ? renderBadge(
+                    item.value,
+                    requestTypes,
+                    toggleType,
+                    myTheme.purple[100],
+                    myTheme.purple[600]
+                  )
+                : renderBadge(
+                    item.value,
+                    requestStatuses,
+                    toggleStatus,
+                    myTheme.orange[100],
+                    myTheme.orange[600]
+                  )
+            }
+            ListFooterComponent={() =>
+              typeFilters.length > 0 || statusFilters.length > 0 ? (
+                <TouchableOpacity
+                  style={styles.clearButton}
+                  onPress={clearFilters}
+                >
+                  <MyText
+                    text={t("filter.reset")}
+                    styleProps={{ color: myTheme.gray[500] }}
+                  />
+                </TouchableOpacity>
+              ) : null
+            }
+          />
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  pickerText: {
+    color: myTheme.primary,
+    borderWidth: 1,
+    borderColor: myTheme.primary,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderRadius: 8,
+    fontWeight: 600,
+    fontSize: 12,
+  },
+  filterSectionContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+  },
   container: {
     flexDirection: "column",
-    gap: 12,
+    gap: 8,
     width: "100%",
   },
   filtersContainer: {
@@ -262,8 +296,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     borderRadius: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     marginRight: 8,
     marginBottom: 8,
   },
@@ -278,14 +312,16 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   filterSection: {
-    width: "100%",
-    marginBottom: 8,
+    width: "auto",
   },
   pickerContainer: {
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: hexToRgba(myTheme.primary, 0.4),
     borderRadius: 4,
-    height: 40,
+    padding: 8,
+    color: myTheme.primary,
+    fontWeight: "semibold",
+    width: "100%",
   },
   searchInput: {
     borderBottomWidth: 1,
