@@ -41,8 +41,8 @@ export default function HomeScreen() {
             <HomeBanner />
             <BeautyOffers />
             <FlashSale />
-            <RecommendProduct />
             <PreOrderProductSections />
+            <RecommendProduct />
           </ScrollView>
         </KeyboardAvoidingView>
       </GestureHandlerRootView>

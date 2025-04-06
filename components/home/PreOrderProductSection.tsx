@@ -29,11 +29,7 @@ function PreOrderProductSections() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <MaterialIcons
-          name="access-time"
-          size={24}
-          color={myTheme.emerald[500]}
-        />
+        <MaterialIcons name="access-time" size={24} color={myTheme.primary} />
         <Text style={styles.title}>{t("home.preOrderTitle")}</Text>
       </View>
 
@@ -44,10 +40,12 @@ function PreOrderProductSections() {
       )}
 
       {!isLoading && !hasProducts && (
-        <Empty
-          title={t("empty.preOrder.title")}
-          description={t("empty.preOrder.description")}
-        />
+        <View style={styles.loadingContainer}>
+          <Empty
+            title={t("empty.preOrder.title")}
+            description={t("empty.preOrder.description")}
+          />{" "}
+        </View>
       )}
 
       {!isLoading && hasProducts && (
@@ -78,6 +76,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    color: myTheme.primary,
   },
   loadingContainer: {
     flex: 1,
