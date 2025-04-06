@@ -1,0 +1,38 @@
+.timeline-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 0 0%;
+}
+
+.timeline-icon {
+  position: relative;
+}
+
+.timeline-icon::before,
+.timeline-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background-color: #10b981;
+  transform: translateY(-50%);
+}
+
+.timeline-icon::before {
+  left: -100%;
+}
+
+.timeline-icon::after {
+  right: -100%;
+}
+
+.timeline-item:first-child .timeline-icon::before {
+  display: none;
+}
+
+.timeline-item:last-child .timeline-icon::after {
+  display: none;
+}

@@ -13,7 +13,7 @@ type EmptyProps = {
   description: string;
   icon?: any;
   linkText?: string;
-  link?: "/";
+  link?: "/" | "/(app)/(profile)/orders";
 };
 
 const Empty = ({ title, description, icon, linkText, link }: EmptyProps) => {

@@ -41,8 +41,6 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
   const router = useRouter();
   const [openRequestCancelOrderDialog, setOpenRequestCancelOrderDialog] =
     useState<boolean>(false);
-  const [openReqReturnDialog, setOpenReqReturnDialog] =
-    useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [openCancelOrderDialog, setOpenCancelOrderDialog] = useState(false);
   const [openRequestReturnOrderDialog, setOpenRequestReturnOrderDialog] =
@@ -247,14 +245,14 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
               </TouchableOpacity>
             </View>
             <View style={styles.brandButtonsContainer}>
-              <TouchableOpacity style={styles.chatButton}>
+              {/* <TouchableOpacity style={styles.chatButton}>
                 <Feather name="message-circle" size={16} color="white" />
                 <MyText
                   text={t("brand.chat")}
                   styleProps={styles.chatButtonText}
                 />
-              </TouchableOpacity>
-              {/* <TouchableOpacity
+              </TouchableOpacity> */}
+              <TouchableOpacity
                 style={styles.viewShopButton}
                 onPress={() => router.push(`/brands/${brand?.id}`)}
               >
@@ -263,7 +261,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                   text={t("brand.viewShop")}
                   styleProps={styles.viewShopText}
                 />
-              </TouchableOpacity> */}
+              </TouchableOpacity>
             </View>
           </View>
           {/* Order and request status */}
@@ -577,6 +575,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
         toggleModalVisibility={toggleModalVisibility}
         onOpenChange={setOpenCancelOrderDialog}
         orderId={orderItem?.id ?? ""}
+        setIsTrigger={setIsTrigger}
       />
       <RequestCancelOrderDialog
         bottomSheetModalRef={bottomSheetModalRequestCancelRef}

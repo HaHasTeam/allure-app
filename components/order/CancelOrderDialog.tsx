@@ -45,6 +45,7 @@ interface CancelOrderDialogProps {
   setIsModalVisible: Dispatch<SetStateAction<boolean>>;
   toggleModalVisibility: () => void;
   bottomSheetModalRef: React.RefObject<BottomSheetModal>;
+  setIsTrigger: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function CancelOrderDialog({
@@ -53,6 +54,7 @@ export default function CancelOrderDialog({
   setIsModalVisible,
   toggleModalVisibility,
   bottomSheetModalRef,
+  setIsTrigger,
 }: CancelOrderDialogProps) {
   const { t } = useTranslation();
   const { showToast } = useToast();
@@ -103,7 +105,7 @@ export default function CancelOrderDialog({
     mutationFn: cancelOrderApi.fn,
     onSuccess: () => {
       showToast(t("order.cancelSuccess"), "success", 4000);
-      handleModalDismiss();
+      setIsTrigger((prev) => !prev);
       queryClient.invalidateQueries({
         queryKey: [getCancelAndReturnRequestApi.queryKey],
       });
