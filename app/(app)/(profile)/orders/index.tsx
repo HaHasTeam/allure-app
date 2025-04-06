@@ -32,6 +32,7 @@ import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
 import { myTheme } from "@/constants";
 import { Picker } from "react-native-ui-lib";
 import TriggerList from "@/components/ui/tabs";
+import { Stack } from "expo-router";
 
 export default function ProfileOrder() {
   const { t } = useTranslation();
@@ -266,6 +267,7 @@ export default function ProfileOrder() {
 
   return (
     <>
+      <Stack.Screen options={{ title: t("order.myOrder") }} />
       {isLoading && <LoadingContentLayer />}
       <View style={styles.container}>
         <View style={styles.contentContainer}>
