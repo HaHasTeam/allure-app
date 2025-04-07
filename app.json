@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "test-appp",
-    "slug": "test-appp",
+    "name": "allure-ecommerce",
+    "slug": "allure-ecommerce",
+    "description": "A simple e-commerce app built with Expo and React Native.",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -21,7 +22,9 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.listkelvin.testappp"
+      "package": "com.listkelvin.testappp",
+      "googleServicesFile": "./google-services-2.json",
+      "permissions": ["ACCESS_NETWORK_STATE", "ACCESS_WIFI_STATE"]
     },
     "web": {
       "bundler": "metro",
@@ -40,9 +43,8 @@
         "origin": false
       },
       "eas": {
-        "projectId": "8a4c42e0-e8ec-4279-ad12-3f7a99ccde50"
+        "projectId": "d48bcb2c-b764-47fb-8f7e-345962be88fd"
       }
-    },
-    "owner": "listkelvin"
+    }
   }
 }

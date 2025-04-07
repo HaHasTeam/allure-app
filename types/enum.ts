@@ -158,7 +158,12 @@ export enum ResultEnum {
   WARNING = "WARNING",
   FAILURE = "FAILURE",
 }
-
+export enum LiveStreamEnum {
+  SCHEDULED = "SCHEDULED",
+  LIVE = "LIVE",
+  ENDED = "ENDED",
+  CANCELLED = "CANCELLED",
+}
 export enum FeedbackFilterEnum {
   ALL = "ALL",
   RATING = "RATING",

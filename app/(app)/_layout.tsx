@@ -155,6 +155,12 @@ function AppLayout() {
               ),
             }}
           />
+          <Stack.Screen
+            name="(livestream)/viewer-stream"
+            options={{
+              headerShown: false,
+            }}
+          />
         </Stack>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

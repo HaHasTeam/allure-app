@@ -113,7 +113,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="live"
         options={{
-          title: "Live",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
