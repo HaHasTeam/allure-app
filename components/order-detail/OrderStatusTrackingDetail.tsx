@@ -1,36 +1,44 @@
-import { Check, Package } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
+import { View, StyleSheet, Dimensions } from "react-native";
+import { useTranslation } from "react-i18next";
+import { Feather } from "@expo/vector-icons";
 
-import { RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
-import { UserRoleEnum } from '@/types/role'
-import { IStatusTracking } from '@/types/status-tracking'
+import { RequestStatusEnum, ShippingStatusEnum } from "@/types/enum";
+import { UserRoleEnum } from "@/types/role";
+import { IStatusTracking } from "@/types/status-tracking";
 
-import { StatusTrackingIcon, StatusTrackingText } from '../status-tracking-order/StatusTrackingOrder'
+import {
+  StatusTrackingIcon,
+  StatusTrackingText,
+} from "../status-tracking-order/StatusTrackingOrder";
+import MyText from "../common/MyText";
+import { myTheme } from "@/constants";
 
 interface IStep {
-  status: string
-  createdAt: Date | string
-  text: string
-  icon: JSX.Element
-  reason: string | null
-  updatedBy: string
+  status: string;
+  createdAt: Date | string;
+  text: string;
+  icon: JSX.Element;
+  reason: string | null;
+  updatedBy: string;
 }
 interface OrderStatusTrackingDetailProps {
-  statusTrackingData: IStatusTracking[]
+  statusTrackingData: IStatusTracking[];
 }
-const OrderStatusTrackingDetail = ({ statusTrackingData }: OrderStatusTrackingDetailProps) => {
-  const { t } = useTranslation()
+const OrderStatusTrackingDetail = ({
+  statusTrackingData,
+}: OrderStatusTrackingDetailProps) => {
+  const { t } = useTranslation();
 
   const defaultTimeline = [
     {
-      status: 'ORDER_CREATED',
+      status: "ORDER_CREATED",
       createdAt: statusTrackingData[0]?.createdAt,
-      text: t('order.created'),
-      icon: <Package className="w-5 h-5" />,
-      reason: '',
-      updatedBy: '',
+      text: t("order.created"),
+      icon: <Feather name="package" size={18} />,
+      reason: "",
+      updatedBy: "",
     },
-  ]
+  ];
 
   const databaseTimeline = statusTrackingData.map((tracking) => ({
     status: tracking.status,
@@ -39,75 +47,184 @@ const OrderStatusTrackingDetail = ({ statusTrackingData }: OrderStatusTrackingDe
     icon: StatusTrackingIcon(tracking.status),
     reason: tracking.reason,
     updatedBy: t(
-      `role.${tracking.updatedBy.role.role === UserRoleEnum.MANAGER || tracking.updatedBy.role.role === UserRoleEnum.STAFF ? 'BRAND' : tracking.updatedBy.role.role}`,
+      `role.${
+        tracking.updatedBy.role.role === UserRoleEnum.MANAGER ||
+        tracking.updatedBy.role.role === UserRoleEnum.STAFF
+          ? "BRAND"
+          : tracking.updatedBy.role.role
+      }`
     ),
-  }))
+  }));
 
-  const timeline = [...defaultTimeline, ...databaseTimeline]
-  const currentStatus = statusTrackingData[statusTrackingData.length - 1]?.status
-  const currentIndex = timeline.findIndex((step) => step.status === currentStatus)
+  const timeline = [...defaultTimeline, ...databaseTimeline];
+  const currentStatus =
+    statusTrackingData[statusTrackingData.length - 1]?.status;
+  const currentIndex = timeline.findIndex(
+    (step) => step.status === currentStatus
+  );
   const isComplete = (step: IStep, index: number) => {
-    const status = step.status
+    const status = step.status;
     return (
-      (status === ShippingStatusEnum.COMPLETED && index === timeline.length - 1) ||
+      (status === ShippingStatusEnum.COMPLETED &&
+        index === timeline.length - 1) ||
       status === ShippingStatusEnum.CANCELLED ||
       step.status === RequestStatusEnum.APPROVED ||
       status === ShippingStatusEnum.REFUNDED ||
       status === ShippingStatusEnum.RETURNED_FAIL
-    )
-  }
+    );
+  };
+
   return (
-    <div className="mx-auto">
-      <div className="">
+    <View style={styles.container}>
+      <View>
         {timeline.map((step, index) => (
-          <div key={index} className="flex items-start gap-4">
-            <div className="flex flex-col items-center justify-center">
+          <View key={index} style={styles.stepContainer}>
+            <View style={styles.iconContainer}>
               {isComplete(step, index) ? (
-                <div className={`w-4 h-4 flex items-center justify-center bg-emerald-500 rounded-full`}>
-                  <Check className="w-3 h-3 text-white" />
-                </div>
+                <View style={styles.completedCircle}>
+                  <Feather name="check" size={12} color="white" />
+                </View>
               ) : (
-                <div className={`w-4 h-4 ${currentIndex === index ? 'bg-emerald-500' : 'bg-muted'} rounded-full`} />
+                <View
+                  style={[
+                    styles.circle,
+                    {
+                      backgroundColor:
+                        currentIndex === index
+                          ? myTheme.emerald[500]
+                          : myTheme.muted,
+                    },
+                  ]}
+                />
               )}
-              {index !== timeline.length - 1 && <div className="w-0.5 h-8 bg-muted" />}
-              {/* {index === timeline.length - 1 && <div className="w-3 h-3 bg-muted rounded-full" />} */}
-            </div>
-            <div className="flex gap-2 items-start">
-              <div
-                className={`text-sm min-w-fit ${currentIndex === index ? 'text-emerald-500' : 'text-muted-foreground'}`}
-              >
-                {t('date.toLocaleDateTimeString', { val: new Date(step?.createdAt) })}
-              </div>
-              <div className="flex flex-col">
-                <div
-                  className={`text-sm font-medium ${currentIndex === index ? 'text-emerald-500' : 'text-muted-foreground'}`}
-                >
-                  {step.status === RequestStatusEnum.APPROVED
-                    ? t('order.approvedCancelRequest')
-                    : step.status === RequestStatusEnum.REJECTED
-                      ? t('order.rejectedCancelRequest')
-                      : StatusTrackingText(step.status)}
-                </div>
-                {(step.status === ShippingStatusEnum.CANCELLED || step.status === RequestStatusEnum.APPROVED) && (
-                  <div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      <span className="font-medium">{t('orderDetail.cancelBy')}: </span>
-                      {step.updatedBy}
-                    </div>
+              {index !== timeline.length - 1 && <View style={styles.line} />}
+            </View>
+            <View style={styles.contentContainer}>
+              <MyText
+                text={t("date.toLocaleDateTimeString", {
+                  val: new Date(step?.createdAt),
+                })}
+                styleProps={{
+                  fontSize: 14,
+                  color:
+                    currentIndex === index
+                      ? myTheme.emerald[500]
+                      : myTheme.mutedForeground,
+                }}
+              />
+              <View style={styles.textContainer}>
+                <MyText
+                  text={
+                    step.status === RequestStatusEnum.APPROVED
+                      ? t("order.approvedCancelRequest")
+                      : step.status === RequestStatusEnum.REJECTED
+                      ? t("order.rejectedCancelRequest")
+                      : StatusTrackingText(step.status)
+                  }
+                  styleProps={{
+                    fontSize: 14,
+                    fontWeight: "500",
+                    color:
+                      currentIndex === index
+                        ? myTheme.emerald[500]
+                        : myTheme.mutedForeground,
+                  }}
+                />
+                {(step.status === ShippingStatusEnum.CANCELLED ||
+                  step.status === RequestStatusEnum.APPROVED) && (
+                  <View>
+                    <View style={styles.infoRow}>
+                      <MyText
+                        text={`${t("orderDetail.cancelBy")}: `}
+                        styleProps={{
+                          fontSize: 14,
+                          fontWeight: "500",
+                          color: myTheme.mutedForeground,
+                        }}
+                      />
+                      <MyText
+                        text={step.updatedBy}
+                        styleProps={{
+                          fontSize: 14,
+                          color: myTheme.mutedForeground,
+                        }}
+                      />
+                    </View>
 
-                    <div className="text-sm text-muted-foreground mt-1">
-                      <span className="font-medium">{t('order.cancelOrderReason.reason')}: </span>
-                      {step.reason}
-                    </div>
-                  </div>
+                    <View style={styles.infoRow}>
+                      <MyText
+                        text={`${t("order.cancelOrderReason.reason")}: `}
+                        styleProps={{
+                          fontSize: 14,
+                          fontWeight: "500",
+                          color: myTheme.mutedForeground,
+                        }}
+                      />
+                      {step.reason && (
+                        <MyText
+                          text={step.reason}
+                          styleProps={{
+                            fontSize: 14,
+                            color: myTheme.mutedForeground,
+                          }}
+                        />
+                      )}
+                    </View>
+                  </View>
                 )}
-              </div>
-            </div>
-          </div>
+              </View>
+            </View>
+          </View>
         ))}
-      </div>
-    </div>
-  )
-}
+      </View>
+    </View>
+  );
+};
 
-export default OrderStatusTrackingDetail
+const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: "auto",
+  },
+  stepContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 16,
+  },
+  iconContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  completedCircle: {
+    width: 16,
+    height: 16,
+    backgroundColor: myTheme.emerald[500],
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  circle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+  },
+  line: {
+    width: 2,
+    height: 32,
+    backgroundColor: myTheme.muted,
+  },
+  contentContainer: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "flex-start",
+  },
+  textContainer: {
+    flexDirection: "column",
+  },
+  infoRow: {
+    flexDirection: "row",
+    marginTop: 4,
+  },
+});
+
+export default OrderStatusTrackingDetail;

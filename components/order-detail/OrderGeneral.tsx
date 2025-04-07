@@ -1,91 +1,174 @@
-import { CircleChevronDown, CircleChevronUp } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-
-import { Button } from '../ui/button'
+import { myTheme } from "@/constants";
+import { hexToRgba } from "@/utils/color";
+import { Feather } from "@expo/vector-icons";
+import { cloneElement, useEffect, useRef, useState } from "react";
+import {
+  LayoutChangeEvent,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface OrderGeneralProps {
-  title: string
-  icon: React.ReactElement
-  content: React.ReactElement
-  status?: 'normal' | 'success' | 'warning' | 'danger'
+  title: string;
+  icon: React.ReactElement;
+  content: React.ReactElement;
+  status?: "normal" | "success" | "warning" | "danger";
 }
 
-const OrderGeneral = ({ title, icon, content, status = 'normal' }: OrderGeneralProps) => {
-  const [expanded, setExpanded] = useState(false)
-  const [isOverflowing, setIsOverflowing] = useState(false)
-  const contentRef = useRef<HTMLDivElement>(null)
+const MAX_HEIGHT = 176;
+const OrderGeneral = ({
+  title,
+  icon,
+  content,
+  status = "normal",
+}: OrderGeneralProps) => {
+  const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
+  const contentRef = useRef(null);
 
-  useEffect(() => {
-    if (contentRef.current) {
-      setIsOverflowing(contentRef.current.scrollHeight > contentRef.current.clientHeight)
-    }
-  }, [content])
+  const handleContentLayout = (event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    setContentHeight(height);
+    setIsOverflowing(height > MAX_HEIGHT);
+  };
 
-  let color = ''
-  let borderColor = ''
+  let color, borderColor;
   switch (status) {
-    case 'normal': // for default
-      color = 'primary'
-      borderColor = 'primary/40'
-      break
-    case 'danger':
-      color = 'red-500'
-      borderColor = 'red-300'
-      break
-    case 'success':
-      color = 'green-500'
-      borderColor = 'green-300'
-      break
-    case 'warning':
-      color = 'yellow-500'
-      borderColor = 'yellow-300'
-      break
+    case "normal":
+      color = myTheme.primary;
+      borderColor = hexToRgba(myTheme.primary, 0.4);
+      break;
+    case "danger":
+      color = myTheme.red[500];
+      borderColor = myTheme.red[300];
+      break;
+    case "success":
+      color = myTheme.green[500];
+      borderColor = myTheme.green[300];
+      break;
+    case "warning":
+      color = myTheme.yellow[500];
+      borderColor = myTheme.yellow[300];
+      break;
     default:
-      color = 'gray-500'
-      borderColor = 'gray-300'
-      break
+      color = myTheme.gray[500];
+      borderColor = myTheme.gray[300];
+      break;
   }
-  return (
-    <div className={`w-full bg-card rounded-md border border-${borderColor} p-4 space-y-2 shadow-sm`}>
-      <div className={`flex gap-2 text-${color} items-center`}>
-        {icon}
-        <span className="text-base md:text-lg font-medium">{title}</span>
-      </div>
-      <div className="relative">
-        <div
-          ref={contentRef}
-          className={`text-muted-foreground transition-all duration-300 ${expanded ? 'max-h-none' : 'max-h-44 overflow-hidden'}`}
-        >
-          {content}
-        </div>
-        {!expanded && isOverflowing && (
-          <div className="z-0 absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-background to-transparent"></div>
-        )}
-        {isOverflowing &&
-          (expanded ? (
-            <div className="w-full flex justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setExpanded(!expanded)}
-                className="mt-2 text-primary text-sm font-medium hover:bg-card border-0 shadow-none hover:text-primary/80"
-              >
-                <CircleChevronUp size={18} />
-              </Button>
-            </div>
-          ) : (
-            <div className="absolute z-10 w-full flex justify-center">
-              <Button
-                variant="outline"
-                onClick={() => setExpanded(!expanded)}
-                className="mt-2 text-primary text-sm font-medium hover:bg-card border-0 shadow-none hover:text-primary/80"
-              >
-                <CircleChevronDown size={18} />
-              </Button>
-            </div>
-          ))}
-      </div>
-    </div>
-  )
-}
 
-export default OrderGeneral
+  const handleExpand = () => {
+    setExpanded(!expanded);
+  };
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: myTheme.card,
+          borderColor: borderColor,
+        },
+      ]}
+    >
+      <View style={[styles.header, { flexDirection: "row" }]}>
+        {cloneElement(icon, { color: color, size: 24 })}
+        <Text style={[styles.title, { color: color }]}>{title}</Text>
+      </View>
+
+      <View style={styles.contentContainer}>
+        <View
+          ref={contentRef}
+          onLayout={handleContentLayout}
+          style={[
+            styles.content,
+            expanded ? styles.contentExpanded : styles.contentCollapsed,
+          ]}
+        >
+          <Text style={{ color: myTheme.gray[500] }}>{content}</Text>
+        </View>
+
+        {isOverflowing && !expanded && <View style={styles.gradientOverlay} />}
+
+        {isOverflowing && (
+          <View
+            style={[
+              styles.buttonContainer,
+              expanded ? styles.relative : styles.absolute,
+            ]}
+          >
+            <TouchableOpacity onPress={handleExpand} style={styles.button}>
+              <Feather
+                name={expanded ? "chevron-up" : "chevron-down"}
+                size={18}
+                color={myTheme.primary}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 16,
+    marginVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 2,
+  },
+  header: {
+    gap: 8,
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  contentContainer: {
+    position: "relative",
+    marginTop: 8,
+  },
+  content: {
+    overflow: "hidden",
+  },
+  contentCollapsed: {
+    maxHeight: 176, // Approximately equivalent to max-h-44 (11rem)
+  },
+  contentExpanded: {
+    maxHeight: null,
+  },
+  gradientOverlay: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 48,
+    backgroundColor: "transparent", // You'll need to implement gradient separately
+  },
+  buttonContainer: {
+    width: "100%",
+    alignItems: "center",
+    bottom: 0,
+  },
+  relative: {
+    position: "relative",
+  },
+  absolute: {
+    position: "absolute",
+  },
+  button: {
+    marginTop: 8,
+    padding: 8,
+  },
+});
+
+export default OrderGeneral;

@@ -880,6 +880,8 @@
   },
   "validation": {
     "emailValid": "Please enter a valid email address",
+    "usernameValid": "Please enter a valid username",
+    "usernameHelper": "Username must start with a letter, be 3–20 characters, and use only letters, numbers, or underscores",
     "required": "Please fill out this field",
     "paymentRequired": "Please choose a payment method",
     "reasonRequired": "Please choose a reason",

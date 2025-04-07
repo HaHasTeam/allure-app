@@ -1,64 +1,133 @@
-import { useTranslation } from 'react-i18next'
-
-import { PaymentMethod } from '@/types/enum'
+import { StyleSheet, View, Text } from "react-native";
+import { useTranslation } from "react-i18next";
+import { myTheme } from "@/constants";
 
 interface OrderSummaryProps {
-  totalProductCost: number
-  totalBrandDiscount: number
-  totalPlatformDiscount: number
-  totalPayment: number
-  paymentMethod: PaymentMethod
+  totalProductCost: number;
+  totalBrandDiscount: number;
+  totalPlatformDiscount: number;
+  totalPayment: number;
+  paymentMethod: string;
 }
-export default function OrderSummary({
+
+export function OrderSummary({
   totalProductCost,
   totalBrandDiscount,
   totalPlatformDiscount,
   totalPayment,
   paymentMethod,
 }: OrderSummaryProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
-    <div className="w-full bg-white rounded-md shadow-sm p-4">
-      <div>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{t('cart.totalCost')}</span>
-            <span className="font-medium">{t('productCard.price', { price: totalProductCost })}</span>
-          </div>
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.spaceY3}>
+          {/* Total Cost */}
+          <View style={styles.row}>
+            <Text style={styles.label}>{t("cart.totalCost")}</Text>
+            <Text style={styles.value}>
+              {t("productCard.price", { price: totalProductCost })}
+            </Text>
+          </View>
 
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">{t('cart.discountBrand')}</span>
-            <span className="text-green-700 font-medium">
-              {totalBrandDiscount && totalBrandDiscount > 0 ? '-' : ''}
-              {t('productCard.price', { price: totalBrandDiscount })}
-            </span>
-          </div>
+          {/* Brand Discount */}
+          <View style={styles.row}>
+            <Text style={styles.label}>{t("cart.discountBrand")}</Text>
+            <Text style={[styles.value, { color: myTheme.green[700] }]}>
+              {totalBrandDiscount && totalBrandDiscount > 0 ? "-" : ""}
+              {t("productCard.price", { price: totalBrandDiscount })}
+            </Text>
+          </View>
 
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">{t('cart.discountPlatform')}</span>
-            <span className="text-green-700 font-medium">
-              {totalPlatformDiscount && totalPlatformDiscount > 0 ? '-' : ''}
-              {t('productCard.price', { price: totalPlatformDiscount })}
-            </span>
-          </div>
-          <div className="flex flex-col">
-            <div className="flex justify-between items-center pt-3 border-t">
-              <span className="text-sm sm:text-base">{t('cart.totalPayment')}</span>
-              <span className="font-semibold text-red-500 text-lg">
-                {t('productCard.price', { price: totalPayment })}
-              </span>
-            </div>
-            <div className="flex-col gap-3">
-              <p className="text-sm text-muted-foreground my-3 text-right">{t('cart.checkoutDescription')}</p>
-            </div>
-          </div>
-          <div className="flex justify-between items-center border-t pt-3">
-            <span className="text-sm sm:text-base">{t('wallet.paymentMethod')}</span>
-            <span className="font-semibold text-primary text-sm sm:text-base">{t(`wallet.${paymentMethod}`)}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+          {/* Platform Discount */}
+          <View style={styles.row}>
+            <Text style={styles.label}>{t("cart.discountPlatform")}</Text>
+            <Text style={[styles.value, { color: myTheme.green[700] }]}>
+              {totalPlatformDiscount && totalPlatformDiscount > 0 ? "-" : ""}
+              {t("productCard.price", { price: totalPlatformDiscount })}
+            </Text>
+          </View>
+
+          {/* Total Payment */}
+          <View style={styles.totalSection}>
+            <View style={[styles.row, styles.borderTop]}>
+              <Text style={styles.totalLabel}>{t("cart.totalPayment")}</Text>
+              <Text style={[styles.totalValue, { color: myTheme.red[500] }]}>
+                {t("productCard.price", { price: totalPayment })}
+              </Text>
+            </View>
+            <View style={styles.checkoutDescription}>
+              <Text style={[styles.label, styles.textRight]}>
+                {t("cart.checkoutDescription")}
+              </Text>
+            </View>
+          </View>
+
+          {/* Payment Method */}
+          <View style={[styles.row, styles.borderTop]}>
+            <Text style={styles.totalLabel}>{t("wallet.paymentMethod")}</Text>
+            <Text style={[styles.totalValue, { color: myTheme.primary }]}>
+              {t(`wallet.${paymentMethod}`)}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    backgroundColor: myTheme.white,
+    borderRadius: 8,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2, // For Android shadow
+  },
+  content: {
+    flexDirection: "column",
+  },
+  spaceY3: {
+    flexDirection: "column",
+    gap: 12, // React Native uses gap for spacing
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  label: {
+    fontSize: 14,
+    color: myTheme.mutedForeground, // Assuming mutedForeground is defined in myTheme
+  },
+  value: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  totalSection: {
+    flexDirection: "column",
+  },
+  borderTop: {
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: myTheme.gray[200], // Assuming a light gray for divider
+  },
+  totalLabel: {
+    fontSize: 16,
+  },
+  totalValue: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  checkoutDescription: {
+    marginVertical: 12,
+  },
+  textRight: {
+    textAlign: "right",
+  },
+});

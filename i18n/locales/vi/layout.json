@@ -876,6 +876,8 @@
   },
   "validation": {
     "emailValid": "Vui lòng nhập một địa chỉ email hợp lệ",
+    "usernameValid": "Vui lòng nhập tên người dùng hợp lệ",
+    "usernameHelper": "Tên người dùng phải bắt đầu bằng chữ cái, dài từ 3–20 ký tự và chỉ được sử dụng chữ cái, số hoặc dấu gạch dưới",
     "required": "Vui lòng điền vào trường này",
     "paymentRequired": "Vui lòng chọn phương thức thanh toán",
     "reasonRequired": "Vui lòng chọn lý do",

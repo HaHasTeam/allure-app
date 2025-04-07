@@ -1,45 +1,46 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import useHandleServerError from "@/hooks/useHandleServerError";
+import { useToast } from "@/hooks/useToast";
+import { IBrand } from "@/types/brand";
+import { IClassification } from "@/types/classification";
+import {
+  ClassificationTypeEnum,
+  OrderEnum,
+  ShippingStatusEnum,
+} from "@/types/enum";
+import { IResponseFeedback } from "@/types/feedback";
+import { IMasterConfig } from "@/types/master-config";
+import { IStatusTracking } from "@/types/status-tracking";
 
-import fallBackImage from '@/assets/images/fallBackImage.jpg'
-import configs from '@/config'
-import useHandleServerError from '@/hooks/useHandleServerError'
-import { useToast } from '@/hooks/useToast'
-import { createCartItemApi, getMyCartApi } from '@/network/apis/cart'
-import { IBrand } from '@/types/brand'
-import { IClassification } from '@/types/classification'
-import { ClassificationTypeEnum, OrderEnum, ShippingStatusEnum } from '@/types/enum'
-import { IResponseFeedback } from '@/types/feedback'
-import { IMasterConfig } from '@/types/master-config'
-import { IStatusTracking } from '@/types/status-tracking'
-
-import { ViewFeedbackDialog } from '../feedback/ViewFeedbackDialog'
-import { WriteFeedbackDialog } from '../feedback/WriteFeedbackDialog'
-import ImageWithFallback from '../ImageFallback'
-import LoadingIcon from '../loading-icon'
-import ProductTag from '../product/ProductTag'
-import { Button } from '../ui/button'
+import ProductTag from "../product/ProductTag";
+import { createCartItemApi, getMyCartApi } from "@/hooks/api/cart";
+import ImageWithFallback from "../image/ImageWithFallBack";
+import { Link } from "expo-router";
+import LoadingIcon from "../loading/LoadingIcon";
+import { myTheme } from "@/constants";
+import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
+import MyText from "../common/MyText";
 
 interface ProductOrderDetailLandscapeProps {
-  productImage: string
-  productId: string
-  productName: string
-  eventType: string
-  unitPriceAfterDiscount: number
-  unitPriceBeforeDiscount: number
-  subTotal: number
-  productQuantity: number
-  productClassification: IClassification | null
-  status: ShippingStatusEnum
-  feedback: IResponseFeedback | null
-  orderDetailId: string
-  brand: IBrand | null
-  accountName: string
-  accountAvatar: string
-  statusTracking?: IStatusTracking[]
-  masterConfig?: IMasterConfig[]
+  productImage: string;
+  productId: string;
+  productName: string;
+  eventType: string;
+  unitPriceAfterDiscount: number;
+  unitPriceBeforeDiscount: number;
+  subTotal: number;
+  productQuantity: number;
+  productClassification: IClassification | null;
+  status: ShippingStatusEnum;
+  feedback: IResponseFeedback | null;
+  orderDetailId: string;
+  brand: IBrand | null;
+  accountName: string;
+  accountAvatar: string;
+  statusTracking?: IStatusTracking[];
+  masterConfig?: IMasterConfig[];
 }
 const ProductOrderDetailLandscape = ({
   productImage,
@@ -60,13 +61,13 @@ const ProductOrderDetailLandscape = ({
   statusTracking,
   masterConfig,
 }: ProductOrderDetailLandscapeProps) => {
-  const { t } = useTranslation()
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [openWriteFeedbackDialog, setOpenWriteFeedbackDialog] = useState(false)
-  const [openViewFbDialog, setOpenViewFbDialog] = useState(false)
-  const { successToast } = useToast()
-  const queryClient = useQueryClient()
-  const handleServerError = useHandleServerError()
+  const { t } = useTranslation();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [openWriteFeedbackDialog, setOpenWriteFeedbackDialog] = useState(false);
+  const [openViewFbDialog, setOpenViewFbDialog] = useState(false);
+  const { successToast } = useToast();
+  const queryClient = useQueryClient();
+  const handleServerError = useHandleServerError();
 
   const { mutateAsync: createCartItemFn } = useMutation({
     mutationKey: [createCartItemApi.mutationKey],
@@ -74,210 +75,251 @@ const ProductOrderDetailLandscape = ({
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [getMyCartApi.queryKey],
-      })
+      });
       successToast({
-        message: t('cart.addToCartSuccess'),
+        message: t("cart.addToCartSuccess"),
         isShowDescription: false,
-      })
+      });
     },
-  })
+  });
 
   const handleCreateCartItem = async () => {
-    if (isProcessing) return
-    setIsProcessing(true)
+    if (isProcessing) return;
+    setIsProcessing(true);
     try {
       if (productClassification) {
         await createCartItemFn({
           classification: productClassification?.title,
           productClassification: productClassification?.id,
           quantity: 1,
-        })
+        });
       }
     } catch (error) {
-      handleServerError({ error })
+      handleServerError({ error });
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
   const showReviewButton = useMemo(() => {
     const isWithinReviewPeriod = () => {
-      const deliveredStatusTrack = statusTracking?.find((track) => track.status === ShippingStatusEnum.DELIVERED)
+      const deliveredStatusTrack = statusTracking?.find(
+        (track) => track.status === ShippingStatusEnum.DELIVERED
+      );
 
-      if (!deliveredStatusTrack?.createdAt) return false
+      if (!deliveredStatusTrack?.createdAt) return false;
 
-      const deliveredDate = new Date(deliveredStatusTrack.createdAt)
-      const currentDate = new Date()
+      const deliveredDate = new Date(deliveredStatusTrack.createdAt);
+      const currentDate = new Date();
       const allowedTimeInMs =
-        masterConfig && masterConfig[0].feedbackTimeExpired ? parseInt(masterConfig[0].feedbackTimeExpired) : null
+        masterConfig && masterConfig[0].feedbackTimeExpired
+          ? parseInt(masterConfig[0].feedbackTimeExpired)
+          : null;
 
-      return allowedTimeInMs ? currentDate.getTime() - deliveredDate.getTime() <= allowedTimeInMs : true
-    }
+      return allowedTimeInMs
+        ? currentDate.getTime() - deliveredDate.getTime() <= allowedTimeInMs
+        : true;
+    };
 
-    return status === ShippingStatusEnum.COMPLETED && !feedback && isWithinReviewPeriod()
-  }, [feedback, masterConfig, status, statusTracking])
+    return (
+      status === ShippingStatusEnum.COMPLETED &&
+      !feedback &&
+      isWithinReviewPeriod()
+    );
+  }, [feedback, masterConfig, status, statusTracking]);
   return (
-    <div className="w-full py-4 border-b border-gray-200">
-      <div className="w-full flex gap-2 items-center p-2 md:p-3 lg:p-4">
-        <div className="flex gap-1 items-center lg:w-[10%] md:w-[10%] sm:w-[14%] w-[16%]">
-          <Link to={configs.routes.products + '/' + productId}>
-            <div className="md:w-20 md:h-20 sm:w-20 sm:h-20 h-16 w-16">
-              <ImageWithFallback
-                fallback={fallBackImage}
-                src={productImage}
-                alt={productName}
-                className="object-cover w-full h-full rounded-md"
-              />
-            </div>
+    <View style={styles.container}>
+      <View style={styles.contentContainer}>
+        <View style={styles.imageContainer}>
+          <Link href={`/(app)/products/${productId}`} asChild>
+            <TouchableOpacity>
+              <View style={styles.imageWrapper}>
+                <ImageWithFallback
+                  resizeMode="cover"
+                  src={productImage}
+                  alt={productName}
+                  style={styles.image}
+                />
+              </View>
+            </TouchableOpacity>
           </Link>
-        </div>
+        </View>
 
-        <div className="flex sm:flex-row flex-col lg:w-[67%] md:w-[67%] sm:w-[66%] w-[54%] gap-2">
-          <div className="order-1 flex gap-1 items-center xl:w-[50%] lg:w-[45%] md:w-[40%] w-full">
-            <div className="flex flex-col gap-1">
-              <Link to={configs.routes.products + '/' + productId}>
-                <h3 className="lg:text-sm text-xs line-clamp-2">{productName}</h3>
+        <View style={styles.detailsContainer}>
+          <View style={styles.productInfoContainer}>
+            <View style={styles.nameContainer}>
+              <Link href={`/(app)/products/${productId}`} asChild>
+                <TouchableOpacity>
+                  <MyText
+                    text={productName}
+                    styleProps={styles.productName}
+                    numberOfLines={2}
+                  />
+                </TouchableOpacity>
               </Link>
-              <div>
-                {eventType && eventType !== '' && eventType !== OrderEnum.NORMAL && (
-                  <ProductTag tag={eventType} size="small" />
-                )}
-              </div>
-              <div className="sm:flex gap-1 hidden">
+              <View>
+                {eventType &&
+                  eventType !== "" &&
+                  eventType !== OrderEnum.NORMAL && (
+                    <ProductTag tag={eventType} size="small" />
+                  )}
+              </View>
+              <View style={styles.desktopButtonsContainer}>
                 {status === ShippingStatusEnum.COMPLETED && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
-                    onClick={() => handleCreateCartItem()}
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.primaryButton]}
+                    onPress={() => handleCreateCartItem()}
                   >
-                    {isProcessing ? <LoadingIcon color="primaryBackground" /> : t('order.buyAgain')}
-                  </Button>
+                    {isProcessing ? (
+                      <LoadingIcon color="primaryBackground" />
+                    ) : (
+                      <MyText
+                        text={t("order.buyAgain")}
+                        styleProps={styles.buttonText}
+                      />
+                    )}
+                  </TouchableOpacity>
                 )}
 
-                {/* {status === ShippingStatusEnum.DELIVERED && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
-                  >
-                    {t('order.returnOrder')}
-                  </Button>
-                )} */}
                 {showReviewButton && (
-                  <Button
-                    onClick={() => setOpenWriteFeedbackDialog(true)}
-                    variant="outline"
-                    size="sm"
-                    className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
+                  <TouchableOpacity
+                    onPress={() => setOpenWriteFeedbackDialog(true)}
+                    style={[styles.actionButton, styles.primaryButton]}
                   >
-                    {t('order.writeFeedback')}
-                  </Button>
+                    <MyText
+                      text={t("order.writeFeedback")}
+                      styleProps={styles.buttonText}
+                    />
+                  </TouchableOpacity>
                 )}
+
                 {feedback && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
-                    onClick={() => setOpenViewFbDialog(true)}
+                  <TouchableOpacity
+                    style={[styles.actionButton, styles.primaryButton]}
+                    onPress={() => setOpenViewFbDialog(true)}
                   >
-                    {t('order.viewFeedback')}
-                  </Button>
+                    <MyText
+                      text={t("order.viewFeedback")}
+                      styleProps={styles.buttonText}
+                    />
+                  </TouchableOpacity>
                 )}
-              </div>
-            </div>
-          </div>
-          <div className="order-3 sm:order-2 xl:w-[30%] lg:w-[30%] md:w-[30%] w-full flex md:flex-row flex-col justify-center items-center">
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.classificationContainer}>
             {productClassification?.type === ClassificationTypeEnum?.CUSTOM && (
-              <div className="w-full flex items-center gap-2">
-                <span className="text-xs font-medium text-muted-foreground lg:text-sm overflow-ellipsis">
-                  {t('productDetail.classification')}:
-                </span>
-                <span className="line-clamp-2 lg:text-sm md:text-sm sm:text-xs text-xs text-primary font-medium">
-                  {[
-                    productClassification?.color && `${productClassification.color}`,
-                    productClassification?.size && `${productClassification.size}`,
-                    productClassification?.other && `${productClassification.other}`,
+              <View style={styles.classificationWrapper}>
+                <MyText
+                  text={`${t("productDetail.classification")}:`}
+                  styleProps={styles.classificationLabel}
+                />
+                <MyText
+                  text={[
+                    productClassification?.color &&
+                      `${productClassification.color}`,
+                    productClassification?.size &&
+                      `${productClassification.size}`,
+                    productClassification?.other &&
+                      `${productClassification.other}`,
                   ]
                     .filter(Boolean)
-                    .join(', ')}
-                </span>
-              </div>
+                    .join(", ")}
+                  styleProps={styles.classificationValue}
+                  numberOfLines={2}
+                />
+              </View>
             )}
-          </div>
+          </View>
+
           {unitPriceBeforeDiscount - unitPriceAfterDiscount > 0 ? (
-            <div className="order-2 sm:order-3 w-full md:w-[25%] lg:w-[25%] xl:w-[20%] flex gap-1 items-center justify-start sm:justify-end">
-              <span className="text-gray-400 xl:text-base lg:text-sm text-xs line-through">
-                {t('productCard.price', { price: unitPriceBeforeDiscount })}
-              </span>
-              <span className="text-red-500 xl:text-base lg:text-sm md:text-sm sm:text-xs text-xs">
-                {t('productCard.currentPrice', { price: unitPriceAfterDiscount })}
-              </span>
-            </div>
+            <View style={styles.priceContainer}>
+              <MyText
+                text={t("productCard.price", {
+                  price: unitPriceBeforeDiscount,
+                })}
+                styleProps={styles.oldPrice}
+              />
+              <MyText
+                text={t("productCard.currentPrice", {
+                  price: unitPriceAfterDiscount,
+                })}
+                styleProps={styles.discountedPrice}
+              />
+            </View>
           ) : (
-            <div className="order-2 sm:order-3 w-full md:w-[25%] lg:w-[25%] xl:w-[20%] flex gap-1 items-center justify-start sm:justify-end">
-              <span className="xl:text-base lg:text-sm md:text-sm sm:text-xs text-xs">
-                {t('productCard.price', { price: unitPriceBeforeDiscount })}
-              </span>
-            </div>
+            <View style={styles.priceContainer}>
+              <MyText
+                text={t("productCard.price", {
+                  price: unitPriceBeforeDiscount,
+                })}
+                styleProps={styles.regularPrice}
+              />
+            </View>
           )}
 
-          <div className="order-4 flex gap-2 sm:hidden flex-wrap">
+          <View style={styles.mobileButtonsContainer}>
             {status === ShippingStatusEnum.COMPLETED && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
+              <TouchableOpacity
+                style={[styles.actionButton, styles.primaryButton]}
+                onPress={() => handleCreateCartItem()}
               >
-                {t('order.buyAgain')}
-              </Button>
+                <MyText
+                  text={t("order.buyAgain")}
+                  styleProps={styles.buttonText}
+                />
+              </TouchableOpacity>
             )}
 
-            {/* {status === ShippingStatusEnum.DELIVERED && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
+            {showReviewButton && (
+              <TouchableOpacity
+                onPress={() => setOpenWriteFeedbackDialog(true)}
+                style={[styles.actionButton, styles.primaryButton]}
               >
-                {t('order.returnOrder')}
-              </Button>
-            )} */}
-            {status === ShippingStatusEnum.COMPLETED && !feedback && (
-              <Button
-                onClick={() => setOpenWriteFeedbackDialog(true)}
-                variant="outline"
-                size="sm"
-                className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
-              >
-                {t('order.writeFeedback')}
-              </Button>
+                <MyText
+                  text={t("order.writeFeedback")}
+                  styleProps={styles.buttonText}
+                />
+              </TouchableOpacity>
             )}
+
             {feedback && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border border-primary text-primary hover:text-primary hover:bg-primary/10"
-                onClick={() => setOpenViewFbDialog(true)}
+              <TouchableOpacity
+                style={[styles.actionButton, styles.primaryButton]}
+                onPress={() => setOpenViewFbDialog(true)}
               >
-                {t('order.viewFeedback')}
-              </Button>
+                <MyText
+                  text={t("order.viewFeedback")}
+                  styleProps={styles.buttonText}
+                />
+              </TouchableOpacity>
             )}
-          </div>
-        </div>
+          </View>
+        </View>
 
-        <div className="w-[10%] md:w-[9%] sm:w-[8%] text-end">
-          <span className="lg:text-sm md:text-sm sm:text-xs text-xs">{productQuantity}</span>
-        </div>
-        <span className="font-medium text-red-500 lg:text-base md:text-sm sm:text-xs text-xs w-[20%] md:w-[14%] sm:w-[12%] text-end">
-          {t('productCard.currentPrice', { price: subTotal })}
-        </span>
-      </div>
-      {openWriteFeedbackDialog && (
+        <View style={styles.quantityContainer}>
+          <MyText
+            text={`${productQuantity}`}
+            styleProps={styles.quantityText}
+          />
+        </View>
+
+        <View style={styles.subtotalContainer}>
+          <MyText
+            text={t("productCard.currentPrice", { price: subTotal })}
+            styleProps={styles.subtotalText}
+          />
+        </View>
+      </View>
+
+      {/* {openWriteFeedbackDialog && (
         <WriteFeedbackDialog
           isOpen={openWriteFeedbackDialog}
           onClose={() => setOpenWriteFeedbackDialog(false)}
           orderDetailId={orderDetailId}
         />
       )}
+      
       {feedback && (
         <ViewFeedbackDialog
           productQuantity={productQuantity}
@@ -290,9 +332,143 @@ const ProductOrderDetailLandscape = ({
           accountName={accountName}
           orderDetailId={orderDetailId}
         />
-      )}
-    </div>
-  )
-}
+      )} */}
+    </View>
+  );
+};
 
-export default ProductOrderDetailLandscape
+const { width } = Dimensions.get("window");
+const isSmallDevice = width < 375;
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: myTheme.gray[200],
+  },
+  contentContainer: {
+    width: "100%",
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+    padding: isSmallDevice ? 8 : 16,
+  },
+  imageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    width: "16%",
+  },
+  imageWrapper: {
+    width: isSmallDevice ? 64 : 80,
+    height: isSmallDevice ? 64 : 80,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 6,
+  },
+  detailsContainer: {
+    flexDirection: "column",
+    width: "54%",
+    gap: 8,
+  },
+  productInfoContainer: {
+    flexDirection: "row",
+    gap: 4,
+    alignItems: "center",
+    width: "100%",
+  },
+  nameContainer: {
+    flexDirection: "column",
+    gap: 4,
+  },
+  productName: {
+    fontSize: isSmallDevice ? 12 : 14,
+  },
+  desktopButtonsContainer: {
+    display: "none",
+  },
+  classificationContainer: {
+    width: "100%",
+
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  classificationWrapper: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  classificationLabel: {
+    fontSize: isSmallDevice ? 10 : 12,
+    fontWeight: "500",
+    color: myTheme.mutedForeground,
+  },
+  classificationValue: {
+    fontSize: isSmallDevice ? 10 : 12,
+    fontWeight: "500",
+    color: myTheme.primary,
+  },
+  priceContainer: {
+    width: "100%",
+
+    flexDirection: "row",
+    gap: 4,
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  oldPrice: {
+    color: myTheme.gray[400],
+    fontSize: isSmallDevice ? 10 : 12,
+    textDecorationLine: "line-through",
+  },
+  discountedPrice: {
+    color: myTheme.red[500],
+    fontSize: isSmallDevice ? 10 : 12,
+  },
+  regularPrice: {
+    fontSize: isSmallDevice ? 10 : 12,
+  },
+  mobileButtonsContainer: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+  },
+  actionButton: {
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  primaryButton: {
+    borderColor: myTheme.primary,
+  },
+  buttonText: {
+    color: myTheme.primary,
+    fontSize: isSmallDevice ? 10 : 12,
+  },
+  quantityContainer: {
+    width: "10%",
+
+    alignItems: "flex-end",
+  },
+  quantityText: {
+    fontSize: isSmallDevice ? 10 : 12,
+  },
+  subtotalContainer: {
+    width: "20%",
+
+    alignItems: "flex-end",
+  },
+  subtotalText: {
+    fontWeight: "500",
+    color: myTheme.red[500],
+    fontSize: isSmallDevice ? 10 : 12,
+  },
+});
+
+export default ProductOrderDetailLandscape;

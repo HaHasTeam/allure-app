@@ -1,21 +1,28 @@
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from "react-i18next";
 
-import { IBrand } from '@/types/brand'
-import { ClassificationTypeEnum, ShippingStatusEnum, StatusEnum } from '@/types/enum'
-import { IMasterConfig } from '@/types/master-config'
-import { IOrderDetail } from '@/types/order'
-import { IStatusTracking } from '@/types/status-tracking'
+import { IBrand } from "@/types/brand";
+import {
+  ClassificationTypeEnum,
+  ShippingStatusEnum,
+  StatusEnum,
+} from "@/types/enum";
+import { IMasterConfig } from "@/types/master-config";
+import { IOrderDetail } from "@/types/order";
+import { IStatusTracking } from "@/types/status-tracking";
 
-import ProductOrderDetailLandscape from './ProductOrderDetailLandscape'
+import ProductOrderDetailLandscape from "./ProductOrderDetailLandscape";
+import { myTheme } from "@/constants";
+import { hexToRgba } from "@/utils/color";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 interface OrderDetailItemsProps {
-  orderDetails: IOrderDetail[]
-  status: ShippingStatusEnum
-  brand: IBrand | null
-  accountAvatar: string
-  accountName: string
-  statusTracking?: IStatusTracking[]
-  masterConfig?: IMasterConfig[]
+  orderDetails: IOrderDetail[];
+  status: ShippingStatusEnum;
+  brand: IBrand | null;
+  accountAvatar: string;
+  accountName: string;
+  statusTracking?: IStatusTracking[];
+  masterConfig?: IMasterConfig[];
 }
 const OrderDetailItems = ({
   accountAvatar,
@@ -26,90 +33,134 @@ const OrderDetailItems = ({
   statusTracking,
   masterConfig,
 }: OrderDetailItemsProps) => {
-  const { t } = useTranslation()
-  return (
-    <div className="w-full">
-      <div className="w-full flex gap-2 p-2 md:p-3 lg:p-4 bg-secondary/30 rounded-sm text-secondary-foreground">
-        <div className="overflow-x-visible text-nowrap flex gap-1 items-center lg:w-[10%] md:w-[10%] sm:w-[14%] w-[16%] justify-start text-xs sm:text-sm md:text-base text-center">
-          {t('orderDetail.products')} ({orderDetails?.length} {t('cart.products')})
-        </div>
-        {/* <div className='order-3 sm:order-2 xl:w-[30%] lg:w-[30%] md:w-[30%] w-full flex md:flex-row flex-col justify-center items-center'>
-          {t('orderDetail.classification')}
-        </div> */}
-        <div className="flex sm:flex-row flex-col lg:w-[67%] md:w-[67%] sm:w-[66%] w-[54%] gap-2">
-          <div className="flex gap-1 items-center xl:w-[50%] lg:w-[45%] md:w-[40%] w-full"></div>
-          <div className="xl:w-[30%] lg:w-[30%] md:w-[30%] w-full"></div>
-          <div className="hidden w-full md:w-[25%] lg:w-[25%] xl:w-[20%] sm:flex gap-1 items-center justify-start sm:justify-end">
-            {t('orderDetail.price')}
-          </div>
-          {/* <div className='order-2 sm:order-3 w-full md:w-[25%] lg:w-[25%] xl:w-[20%] flex items-center justify-end text-xs sm:text-sm md:text-base text-end'>
-            {t('orderDetail.price')}
-          </div> */}
-        </div>
-        <div className="w-[10%] md:w-[9%] sm:w-[8%] flex items-center justify-end text-xs sm:text-sm md:text-base text-center">
-          {t('orderDetail.quantity')}
-        </div>
-        <div className="w-[20%] md:w-[14%] sm:w-[12%] flex items-center justify-end text-xs sm:text-sm md:text-base text-center">
-          {t('orderDetail.subTotal')}
-        </div>
-      </div>
-      <div className="bg-white rounded-md">
-        {orderDetails?.map((orderDetail) => (
-          <div
-            key={
-              orderDetail?.id +
-              orderDetail?.type +
-              (
-                orderDetail?.productClassification?.preOrderProduct ??
-                orderDetail?.productClassification?.productDiscount ??
-                orderDetail?.productClassification
-              )?.product?.id
-            }
-          >
-            <ProductOrderDetailLandscape
-              productImage={
-                (orderDetail?.productClassification?.type === ClassificationTypeEnum.DEFAULT
-                  ? (
-                      orderDetail?.productClassification?.preOrderProduct ??
-                      orderDetail?.productClassification?.productDiscount ??
-                      orderDetail?.productClassification
-                    )?.product?.images?.filter((img) => img?.status === StatusEnum.ACTIVE)[0]?.fileUrl
-                  : orderDetail?.productClassification?.images?.[0]?.fileUrl) ?? ''
-              }
-              productId={
-                (
-                  orderDetail?.productClassification?.preOrderProduct ??
-                  orderDetail?.productClassification?.productDiscount ??
-                  orderDetail?.productClassification
-                )?.product?.id ?? ''
-              }
-              productName={
-                (
-                  orderDetail?.productClassification?.preOrderProduct ??
-                  orderDetail?.productClassification?.productDiscount ??
-                  orderDetail?.productClassification
-                )?.product?.name ?? ''
-              }
-              eventType={orderDetail?.type ?? ''}
-              unitPriceAfterDiscount={orderDetail?.unitPriceAfterDiscount}
-              unitPriceBeforeDiscount={orderDetail?.unitPriceBeforeDiscount}
-              subTotal={orderDetail?.subTotal}
-              productQuantity={orderDetail?.quantity}
-              productClassification={orderDetail?.productClassification}
-              status={status}
-              feedback={orderDetail?.feedback ?? null}
-              orderDetailId={orderDetail?.id}
-              brand={brand || null}
-              accountAvatar={accountAvatar}
-              accountName={accountName}
-              masterConfig={masterConfig}
-              statusTracking={statusTracking}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
+  const { t } = useTranslation();
+  const renderItem = ({ item }: { item: IOrderDetail }) => (
+    <ProductOrderDetailLandscape
+      productImage={
+        (item?.productClassification?.type === ClassificationTypeEnum.DEFAULT
+          ? (
+              item?.productClassification?.preOrderProduct ??
+              item?.productClassification?.productDiscount ??
+              item?.productClassification
+            )?.product?.images?.filter(
+              (img) => img?.status === StatusEnum.ACTIVE
+            )[0]?.fileUrl
+          : item?.productClassification?.images?.[0]?.fileUrl) ?? ""
+      }
+      productId={
+        (
+          item?.productClassification?.preOrderProduct ??
+          item?.productClassification?.productDiscount ??
+          item?.productClassification
+        )?.product?.id ?? ""
+      }
+      productName={
+        (
+          item?.productClassification?.preOrderProduct ??
+          item?.productClassification?.productDiscount ??
+          item?.productClassification
+        )?.product?.name ?? ""
+      }
+      eventType={item?.type ?? ""}
+      unitPriceAfterDiscount={item?.unitPriceAfterDiscount}
+      unitPriceBeforeDiscount={item?.unitPriceBeforeDiscount}
+      subTotal={item?.subTotal}
+      productQuantity={item?.quantity}
+      productClassification={item?.productClassification}
+      status={status}
+      feedback={item?.feedback ?? null}
+      orderDetailId={item?.id}
+      brand={brand || null}
+      accountAvatar={accountAvatar}
+      accountName={accountName}
+      masterConfig={masterConfig}
+      statusTracking={statusTracking}
+    />
+  );
 
-export default OrderDetailItems
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={[styles.headerText, { width: "16%" }]}>
+          <Text>
+            {t("orderDetail.products")} ({orderDetails?.length}{" "}
+            {t("cart.products")})
+          </Text>
+        </View>
+        <View style={[styles.headerSection, { width: "54%" }]}>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <View style={{ width: "40%" }} />
+            <View style={{ width: "30%" }} />
+            <View style={{ width: "25%", alignItems: "flex-end" }}>
+              <Text>{t("orderDetail.price")}</Text>
+            </View>
+          </View>
+        </View>
+        <View style={[styles.quantity, { width: "12%" }]}>
+          <Text>{t("orderDetail.quantity")}</Text>
+        </View>
+        <View style={[styles.subTotal, { width: "18%" }]}>
+          <Text>{t("orderDetail.subTotal")}</Text>
+        </View>
+      </View>
+      <View style={styles.content}>
+        <FlatList
+          data={orderDetails}
+          renderItem={renderItem}
+          keyExtractor={(item) =>
+            `${item?.id}${item?.type}${
+              (
+                item?.productClassification?.preOrderProduct ??
+                item?.productClassification?.productDiscount ??
+                item?.productClassification
+              )?.product?.id
+            }`
+          }
+        />
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+  },
+  header: {
+    width: "100%",
+    flexDirection: "row",
+    gap: 8,
+    padding: 8, // default for mobile, scales up for larger screens
+    backgroundColor: hexToRgba(myTheme.secondary, 0.3),
+    borderRadius: 4,
+    color: myTheme.secondaryForeground,
+  },
+  headerText: {
+    overflow: "visible",
+    flexDirection: "row",
+    gap: 4,
+    alignItems: "center",
+    justifyContent: "flex-start",
+    fontSize: 12, // scales up with screen size
+  },
+  headerSection: {
+    flexDirection: "column",
+    gap: 8,
+  },
+  quantity: {
+    alignItems: "center",
+    justifyContent: "flex-end",
+    fontSize: 12,
+  },
+  subTotal: {
+    alignItems: "center",
+    justifyContent: "flex-end",
+    fontSize: 12,
+  },
+  content: {
+    backgroundColor: myTheme.white,
+    borderRadius: 8,
+  },
+});
+
+export default OrderDetailItems;
