@@ -49,10 +49,12 @@ const FlashSale = () => {
 
       {!isFetching &&
         (!flashSaleProductData || flashSaleProductData.items.length === 0) && (
-          <Empty
-            title={t("empty.flashSale.title")}
-            description={t("empty.flashSale.description")}
-          />
+          <View style={styles.loadingContainer}>
+            <Empty
+              title={t("empty.flashSale.title")}
+              description={t("empty.flashSale.description")}
+            />
+          </View>
         )}
 
       {!isFetching &&
@@ -87,7 +89,6 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   container: {
-    flex: 1,
     padding: 16,
   },
   header: {

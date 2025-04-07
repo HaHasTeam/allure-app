@@ -33,7 +33,20 @@
     },
     "plugins": [
       "expo-router",
-      "./internal/expo-config-plugins/appBuildGradleDependencies.js"
+      "./internal/expo-config-plugins/appBuildGradleDependencies.js",
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

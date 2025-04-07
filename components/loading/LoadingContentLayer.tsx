@@ -9,6 +9,7 @@ import {
 import LoadingIcon from "./LoadingIcon";
 import { useTranslation } from "react-i18next";
 import { myFontWeight, myTheme } from "@/constants";
+import { hexToRgba } from "@/utils/color";
 
 type Props = {
   label?: string;
@@ -28,7 +29,7 @@ const LoadingContentLayer: React.FC<Props> = ({ label, style }) => {
   }, [fadeAnim]);
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={styles.overlay}>
       <ActivityIndicator size="large" color={myTheme.primary} />
       <Text style={{ marginTop: 10, fontFamily: myFontWeight.regular }}>
         {label ? label : t("loading") + "..."}
@@ -46,8 +47,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
+    backgroundColor: hexToRgba(myTheme.primary, 0.1),
     zIndex: 10,
+    flex: 1,
   },
 });
 

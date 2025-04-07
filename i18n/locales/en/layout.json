@@ -658,6 +658,7 @@
     "BANK_TRANSFER": "Credit Card/Debit Card"
   },
   "order": {
+    "myOrder": "My Orders",
     "requestManagement": "Request Management",
     "loading": "Loading order...",
     "viewDetail": "View details",
@@ -799,7 +800,7 @@
     },
     "proof": "Images and videos proof",
     "returnRequestApprovedTitle": "Return Request Approved",
-    "returnRequestApprovedMessage": "Your return request has been approved. Please prepare, pack, and ship the item within {{count}} days. Remember to keep clear photos and videos as proof of the product's condition and packaging.",
+    "returnRequestApprovedMessage": "Your return request has been approved. Please prepare and pack the item within {{count}} days. A shipper from our brand will contact you to arrange the pickup. Remember to keep clear photos and videos as proof of the product's condition and packaging.",
     "rejectCancelOrderReason": {
       "SHIPPED": "The order is in transit and cannot be canceled.",
       "PROCESSED": "The order has already been processed and is ready for shipment.",
@@ -807,7 +808,9 @@
       "SUSPICIOUS_ACTIVITY": "This cancellation request appears to be fraudulent or suspicious.",
       "OTHER": "Other"
     },
-    "processSuccess": "Cancellation request processed successfully!"
+    "processSuccess": "Cancellation request processed successfully!",
+    "time": "Time",
+    "by": "By"
   },
   "toast": {
     "success": "Your request has been successfully processed, continue with your work.",
@@ -877,6 +880,8 @@
   },
   "validation": {
     "emailValid": "Please enter a valid email address",
+    "usernameValid": "Please enter a valid username",
+    "usernameHelper": "Username must start with a letter, be 3–20 characters, and use only letters, numbers, or underscores",
     "required": "Please fill out this field",
     "paymentRequired": "Please choose a payment method",
     "reasonRequired": "Please choose a reason",
@@ -1422,5 +1427,9 @@
       "ADMIN_REJECTED": "Rejected by Admin",
       "BRAND_REJECTED": "Rejected by Brand"
     }
+  },
+  "picker": {
+    "filters": "Filters",
+    "reasons": "Reasons"
   }
 }

@@ -16,7 +16,7 @@ const NotFound = () => {
       <Stack.Screen options={{ title: t("error.notFoundTitle") }} />
       <View style={styles.container}>
         <View style={styles.imageContainer}>
-          <Image source={notFound} resizeMode="cover" />
+          <Image source={notFound} resizeMode="contain" style={styles.image} />
         </View>
 
         <View style={styles.content}>

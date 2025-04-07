@@ -1,25 +1,93 @@
-import { useTranslation } from 'react-i18next'
+import { hexToRgba } from "@/utils/color";
+import { useTranslation } from "react-i18next";
+import { View, Text, StyleSheet } from "react-native";
+import { myTheme } from "@/constants";
 
 export default function CheckoutHeader() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
-    <div className="w-full bg-secondary/30 rounded-sm text-primary font-medium">
-      <div className="w-full flex px-4 py-3 space-y-2 items-center lg:text-base md:text-sm sm:text-xs text-xs">
-        <div className="flex items-center gap-2 w-fit">
-          <label className="w-fit">{t('cart.Products')}</label>
-        </div>
-        <div className="flex sm:flex-row flex-col lg:w-[68%] md:w-[77%] sm:w-[66%] w-[54%]">
-          <div className="flex gap-1 items-center xl:w-[50%] lg:w-[45%] md:w-[40%] w-full"> </div>
-          <div className="xl:w-[30%] lg:w-[30%] md:w-[30%] w-full"></div>
-          <div className=" w-full md:w-[25%] lg:w-[25%] xl:w-[20%] flex gap-1 items-center justify-center sm:flex">
-            {t('cart.price')}
-          </div>
-        </div>
+    <View style={styles.container}>
+      <View style={styles.headerRow}>
+        <View style={styles.productSection}>
+          <Text style={styles.label}>{t("cart.Products")}</Text>
+        </View>
 
-        <span className="w-[10%] md:w-[9%] sm:w-[8%] text-center">{t('cart.quantity')}</span>
-        <span className="w-[20%] md:w-[14%] sm:w-[12%] text-center">{t('cart.total')}</span>
-      </div>
-    </div>
-  )
+        <View style={styles.infoSection}>
+          <View style={styles.emptySection} />
+          <View style={styles.middleSection} />
+          <View style={styles.priceSection}>
+            <Text style={styles.priceText}>{t("cart.price")}</Text>
+          </View>
+        </View>
+
+        <View style={styles.quantitySection}>
+          <Text style={styles.sectionText}>{t("cart.quantity")}</Text>
+        </View>
+
+        <View style={styles.totalSection}>
+          <Text style={styles.sectionText}>{t("cart.total")}</Text>
+        </View>
+      </View>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    backgroundColor: hexToRgba(myTheme.secondary, 0.3),
+    borderRadius: 4,
+    color: myTheme.primary,
+  },
+  headerRow: {
+    width: "100%",
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    alignItems: "center",
+    gap: 8,
+  },
+  productSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  label: {
+    color: myTheme.primary,
+    fontWeight: "500",
+  },
+  infoSection: {
+    flexDirection: "row",
+    width: "54%",
+  },
+  emptySection: {
+    width: "100%", // base width
+  },
+  middleSection: {
+    width: "100%",
+  },
+  priceSection: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  priceText: {
+    color: myTheme.primary,
+    fontWeight: "500",
+  },
+  quantitySection: {
+    width: "10%", // base width
+    alignItems: "center",
+  },
+  totalSection: {
+    width: "20%", // base width
+    alignItems: "center",
+  },
+  sectionText: {
+    color: myTheme.primary,
+    fontWeight: "500",
+    fontSize: 12, // base text-xs
+  },
+});

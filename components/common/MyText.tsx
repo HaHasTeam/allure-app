@@ -1,20 +1,20 @@
-import React from 'react'
-import { StyleProp, Text, TextStyle } from 'react-native'
+import React from "react";
+import { StyleProp, Text, TextStyle } from "react-native";
 
 const MyText = ({
-  weight = 'Main-Font-Regular',
+  weight = "Main-Font-Regular",
   text,
   styleProps,
   ellipsizeMode,
   numberOfLines,
   ...props
 }: {
-  weight?: string
-  text: string
-  styleProps?: StyleProp<TextStyle>
-  [key: string]: any
-  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip' | undefined
-  numberOfLines?: number | undefined
+  weight?: string;
+  text: string;
+  styleProps?: StyleProp<TextStyle>;
+  [key: string]: any;
+  ellipsizeMode?: "head" | "middle" | "tail" | "clip" | undefined;
+  numberOfLines?: number | undefined;
 }) => {
   return (
     <Text
@@ -25,7 +25,7 @@ const MyText = ({
     >
       {text}
     </Text>
-  )
-}
+  );
+};
 
-export default MyText
+export default MyText;

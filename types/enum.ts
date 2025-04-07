@@ -187,3 +187,7 @@ export enum ActionReceivedEnum {
   RECEIVED = "RECEIVED",
   NOT_RECEIVED = "NOT_RECEIVED",
 }
+export enum FileStatusEnum {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}

@@ -121,10 +121,12 @@ const RecommendProduct = () => {
       )}
 
       {!isLoading && !hasProducts && (
-        <Empty
-          title={t("empty.recommendProducts.title")}
-          description={t("empty.recommendProducts.description")}
-        />
+        <View style={styles.loader}>
+          <Empty
+            title={t("empty.recommendProducts.title")}
+            description={t("empty.recommendProducts.description")}
+          />{" "}
+        </View>
       )}
 
       {!isLoading && hasProducts && (
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: "600",
+    fontWeight: "bold",
     color: myTheme.primary,
   },
   link: {

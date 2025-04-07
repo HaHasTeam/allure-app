@@ -125,6 +125,18 @@ const ProfileScreen = () => {
     },
     {
       icon: (
+        <Feather
+          name="package"
+          style={style.icon}
+          size={24}
+          color={myTheme.primary}
+        />
+      ),
+      onPress: () => router.push("/(app)/(profile)/orders"),
+      title: t("order.myOrder"),
+    },
+    {
+      icon: (
         <MaterialCommunityIcons
           style={style.icon}
           name="logout"
