@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import useHandleServerError from "@/hooks/useHandleServerError";
-import { useToast } from "@/hooks/useToast";
 import { IBrand } from "@/types/brand";
 import { IClassification } from "@/types/classification";
 import {
@@ -22,6 +21,7 @@ import LoadingIcon from "../loading/LoadingIcon";
 import { myTheme } from "@/constants";
 import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import MyText from "../common/MyText";
+import { useToast } from "@/contexts/ToastContext";
 
 interface ProductOrderDetailLandscapeProps {
   productImage: string;
@@ -65,7 +65,7 @@ const ProductOrderDetailLandscape = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [openWriteFeedbackDialog, setOpenWriteFeedbackDialog] = useState(false);
   const [openViewFbDialog, setOpenViewFbDialog] = useState(false);
-  const { successToast } = useToast();
+  const { showToast } = useToast();
   const queryClient = useQueryClient();
   const handleServerError = useHandleServerError();
 
@@ -76,10 +76,7 @@ const ProductOrderDetailLandscape = ({
       queryClient.invalidateQueries({
         queryKey: [getMyCartApi.queryKey],
       });
-      successToast({
-        message: t("cart.addToCartSuccess"),
-        isShowDescription: false,
-      });
+      showToast(t("cart.addToCartSuccess"), "success", 4000);
     },
   });
 
