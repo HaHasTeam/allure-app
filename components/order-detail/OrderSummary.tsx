@@ -10,7 +10,7 @@ interface OrderSummaryProps {
   paymentMethod: string;
 }
 
-export function OrderSummary({
+export default function OrderSummary({
   totalProductCost,
   totalBrandDiscount,
   totalPlatformDiscount,

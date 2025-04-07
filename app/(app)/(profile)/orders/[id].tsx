@@ -35,11 +35,11 @@ import { Feather, MaterialIcons, Octicons } from "@expo/vector-icons";
 import OrderStatusTrackingDetail from "@/components/order-detail/OrderStatusTrackingDetail";
 import BrandOrderInformation from "@/components/brand/BrandOrderInformation";
 import OrderDetailItems from "@/components/order-detail/OrderDetailItems";
-import OrderSummary from "@/components/order-detail/OrderSummary";
 import LoadingIcon from "@/components/loading/LoadingIcon";
 import Empty from "@/components/empty";
 import CancelOrderDialog from "@/components/order/CancelOrderDialog";
 import ConfirmDecisionDialog from "@/components/order-detail/ConfirmDecisionDialog";
+import OrderSummary from "@/components/order-detail/OrderSummary";
 
 const OrderDetail = () => {
   const { orderId } = useLocalSearchParams();
@@ -622,12 +622,14 @@ const OrderDetail = () => {
           </View>
         )}
         {!isFetching && (!useOrderData || !useOrderData?.data) && (
-          <Empty
-            title={t("empty.orderDetail.title")}
-            description={t("empty.orderDetail.description")}
-            link={"/(app)/(profile)/orders"}
-            linkText={t("empty.orderDetail.button")}
-          />
+          <View style={styles.loadingContainer}>
+            <Empty
+              title={t("empty.orderDetail.title")}
+              description={t("empty.orderDetail.description")}
+              link={"/(app)/(profile)/orders"}
+              linkText={t("empty.orderDetail.button")}
+            />
+          </View>
         )}
       </ScrollView>
 
@@ -739,6 +741,11 @@ const OrderDetail = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+  },
   container: {
     flex: 1,
     position: "relative",
