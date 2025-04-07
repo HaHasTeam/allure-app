@@ -40,9 +40,11 @@ import Empty from "@/components/empty";
 import CancelOrderDialog from "@/components/order/CancelOrderDialog";
 import ConfirmDecisionDialog from "@/components/order-detail/ConfirmDecisionDialog";
 import OrderSummary from "@/components/order-detail/OrderSummary";
+import { Stack } from "expo-router";
 
 const OrderDetail = () => {
   const { orderId } = useLocalSearchParams();
+  console.log(orderId);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [openCancelOrderDialog, setOpenCancelOrderDialog] =
@@ -236,6 +238,7 @@ const OrderDetail = () => {
   }, [masterConfig?.data]);
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ title: t("orderDetail.title") }} />
       {isFetching && <LoadingContentLayer />}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerContainer}>

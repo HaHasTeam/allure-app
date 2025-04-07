@@ -278,7 +278,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
           data={orderItem?.orderDetails || []}
           renderItem={({ item: productOder }) => (
             <TouchableOpacity
-              onPress={() => router.push(`/orders/${orderItem?.id}`)}
+              onPress={() => router.push(`/(profile)/orders/${orderItem?.id}`)}
               key={productOder?.id}
               style={styles.productItem}
             >
@@ -485,7 +485,7 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
               style={styles.outlineButton}
-              onPress={() => router.push(`/profile/orders/${orderItem?.id}`)}
+              onPress={() => router.push(`/(profile)/orders/${orderItem?.id}`)}
             >
               <MyText
                 text={t("order.viewDetail")}

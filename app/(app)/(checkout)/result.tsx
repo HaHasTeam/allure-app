@@ -29,13 +29,13 @@ const result = ({ status, orderId }: ResultProps) => {
         }
         leftButtonAction={
           status === ResultEnum.SUCCESS
-            ? () => router.replace(`/profile/orders/${orderId}`)
+            ? () => router.replace(`/(profile)/orders/${orderId}`)
             : () => router.replace("/")
         }
         rightButtonAction={
           status === ResultEnum.SUCCESS
             ? () => router.replace("/")
-            : () => router.replace(`/profile/orders/${orderId}`)
+            : () => router.replace(`/(profile)/orders/${orderId}`)
         }
         leftButtonText={
           status === ResultEnum.SUCCESS
