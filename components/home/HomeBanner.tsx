@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Carousel, Spacings } from "react-native-ui-lib";
 import ImageWithFallback from "../image/ImageWithFallBack";
@@ -17,8 +17,8 @@ const HomeBanner = () => {
       <Carousel
         autoplay
         pageWidth={styles.carousel.width - Spacings.s5 * 2}
-        itemSpacings={Spacings.s3}
-        containerMarginHorizontal={Spacings.s2}
+        itemSpacings={8}
+        containerMarginHorizontal={0}
         initialPage={2}
         containerStyle={styles.carouselContainer}
         pageControlPosition={Carousel.pageControlPositions.UNDER}
@@ -29,8 +29,8 @@ const HomeBanner = () => {
               <ImageWithFallback
                 src={banner.fileUrl ?? ""}
                 style={styles.image}
+                resizeMode="cover"
               />
-              <Text margin-15>CARD {index}</Text>
             </View>
           )
         )}
@@ -44,10 +44,11 @@ export default HomeBanner;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
+    flex: 1,
     alignItems: "center",
   },
   carousel: {
-    width: 800,
+    width: Dimensions.get("window").width,
   },
   carouselContainer: {
     position: "relative",
@@ -57,13 +58,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#ddd",
-    borderRadius: 10,
+    borderRadius: 4,
     overflow: "hidden",
+    width: "100%",
+    flex: 1,
   },
   image: {
     width: "100%",
-    height: 160,
     resizeMode: "cover",
-    borderRadius: 10,
+    borderRadius: 4,
+    flex: 1,
+    overflow: "hidden",
   },
 });

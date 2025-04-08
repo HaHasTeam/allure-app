@@ -62,7 +62,8 @@ export default BeautyOffers;
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    marginTop: 20,
+    marginVertical: 6,
+    paddingBottom: 16,
   },
   header: {
     fontSize: 20,

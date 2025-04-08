@@ -66,7 +66,7 @@ const FlashSale = () => {
               itemSpacings={5}
               containerMarginHorizontal={0}
               initialPage={0}
-              containerStyle={{ height: 310 }}
+              containerStyle={styles.carousel}
               pageControlPosition={Carousel.pageControlPositions.UNDER}
             >
               {flashSaleProductData.items.map((product) => (
@@ -82,14 +82,16 @@ const FlashSale = () => {
 };
 
 const styles = StyleSheet.create({
+  carousel: {},
   carouselContainer: {
     position: "relative",
   },
   carouselItem: {
-    padding: 0,
+    marginBottom: 4,
   },
   container: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
   },
   header: {
     flexDirection: "row",

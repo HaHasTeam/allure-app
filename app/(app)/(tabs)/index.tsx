@@ -4,6 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  FlatList,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -37,13 +38,20 @@ export default function HomeScreen() {
           style={{ flex: 1, backgroundColor: "#FFF" }}
           keyboardVerticalOffset={100}
         >
-          <ScrollView>
-            <HomeBanner />
-            <BeautyOffers />
-            <FlashSale />
-            <PreOrderProductSections />
-            <RecommendProduct />
-          </ScrollView>
+          <FlatList
+            data={[]}
+            renderItem={() => null}
+            ListHeaderComponent={
+              <>
+                <HomeBanner />
+                <BeautyOffers />
+                <FlashSale />
+                <PreOrderProductSections />
+                <RecommendProduct />
+              </>
+            }
+            keyExtractor={(item, index) => index.toString()}
+          />
         </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </>

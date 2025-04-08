@@ -64,7 +64,7 @@ function PreOrderProductSections() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 12,
+    paddingBottom: 12,
     paddingHorizontal: 16,
   },
   header: {

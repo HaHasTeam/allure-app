@@ -136,6 +136,7 @@ const RecommendProduct = () => {
           keyExtractor={(item) => item.id.toString()}
           numColumns={2}
           columnWrapperStyle={styles.productGrid}
+          scrollEnabled={false}
         />
       )}
     </View>
