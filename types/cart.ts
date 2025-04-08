@@ -18,6 +18,8 @@ export interface ICartItem {
   classification?: string;
   status: StatusEnum.ACTIVE | StatusEnum.INACTIVE;
   productClassification: IClassification;
+  livestreamDiscount?: number;
+  livestream?: string;
 }
 
 export type ICreateCartItem = Omit<
@@ -31,6 +33,8 @@ export type ICreateCartItem = Omit<
 > & {
   productClassification: string;
   groupBuying?: string;
+  livestreamDiscount?: number;
+  livestream?: string;
 };
 export type IUpdateCartItem = Omit<
   ICartItem,

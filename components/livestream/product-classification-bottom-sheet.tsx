@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import BottomSheet, {
@@ -16,15 +17,28 @@ import BottomSheet, {
 } from "@gorhom/bottom-sheet";
 import { useTranslation } from "react-i18next";
 import type { IClassification } from "@/types/classification";
+import { calculateDiscountPrice } from "@/utils/price";
+import { DiscountTypeEnum } from "@/types/enum";
+
+const { width } = Dimensions.get("window");
 
 interface ProductClassificationBottomSheetProps {
   visible: boolean;
   onClose: () => void;
   productName: string;
   classifications: IClassification[];
-  onAddToCart: (classificationId: string, quantity: number) => void;
-  onBuyNow: (classificationId: string, quantity: number) => void;
+  onAddToCart: (
+    classificationId: string,
+    quantity: number,
+    title?: string
+  ) => void;
+  onBuyNow: (
+    classificationId: string,
+    quantity: number,
+    title?: string
+  ) => void;
   actionType: "cart" | "buy";
+  livestreamDiscount?: number; // Add livestream discount prop
 }
 
 const ProductClassificationBottomSheet = ({
@@ -35,6 +49,7 @@ const ProductClassificationBottomSheet = ({
   onAddToCart,
   onBuyNow,
   actionType,
+  livestreamDiscount = 0, // Default to 0 if not provided
 }: ProductClassificationBottomSheetProps) => {
   const { t } = useTranslation();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -108,10 +123,16 @@ const ProductClassificationBottomSheet = ({
   const handleConfirm = () => {
     if (!selectedClassification) return;
 
+    // Get the selected classification object to access its title
+    const selectedVariantObj = classifications.find(
+      (c) => c.id === selectedClassification
+    );
+    const title = selectedVariantObj?.title;
+
     if (actionType === "cart") {
-      onAddToCart(selectedClassification, quantity);
+      onAddToCart(selectedClassification, quantity, title);
     } else {
-      onBuyNow(selectedClassification, quantity);
+      onBuyNow(selectedClassification, quantity, title);
     }
 
     // Reset state
@@ -135,6 +156,23 @@ const ProductClassificationBottomSheet = ({
       return classifications[0].images[0].fileUrl;
     }
     return "https://via.placeholder.com/100";
+  };
+
+  // Calculate discounted price if livestream discount is available
+  const getDiscountedPrice = (originalPrice: number) => {
+    if (livestreamDiscount && livestreamDiscount > 0) {
+      return calculateDiscountPrice(
+        originalPrice,
+        livestreamDiscount,
+        DiscountTypeEnum.PERCENTAGE
+      );
+    }
+    return originalPrice;
+  };
+
+  // Format price with currency
+  const formatPrice = (price: number) => {
+    return t("productCard.price", { price });
   };
 
   if (!visible) return null;
@@ -169,9 +207,27 @@ const ProductClassificationBottomSheet = ({
                 {productName}
               </Text>
               {selectedVariant && (
-                <Text style={styles.productPrice}>
-                  {t("productCard.price", { price: selectedVariant.price })}
-                </Text>
+                <>
+                  {livestreamDiscount > 0 ? (
+                    <View style={styles.priceContainer}>
+                      <Text style={styles.discountedPrice}>
+                        {formatPrice(getDiscountedPrice(selectedVariant.price))}
+                      </Text>
+                      <Text style={styles.originalPrice}>
+                        {formatPrice(selectedVariant.price)}
+                      </Text>
+                      <View style={styles.discountBadge}>
+                        <Text style={styles.discountText}>
+                          -{livestreamDiscount * 100}%
+                        </Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <Text style={styles.productPrice}>
+                      {formatPrice(selectedVariant.price)}
+                    </Text>
+                  )}
+                </>
               )}
               {selectedVariant && (
                 <Text style={styles.stockInfo}>
@@ -283,9 +339,9 @@ const ProductClassificationBottomSheet = ({
             <View style={styles.totalPriceContainer}>
               <Text style={styles.totalPriceLabel}>{t("cart.totalPrice")}</Text>
               <Text style={styles.totalPriceValue}>
-                {t("productCard.price", {
-                  price: selectedVariant.price * quantity,
-                })}
+                {formatPrice(
+                  getDiscountedPrice(selectedVariant.price) * quantity
+                )}
               </Text>
             </View>
           )}
@@ -351,11 +407,39 @@ const styles = StyleSheet.create({
     color: "#1f2937",
     marginBottom: 4,
   },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   productPrice: {
     fontSize: 18,
     fontWeight: "700",
     color: "#ef4444",
     marginBottom: 4,
+  },
+  discountedPrice: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#ef4444",
+    marginRight: 8,
+  },
+  originalPrice: {
+    fontSize: 14,
+    color: "#94a3b8",
+    textDecorationLine: "line-through",
+    marginRight: 8,
+  },
+  discountBadge: {
+    backgroundColor: "#ef4444",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  discountText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#ffffff",
   },
   stockInfo: {
     fontSize: 14,

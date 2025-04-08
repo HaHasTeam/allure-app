@@ -740,6 +740,7 @@ export default function LivestreamViewerScreen() {
         visible={isProductsModalVisible}
         onClose={closeProductsModal}
         products={listProduct}
+        livestreamId={livestreamId}
       />
     </View>
   );

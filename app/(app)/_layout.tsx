@@ -134,6 +134,24 @@ function AppLayout() {
             }}
           />
           <Stack.Screen
+            name="(profile)/orders/index"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(language)/languageswitcher"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(checkout)/checkout"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
             name="(home)/notifications"
             options={{
               header: () => (

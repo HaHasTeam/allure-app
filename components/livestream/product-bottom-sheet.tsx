@@ -33,6 +33,9 @@ import { calculateDiscountPrice } from "@/utils/price";
 import { useRouter } from "expo-router";
 import ProductClassificationBottomSheet from "./product-classification-bottom-sheet";
 import type { IClassification } from "@/types/classification";
+import { createCartFromProduct } from "@/utils/cart";
+import useCartStore from "@/store/cart";
+import type { IProduct } from "@/types/product";
 
 export interface LiveSteamDetail {
   id: string;
@@ -46,18 +49,21 @@ interface ProductSelectionBottomSheetProps {
   products: LiveSteamDetail[];
   visible: boolean;
   onClose: () => void;
+  livestreamId?: string; // Optional prop for livestream ID
 }
 
 const ProductSelectionBottomSheet = ({
   products,
   visible,
   onClose,
+  livestreamId, // Use provided livestreamId if available
 }: ProductSelectionBottomSheetProps) => {
   const { t } = useTranslation();
   const router = useRouter();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const handleServerError = useHandleServerError();
+  const { setSelectedCartItem } = useCartStore();
 
   // Bottom sheet reference
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -67,6 +73,8 @@ const ProductSelectionBottomSheet = ({
     useState(false);
   const [currentAction, setCurrentAction] = useState<"cart" | "buy">("cart");
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedLivestream, setSelectedLivestream] =
+    useState<LiveSteamDetail | null>(null);
 
   const snapPoints = useMemo(() => ["70%"], []);
 
@@ -138,7 +146,10 @@ const ProductSelectionBottomSheet = ({
   );
 
   // Handle add to cart with API call
-  const handleAddToCart = async (product: any) => {
+  const handleAddToCart = async (
+    product: any,
+    livestreamDetail: LiveSteamDetail
+  ) => {
     // Check if product has classifications
     if (!product.classifications || product.classifications.length === 0) {
       showToast(
@@ -160,7 +171,9 @@ const ProductSelectionBottomSheet = ({
         await createCartItemFn({
           quantity: 1,
           productClassification: defaultClassification.id,
-          classification: defaultClassification?.title ?? "",
+          classification: defaultClassification.title ?? "",
+          livestream: livestreamId || livestreamDetail.id, // Use provided livestreamId or from detail
+          livestreamDiscount: livestreamDetail.discount, // Use actual discount from livestream
         });
       } catch (error) {
         console.error("Failed to add item to cart:", error);
@@ -169,12 +182,16 @@ const ProductSelectionBottomSheet = ({
       // Show bottom sheet for custom classification selection
       setCurrentAction("cart");
       setSelectedProduct(product);
+      setSelectedLivestream(livestreamDetail);
       setClassificationSheetVisible(true);
     }
   };
 
   // Handle buy now with auto-close
-  const handleBuyNow = async (product: any) => {
+  const handleBuyNow = async (
+    product: any,
+    livestreamDetail: LiveSteamDetail
+  ) => {
     // Check if product has classifications
     if (!product.classifications || product.classifications.length === 0) {
       showToast(
@@ -191,23 +208,39 @@ const ProductSelectionBottomSheet = ({
     );
 
     if (defaultClassification) {
-      // Use the default classification directly
       try {
-        // await createCartItemFn({
-        //   quantity: 1,
-        //   productClassification: defaultClassification.id,
-        // });
+        // Create cart item object using the utility function
+        const cartItem = createCartFromProduct(
+          product as IProduct,
+          1, // quantity
+          defaultClassification as IClassification,
+          {
+            id: livestreamId || livestreamDetail.id, // Use provided livestreamId or from detail
+            discount: livestreamDetail.discount, // Use actual discount from livestream
+          }
+        );
+
+        // Set the selected cart item in the store
+        setSelectedCartItem(cartItem);
+
+        // Close the bottom sheet
+        handleClose();
 
         // Navigate to checkout
-        handleClose();
         router.navigate("/(app)/checkout");
       } catch (error) {
-        console.error("Failed to add item to cart:", error);
+        console.error("Failed to process buy now:", error);
+        showToast(
+          t("cart.buyNowError") || "Failed to process buy now",
+          "error",
+          4000
+        );
       }
     } else {
       // Show bottom sheet for custom classification selection
       setCurrentAction("buy");
       setSelectedProduct(product);
+      setSelectedLivestream(livestreamDetail);
       setClassificationSheetVisible(true);
     }
   };
@@ -215,12 +248,18 @@ const ProductSelectionBottomSheet = ({
   // Handle classification selection and add to cart
   const handleAddToCartWithClassification = async (
     classificationId: string,
-    quantity: number
+    quantity: number,
+    title?: string
   ) => {
     try {
+      if (!selectedLivestream) return;
+
       await createCartItemFn({
         quantity,
         productClassification: classificationId,
+        classification: title ?? "",
+        livestream: livestreamId || selectedLivestream.id, // Use provided livestreamId or from selected livestream
+        livestreamDiscount: selectedLivestream.discount, // Use actual discount from selected livestream
       });
     } catch (error) {
       console.error("Failed to add item to cart:", error);
@@ -230,19 +269,47 @@ const ProductSelectionBottomSheet = ({
   // Handle classification selection and buy now
   const handleBuyNowWithClassification = async (
     classificationId: string,
-    quantity: number
+    quantity: number,
+    title?: string
   ) => {
     try {
-      // await createCartItemFn({
-      //   quantity,
-      //   productClassification: classificationId,
-      // });
+      if (!selectedProduct || !selectedLivestream) return;
+
+      // Find the selected classification object
+      const selectedClassification = selectedProduct.classifications.find(
+        (c: IClassification) => c.id === classificationId
+      );
+
+      if (!selectedClassification) {
+        throw new Error("Selected classification not found");
+      }
+
+      // Create cart item object using the utility function
+      const cartItem = createCartFromProduct(
+        selectedProduct as IProduct,
+        quantity,
+        selectedClassification as IClassification,
+        {
+          id: livestreamId || selectedLivestream.id, // Use provided livestreamId or from selected livestream
+          discount: selectedLivestream.discount, // Use actual discount from selected livestream
+        }
+      );
+
+      // Set the selected cart item in the store
+      setSelectedCartItem(cartItem);
+
+      // Close the bottom sheet
+      handleClose();
 
       // Navigate to checkout
-      handleClose();
       router.navigate("/(app)/checkout");
     } catch (error) {
-      console.error("Failed to add item to cart:", error);
+      console.error("Failed to process buy now:", error);
+      showToast(
+        t("cart.buyNowError") || "Failed to process buy now",
+        "error",
+        4000
+      );
     }
   };
 
@@ -339,7 +406,13 @@ const ProductSelectionBottomSheet = ({
                   item.discount,
                   DiscountTypeEnum.PERCENTAGE
                 );
-                const productTag = "LiveStream";
+                const productTag = hasPreOrder
+                  ? OrderEnum.PRE_ORDER
+                  : hasDiscount
+                  ? OrderEnum.FLASH_SALE
+                  : item.product.status === ProductEnum.OFFICIAL
+                  ? ""
+                  : item.product.status;
 
                 const mockProduct = {
                   id: item.product.id,
@@ -371,6 +444,7 @@ const ProductSelectionBottomSheet = ({
                   salesLast30Days: Number(item.product.salesLast30Days),
                   classifications: productClassifications,
                   certificates: item.product.certificates,
+                  brand: item.product.brand,
                 };
                 return (
                   <ProductItem
@@ -378,8 +452,8 @@ const ProductSelectionBottomSheet = ({
                     discount={item.discount}
                     originalPrice={item.product.price}
                     discountedPrice={currentPrice}
-                    onAddToCart={() => handleAddToCart(mockProduct)}
-                    onBuyNow={() => handleBuyNow(mockProduct)}
+                    onAddToCart={() => handleAddToCart(mockProduct, item)}
+                    onBuyNow={() => handleBuyNow(mockProduct, item)}
                   />
                 );
               }}
@@ -391,7 +465,7 @@ const ProductSelectionBottomSheet = ({
       </BottomSheet>
 
       {/* Classification Selection Bottom Sheet */}
-      {selectedProduct && (
+      {selectedProduct && selectedLivestream && (
         <ProductClassificationBottomSheet
           visible={classificationSheetVisible}
           onClose={() => setClassificationSheetVisible(false)}
@@ -400,6 +474,7 @@ const ProductSelectionBottomSheet = ({
           onAddToCart={handleAddToCartWithClassification}
           onBuyNow={handleBuyNowWithClassification}
           actionType={currentAction}
+          livestreamDiscount={selectedLivestream.discount} // Pass the livestream discount
         />
       )}
     </>
