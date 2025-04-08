@@ -58,6 +58,7 @@ function AppLayout() {
         />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
           <Stack.Screen
             name="(profile)/editprofile"
             options={{
@@ -103,6 +104,12 @@ function AppLayout() {
               ),
             }}
           />
+          <Stack.Screen
+            name="(products)/product-detail/[productId]"
+            options={{
+              headerShown: false,
+            }}
+          />
 
           <Stack.Screen
             name="(profile)/contact"
@@ -127,6 +134,24 @@ function AppLayout() {
             }}
           />
           <Stack.Screen
+            name="(profile)/orders/index"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(language)/languageswitcher"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(checkout)/checkout"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
             name="(home)/notifications"
             options={{
               header: () => (
@@ -146,6 +171,12 @@ function AppLayout() {
                   }}
                 />
               ),
+            }}
+          />
+          <Stack.Screen
+            name="(livestream)/viewer-stream"
+            options={{
+              headerShown: false,
             }}
           />
         </Stack>

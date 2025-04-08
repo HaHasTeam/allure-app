@@ -2,12 +2,7 @@
 
 import { useNavigation } from "expo-router";
 import { jwtDecode } from "jwt-decode";
-import {
-  type PropsWithChildren,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { type PropsWithChildren, useState, useEffect } from "react";
 
 import AuthContext from "./AuthContenxtDefinition";
 

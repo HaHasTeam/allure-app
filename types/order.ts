@@ -29,6 +29,8 @@ export interface IOrderFeedback extends IOrderItem {
 }
 export interface IOrderDetailFeedback extends IOrderDetail {
   order: IOrderFeedback;
+  classificationName: string;
+  productName: string;
 }
 
 export interface IOrderItem {

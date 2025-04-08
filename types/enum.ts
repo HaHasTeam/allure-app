@@ -37,6 +37,13 @@ export enum ProductEnum {
   BANNED = "BANNED",
   PRE_ORDER = "PRE_ORDER",
 }
+export enum ProductTagEnum {
+  BEST_SELLER = "BEST_SELLER",
+  HOT = "HOT",
+  NEW = "NEW",
+  PRICE_ASC = "PRICE_ASC",
+  PRICE_DESC = "PRICE_DESC",
+}
 
 export enum FileEnum {
   CERTIFICATE = "CERTIFICATE",
@@ -151,7 +158,12 @@ export enum ResultEnum {
   WARNING = "WARNING",
   FAILURE = "FAILURE",
 }
-
+export enum LiveStreamEnum {
+  SCHEDULED = "SCHEDULED",
+  LIVE = "LIVE",
+  ENDED = "ENDED",
+  CANCELLED = "CANCELLED",
+}
 export enum FeedbackFilterEnum {
   ALL = "ALL",
   RATING = "RATING",

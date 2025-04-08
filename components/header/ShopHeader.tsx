@@ -1,12 +1,4 @@
-"use client";
-
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-} from "react-native";
+import { View, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import { Badge } from "react-native-ui-lib";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -16,24 +8,44 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SearchModal from "../search/SearchModal";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getProductFilterMutationApi } from "@/hooks/api/product";
+import { ProductTagEnum } from "@/types/enum";
+import { IResponseProduct } from "@/types/product";
 
-const { width } = Dimensions.get("window");
-
+// Update the ShopHeaderProps interface to include search-related props
 interface ShopHeaderProps {
   cartItemCount?: number;
   notificationCount?: number;
-  onSearchChange?: (text: string) => void;
+  onProductsLoaded?: (products: IResponseProduct[]) => void;
+  defaultTag?: ProductTagEnum;
+  defaultLimit?: number;
 }
 
 const ShopHeader = ({
   cartItemCount = 10,
   notificationCount = 10,
-  onSearchChange,
+  onProductsLoaded,
+  defaultTag = ProductTagEnum.BEST_SELLER,
+  defaultLimit = 10,
 }: ShopHeaderProps) => {
+  const { mutateAsync: searchMutate } = useMutation({
+    mutationKey: [getProductFilterMutationApi.mutationKey],
+    mutationFn: getProductFilterMutationApi.fn,
+  });
+
   const router = useRouter();
   const [searchModalVisible, setSearchModalVisible] = useState(false);
+
+  // Add state for search and pagination
+  const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<IResponseProduct[]>([]);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalItems, setTotalItems] = useState(0);
 
   const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -78,96 +90,167 @@ const ShopHeader = ({
     setSearchModalVisible(false);
   };
 
+  // Implement search function with pagination
+  const fetchProducts = useCallback(
+    async (reset = false) => {
+      if (isLoading || (!hasMore && !reset)) return;
+
+      try {
+        setIsLoading(true);
+        const currentPage = reset ? 1 : page;
+
+        const response = await searchMutate({
+          search: searchQuery,
+          tag: defaultTag,
+          page: currentPage,
+          limit: defaultLimit,
+        });
+
+        if (response && response.data) {
+          const newProducts = response.data.items;
+          const total = Number.parseInt(response.data.total || "0");
+
+          setTotalItems(total);
+
+          if (reset) {
+            setProducts(newProducts);
+          } else {
+            setProducts((prev) => [...prev, ...newProducts]);
+          }
+
+          setHasMore(products.length + newProducts.length < total);
+
+          if (!reset) {
+            setPage(currentPage + 1);
+          } else {
+            setPage(2);
+          }
+
+          // Notify parent component if needed
+          if (onProductsLoaded) {
+            onProductsLoaded(
+              reset ? newProducts : [...products, ...newProducts]
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [
+      searchQuery,
+      page,
+      hasMore,
+      isLoading,
+      products,
+      defaultTag,
+      defaultLimit,
+      searchMutate,
+      onProductsLoaded,
+    ]
+  );
+
+  // Handle search input change
   const handleSearch = (query: string) => {
-    if (onSearchChange) {
-      onSearchChange(query);
+    setSearchQuery(query);
+    setHasMore(true);
+
+    // Reset and fetch new results
+    fetchProducts(true);
+  };
+
+  // Handle infinite scroll
+  const handleLoadMore = () => {
+    if (!isLoading && hasMore) {
+      fetchProducts();
     }
-    // You could also navigate to search results page here
-    // router.push({ pathname: "/(app)/(home)/search-results", params: { query } });
   };
 
   return (
     <View style={styles.container}>
-      {/* Search Bar (now just a button that opens the modal) */}
-      <TouchableOpacity
-        style={styles.searchContainer}
-        activeOpacity={0.7}
-        onPress={handleSearchPress}
-      >
-        <View style={styles.textFieldContainer}>
-          <View style={styles.searchInputButton}>
-            <View style={styles.searchIcon}>
-              <Feather name="search" size={16} color={myTheme.primary} />
-            </View>
-            <View style={styles.searchPlaceholder}>
-              <Feather
-                name="search"
-                size={16}
-                color="#999"
-                style={{ marginRight: 6 }}
-              />
-              <Animated.Text style={styles.placeholderText}>
-                Tìm kiếm sản phẩm...
-              </Animated.Text>
+      <View style={styles.headerRow}>
+        {/* Search Bar */}
+        <TouchableOpacity
+          style={styles.searchContainer}
+          activeOpacity={0.7}
+          onPress={handleSearchPress}
+        >
+          <View style={styles.textFieldContainer}>
+            <View style={styles.searchInputButton}>
+              <View style={styles.searchIcon}>
+                <Feather name="search" size={16} color={myTheme.primary} />
+              </View>
+              <View style={styles.searchPlaceholder}>
+                <Animated.Text style={styles.placeholderText}>
+                  {searchQuery ? searchQuery : "Tìm kiếm sản phẩm..."}
+                </Animated.Text>
+              </View>
             </View>
           </View>
+        </TouchableOpacity>
+
+        {/* Icons Container */}
+        <View style={styles.iconsContainer}>
+          {/* Cart Icon with Badge */}
+          <AnimatedTouchable
+            style={[styles.iconWrapper]}
+            activeOpacity={0.7}
+            onPressIn={handleCartPressIn}
+            onPressOut={handleCartPressOut}
+            onPress={() => router.push({ pathname: "/cart" })}
+          >
+            <Animated.View style={[styles.iconBackground, pressCartStyle]}>
+              <Feather name="shopping-cart" size={18} color={myTheme.primary} />
+            </Animated.View>
+            {cartItemCount > 0 && (
+              <Badge
+                label={cartItemCount > 99 ? "99+" : cartItemCount.toString()}
+                size={14}
+                backgroundColor={myTheme.primary}
+                containerStyle={styles.badge}
+              />
+            )}
+          </AnimatedTouchable>
+
+          {/* Notification Icon with Badge */}
+          <AnimatedTouchable
+            style={[styles.iconWrapper]}
+            activeOpacity={0.7}
+            onPressIn={handleNotifPressIn}
+            onPressOut={handleNotifPressOut}
+            onPress={() =>
+              router.push({ pathname: "/(app)/(home)/notifications" })
+            }
+          >
+            <Animated.View style={[styles.iconBackground, pressNotifStyle]}>
+              <Feather name="bell" size={18} color={myTheme.primary} />
+            </Animated.View>
+            {notificationCount > 0 && (
+              <Badge
+                label={
+                  notificationCount > 99 ? "99+" : notificationCount.toString()
+                }
+                size={14}
+                backgroundColor={myTheme.primary}
+                containerStyle={styles.badge}
+              />
+            )}
+          </AnimatedTouchable>
         </View>
-      </TouchableOpacity>
-
-      {/* Icons Container */}
-      <View style={styles.iconsContainer}>
-        {/* Cart Icon with Badge */}
-        <AnimatedTouchable
-          style={[styles.iconWrapper]}
-          activeOpacity={0.7}
-          onPressIn={handleCartPressIn}
-          onPressOut={handleCartPressOut}
-          onPress={() => router.push({ pathname: "/(app)/(home)/cart" })}
-        >
-          <Animated.View style={[styles.iconBackground, pressCartStyle]}>
-            <Feather name="shopping-cart" size={18} color={myTheme.primary} />
-          </Animated.View>
-          {cartItemCount > 0 && (
-            <Badge
-              label={cartItemCount > 99 ? "99+" : cartItemCount.toString()}
-              size={14}
-              backgroundColor={myTheme.primary}
-              containerStyle={styles.badge}
-            />
-          )}
-        </AnimatedTouchable>
-
-        {/* Notification Icon with Badge */}
-        <AnimatedTouchable
-          style={[styles.iconWrapper]}
-          activeOpacity={0.7}
-          onPressIn={handleNotifPressIn}
-          onPressOut={handleNotifPressOut}
-          onPress={() =>
-            router.push({ pathname: "/(app)/(home)/notifications" })
-          }
-        >
-          <Animated.View style={[styles.iconBackground, pressNotifStyle]}>
-            <Feather name="bell" size={18} color={myTheme.primary} />
-          </Animated.View>
-          {notificationCount > 0 && (
-            <Badge
-              label={
-                notificationCount > 99 ? "99+" : notificationCount.toString()
-              }
-              size={14}
-              backgroundColor={myTheme.primary}
-              containerStyle={styles.badge}
-            />
-          )}
-        </AnimatedTouchable>
       </View>
 
-      {/* Search Modal */}
+      {/* Search Modal with Results */}
       <SearchModal
         visible={searchModalVisible}
         onClose={handleSearchClose}
         onSearch={handleSearch}
+        initialValue={searchQuery}
+        products={products}
+        isLoading={isLoading}
+        onLoadMore={handleLoadMore}
+        hasMore={hasMore}
       />
     </View>
   );
@@ -175,10 +258,9 @@ const ShopHeader = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 22,
+    paddingVertical: 20,
     backgroundColor: "white",
-    flexDirection: "column",
     width: "100%",
     ...Platform.select({
       ios: {
@@ -194,8 +276,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 12,
     borderBottomRightRadius: 12,
   },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
   searchContainer: {
-    marginBottom: 8,
+    flex: 1,
+    marginRight: 10,
   },
   textFieldContainer: {
     borderRadius: 20,
@@ -234,13 +323,11 @@ const styles = StyleSheet.create({
   },
   iconsContainer: {
     flexDirection: "row",
-    justifyContent: "flex-end",
     alignItems: "center",
-    marginTop: 2,
   },
   iconWrapper: {
     position: "relative",
-    marginLeft: 16,
+    marginLeft: 8,
     padding: 2,
   },
   iconBackground: {

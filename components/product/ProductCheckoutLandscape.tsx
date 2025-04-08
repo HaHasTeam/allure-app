@@ -48,7 +48,9 @@ const ProductCheckoutLandscape = ({
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        <TouchableOpacity onPress={() => router.push(`/products/${productId}`)}>
+        <TouchableOpacity
+          onPress={() => router.push(`/(products)/product-detail/${productId}`)}
+        >
           <View style={styles.imageContainer}>
             <ImageWithFallback
               src={productImage}

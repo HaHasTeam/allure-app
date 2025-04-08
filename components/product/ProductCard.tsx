@@ -51,7 +51,7 @@ const ProductCard = ({
           if (isInGroupBuying) {
             toggleModalVisibility();
           } else {
-            router.push(`/(products)/${product.id}`);
+            router.push(`/(products)/product-detail/${product.id}`);
           }
         }}
       >
