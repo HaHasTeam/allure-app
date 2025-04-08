@@ -63,7 +63,7 @@ const FlashSale = () => {
           <View style={styles.carouselContainer}>
             <Carousel
               pageWidth={(Dimensions.get("window").width - 60) * 0.7}
-              itemSpacings={5}
+              itemSpacings={8}
               containerMarginHorizontal={0}
               initialPage={0}
               containerStyle={styles.carousel}

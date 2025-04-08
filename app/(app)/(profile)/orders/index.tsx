@@ -406,6 +406,9 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 400,
+    margin: "auto",
+    backgroundColor: myTheme.white,
+    padding: 10,
+    borderRadius: 10,
   },
 });

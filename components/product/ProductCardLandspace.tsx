@@ -405,7 +405,6 @@ const ProductCardLandscape = ({
                 ) : IN_STOCK_CLASSIFICATION ? (
                   <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
                 ) : null}
-
                 {/* product image */}
                 <Link
                   href={{
@@ -451,7 +450,9 @@ const ProductCardLandscape = ({
                     </Link>
                     <View>
                       {eventType && eventType !== "" ? (
-                        <ProductTag tag={eventType} size="small" />
+                        <View style={styles.flex}>
+                          <ProductTag tag={eventType} size="small" />
+                        </View>
                       ) : null}
                     </View>
                     {productStatus === ProductEnum.BANNED ? (
@@ -670,7 +671,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   linkStyle: { maxWidth: "100%", flexShrink: 1, fontSize: 12 },
-  disabled: { color: myTheme.gray[400] },
+  disabled: { color: myTheme.gray[400], textDecorationLine: "line-through" },
   highlighText: { color: myTheme.red[500] },
   nameContainer: {
     marginLeft: 1,
@@ -702,6 +703,14 @@ const styles = StyleSheet.create({
   },
   fullWidth: { width: "100%" },
   commonFlex: { flexDirection: "row", gap: 4, alignItems: "center" },
+  flex: {
+    flexDirection: "row",
+    gap: 4,
+    alignItems: "center",
+    width: "auto",
+    justifyContent: "flex-start",
+    marginTop: 2,
+  },
   container: {
     width: "100%",
     paddingVertical: 8,

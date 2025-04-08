@@ -37,6 +37,7 @@ import { formatCurrency, formatNumber } from "@/utils/number";
 import ProductCheckoutLandscape from "../product/ProductCheckoutLandscape";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import BrandSection from "../brand/BrandSection";
+import { myTheme } from "@/constants";
 
 interface CheckoutItemProps {
   brandName: string;
@@ -100,7 +101,7 @@ const CheckoutItem = ({
   const { groupBuying } = useCartStore();
   const criteria = groupBuying?.groupProduct.criterias[0];
   return (
-    <View style={styles.gap}>
+    <View style={[styles.gap, styles.checkoutItemContainer]}>
       {/* Brand Header */}
       {brand && (
         <BrandSection
@@ -295,6 +296,12 @@ const CheckoutItem = ({
 export default CheckoutItem;
 
 const styles = StyleSheet.create({
+  checkoutItemContainer: {
+    paddingHorizontal: 5,
+    paddingTop: 10,
+    backgroundColor: myTheme.white,
+    borderRadius: 6,
+  },
   flex: {
     flexDirection: "row",
   },

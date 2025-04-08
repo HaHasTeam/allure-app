@@ -47,6 +47,7 @@ export default function SearchOrders({ onSearch }: SearchOrdersProps) {
             placeholder={t("search.orderPlaceholder")}
             placeholderTextColor="grey"
             style={styles.input}
+            numberOfLines={1}
           />
         </View>
 
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   input: {
+    width: "100%",
     flex: 1,
     borderWidth: 0,
     paddingVertical: 6,

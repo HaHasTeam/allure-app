@@ -450,6 +450,8 @@ const styles = StyleSheet.create({
   },
   cartItemsContainer: {
     marginBottom: 143,
+    gap: 10,
+    flexDirection: "column",
   },
   emptyContainer: {
     flex: 1,
@@ -458,6 +460,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 20,
     paddingVertical: 40,
-    backgroundColor: myTheme.background,
+    backgroundColor: myTheme.white,
   },
 });

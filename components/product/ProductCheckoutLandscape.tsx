@@ -64,7 +64,11 @@ const ProductCheckoutLandscape = ({
             <TouchableOpacity
               onPress={() => router.push(`/products/${productId}`)}
             >
-              <Text style={styles.productName} numberOfLines={2}>
+              <Text
+                numberOfLines={2}
+                ellipsizeMode="tail"
+                style={styles.overFlowText}
+              >
                 {productName}
               </Text>
             </TouchableOpacity>
@@ -118,6 +122,11 @@ const ProductCheckoutLandscape = ({
 };
 
 const styles = StyleSheet.create({
+  overFlowText: {
+    flexShrink: 1,
+    flexWrap: "wrap",
+    maxWidth: "100%",
+  },
   lastItem: {
     alignItems: "flex-end",
   },
@@ -153,7 +162,7 @@ const styles = StyleSheet.create({
   productInfo: {
     flexDirection: "column",
     alignItems: "flex-start",
-    gap: 6,
+    gap: 4,
   },
   productName: {
     fontSize: 14,

@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     backgroundColor: myTheme.red[200],
   },
   iconContainer: {
-    borderRadius: "50%",
+    borderRadius: 50,
     padding: 4,
     width: "10%",
   },

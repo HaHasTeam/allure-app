@@ -376,8 +376,8 @@ const checkout = () => {
     <SafeAreaView
       style={
         !selectedCartItem || Object.keys(selectedCartItem)?.length === 0
-          ? styles.container
-          : styles.emptyContainer
+          ? styles.emptyContainer
+          : styles.container
       }
     >
       <Stack.Screen options={{ title: t("cart.checkout") }} />
@@ -569,9 +569,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignContent: "center",
     justifyContent: "flex-start",
-    paddingHorizontal: 4,
-    paddingVertical: 10,
-    backgroundColor: myTheme.background,
   },
   container: {
     flex: 1,
@@ -591,17 +588,18 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   innerContainer: {
     flex: 1,
-    paddingVertical: 20,
+    marginVertical: 16,
   },
   formContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 5,
   },
   leftColumn: {},
-  rightColumn: {},
+  rightColumn: {
+    marginTop: 10,
+  },
   voucherSection: {
     flexDirection: "column",
     gap: 6,

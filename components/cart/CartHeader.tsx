@@ -202,15 +202,15 @@ export default function CartHeader({
                 style={styles.clearAllContainer}
                 onPress={() => setSelectedCartItems([])}
               >
-                <Feather name="x-circle" size={20} color={myTheme.gray[400]} />
-                <Text style={styles.checkboxLabel}>{t("filter.reset")}</Text>
+                <Feather name="x-circle" size={16} color={myTheme.gray[400]} />
+                <Text style={styles.resetText}>{t("filter.reset")}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => toggleModalMultiVisibility()}
               >
-                <Feather name="trash-2" size={20} color="red" />
+                <Feather name="trash-2" size={16} color="red" />
                 <Text style={styles.deleteText}>{t("cart.remove")}</Text>
               </TouchableOpacity>
             </View>
@@ -314,6 +314,10 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     marginLeft: 8,
     fontSize: 14,
+    color: myTheme.secondaryForeground,
+  },
+  resetText: {
+    color: myTheme.gray[500],
   },
   buttonGroup: {
     flexDirection: "row",
@@ -379,8 +383,10 @@ const styles = StyleSheet.create({
   icon: { color: myTheme.primary },
   container: {
     width: "100%",
-    // backgroundColor: hexToRgba(myTheme.secondary, 0.3),
-    // borderRadius: 6,
+    backgroundColor: hexToRgba(myTheme.secondary, 0.3),
+    borderRadius: 6,
+    marginHorizontal: 5,
+    marginTop: 5,
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 12,

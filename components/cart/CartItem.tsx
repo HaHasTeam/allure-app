@@ -27,6 +27,7 @@ import ProductCardLandscape from "../product/ProductCardLandspace";
 import { AntDesign } from "@expo/vector-icons";
 import VoucherBrandList from "../voucher/VoucherBrandList";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { myTheme } from "@/constants";
 
 interface CartItemProps {
   brandName: string;
@@ -249,7 +250,12 @@ export default CartItem;
 
 const styles = StyleSheet.create({
   cartItemContainer: {
-    // paddingHorizontal: 10,
+    paddingHorizontal: 5,
+    paddingVertical: 10,
+    borderRadius: 6,
+    backgroundColor: myTheme.white,
+    marginHorizontal: 5,
+    marginBottom: 10,
   },
   voucherContainer: {
     flexDirection: "row",

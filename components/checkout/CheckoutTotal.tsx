@@ -168,6 +168,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     padding: 16,
+    marginBottom: 50,
   },
   detailsContainer: {
     marginBottom: 16,

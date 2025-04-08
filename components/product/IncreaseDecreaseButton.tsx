@@ -34,12 +34,26 @@ const IncreaseDecreaseButton = ({
         <TouchableOpacity
           style={[
             styles.button,
-            (isDecreaseDisabled || isProcessing) && styles.buttonDisabled,
+            isDecreaseDisabled || isProcessing
+              ? styles.buttonDisabled
+              : styles.normalButton,
           ]}
           disabled={isDecreaseDisabled || isProcessing}
           onPress={onDecrease}
         >
-          <AntDesign name="minus" size={12} iconStyle={styles.icon} />
+          <AntDesign
+            name="minus"
+            color={
+              isDecreaseDisabled || isProcessing
+                ? myTheme.gray[400]
+                : myTheme.secondaryForeground
+            }
+            size={12}
+            iconStyle={[
+              styles.icon,
+              (isDecreaseDisabled || isProcessing) && styles.iconDisabled,
+            ]}
+          />
         </TouchableOpacity>
 
         <TextInput
@@ -47,17 +61,32 @@ const IncreaseDecreaseButton = ({
           editable={isProcessing}
           onChangeText={() => handleInputChange}
           value={inputValue}
+          textAlignVertical={"center"}
           keyboardType="numeric"
         />
         <TouchableOpacity
           style={[
             styles.button,
-            (isDecreaseDisabled || isProcessing) && styles.buttonDisabled,
+            isIncreaseDisabled || isProcessing
+              ? styles.buttonDisabled
+              : styles.normalButton,
           ]}
           disabled={isIncreaseDisabled || isProcessing}
           onPress={onIncrease}
         >
-          <AntDesign name="plus" size={12} iconStyle={styles.icon} />
+          <AntDesign
+            name="plus"
+            size={12}
+            color={
+              isIncreaseDisabled || isProcessing
+                ? myTheme.gray[400]
+                : myTheme.secondaryForeground
+            }
+            iconStyle={[
+              styles.icon,
+              (isIncreaseDisabled || isProcessing) && styles.iconDisabled,
+            ]}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -75,32 +104,47 @@ const styles = StyleSheet.create({
   button: {
     borderWidth: 1,
     borderColor: hexToRgba(myTheme.secondary, 0.3),
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 34,
     borderRadius: 6,
     justifyContent: "center",
     fontWeight: "bold",
     color: myTheme.secondaryForeground,
     alignItems: "center",
+  },
+  normalButton: {
     backgroundColor: hexToRgba(myTheme.secondary, 0.3),
   },
-  icon: { fontWeight: "bold", color: myTheme.secondaryForeground },
+  icon: { fontWeight: "bold" },
   buttonDisabled: {
-    borderColor: myTheme.gray[100],
+    borderColor: myTheme.gray[200],
+    opacity: 0.6,
     color: myTheme.gray[400],
   },
+  iconDisabled: {
+    color: myTheme.gray[400],
+  },
+  textContent: {
+    padding: 0,
+    margin: 0,
+    lineHeight: 14,
+  },
   input: {
-    width: 40,
+    width: 60,
     borderWidth: 1,
     color: myTheme.secondaryForeground,
     fontWeight: 600,
     borderColor: myTheme.gray[300],
-    height: 25,
     borderRadius: 6,
-    fontSize: 14,
+    fontSize: 12,
     textAlign: "center",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    marginBottom: 0,
+    marginTop: 0,
+    paddingVertical: 0,
+    height: 34,
+    textAlignVertical: "center",
   },
 });

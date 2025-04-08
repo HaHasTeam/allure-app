@@ -115,6 +115,8 @@ export default function AddressSection({
                         color: myTheme.green[700],
                         fontSize: 12,
                         textTransform: "uppercase",
+                        textAlign: "center",
+                        fontWeight: 500,
                       }}
                     >
                       {chosenAddress?.type === AddressEnum.HOME &&
