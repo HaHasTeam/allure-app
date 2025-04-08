@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   },
   triggerText: {
     fontSize: 16,
-    color: "#666666",
+    color: myTheme.gray[500],
   },
   activeText: {
     color: myTheme.primary,

@@ -236,9 +236,13 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
                 />
               </View>
               <TouchableOpacity
+                style={styles.nameContainer}
                 onPress={() => router.push(`/brands/${brand?.id}`)}
               >
                 <MyText
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={styles.overFlowText}
                   text={brand?.name ?? ""}
                   styleProps={styles.brandName}
                 />
@@ -485,7 +489,13 @@ const OrderItem = ({ brand, orderItem, setIsTrigger }: OrderItemProps) => {
           <View style={styles.buttonsContainer}>
             <TouchableOpacity
               style={styles.outlineButton}
-              onPress={() => router.push(`/(profile)/orders/${orderItem?.id}`)}
+              onPress={() => {
+                console.log("Navigating with orderItem.id:", orderItem?.id);
+                router.push({
+                  pathname: "/(app)/(profile)/orders/[id]",
+                  params: { id: orderItem?.id },
+                });
+              }}
             >
               <MyText
                 text={t("order.viewDetail")}
@@ -621,6 +631,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     flexWrap: "wrap",
+    width: "100%",
+  },
+  overFlowText: {
+    flexShrink: 1,
+    flexWrap: "wrap",
+    maxWidth: "100%",
+  },
+  nameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "auto",
   },
   brandNameContainer: {
     flexDirection: "row",
@@ -654,7 +675,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   viewShopButton: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
@@ -663,7 +683,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 6,
     gap: 8,
-    width: "auto",
   },
   viewShopText: {
     color: myTheme.primary,
@@ -697,7 +716,7 @@ const styles = StyleSheet.create({
   },
   totalPriceValue: {
     color: myTheme.red[500],
-    fontWeight: "600",
+    fontWeight: "700",
     fontSize: 18,
   },
   requestStatusContainer: {

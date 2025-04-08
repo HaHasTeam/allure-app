@@ -8,7 +8,7 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useToast } from "@/contexts/ToastContext";
 import useHandleServerError from "@/hooks/useHandleServerError";
 import {
@@ -41,10 +41,12 @@ import CancelOrderDialog from "@/components/order/CancelOrderDialog";
 import ConfirmDecisionDialog from "@/components/order-detail/ConfirmDecisionDialog";
 import OrderSummary from "@/components/order-detail/OrderSummary";
 import { Stack } from "expo-router";
+import { Header, HeaderBackButton } from "@react-navigation/elements";
 
 const OrderDetail = () => {
-  const { orderId } = useLocalSearchParams();
-  console.log(orderId);
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
+  console.log("id", id);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [openCancelOrderDialog, setOpenCancelOrderDialog] =
@@ -91,7 +93,7 @@ const OrderDetail = () => {
   };
 
   const { data: useOrderData, isFetching } = useQuery({
-    queryKey: [getOrderByIdApi.queryKey, (orderId as string) ?? ("" as string)],
+    queryKey: [getOrderByIdApi.queryKey, (id as string) ?? ("" as string)],
     queryFn: getOrderByIdApi.fn,
   });
 
@@ -99,10 +101,10 @@ const OrderDetail = () => {
     useQuery({
       queryKey: [
         getStatusTrackingByIdApi.queryKey,
-        (orderId as string) ?? ("" as string),
+        (id as string) ?? ("" as string),
       ],
       queryFn: getStatusTrackingByIdApi.fn,
-      enabled: !!orderId,
+      enabled: !!id,
     });
   const { data: masterConfig } = useQuery({
     queryKey: [getMasterConfigApi.queryKey],
@@ -118,10 +120,10 @@ const OrderDetail = () => {
   const { data: cancelAndReturnRequestData } = useQuery({
     queryKey: [
       getCancelAndReturnRequestApi.queryKey,
-      (orderId as string) ?? ("" as string),
+      (id as string) ?? ("" as string),
     ],
     queryFn: getCancelAndReturnRequestApi.fn,
-    enabled: !!orderId,
+    enabled: !!id,
   });
 
   const { mutateAsync: updateOrderStatusFn } = useMutation({
@@ -237,25 +239,55 @@ const OrderDetail = () => {
     );
   }, [masterConfig?.data]);
   return (
-    <View style={styles.container}>
-      <Stack.Screen options={{ title: t("orderDetail.title") }} />
+    <View
+      style={
+        !isFetching && !useOrderData?.data
+          ? styles.emptyContainer
+          : styles.container
+      }
+    >
+      <Stack.Screen
+        options={{
+          header: () => (
+            <Header
+              headerLeft={() => (
+                <HeaderBackButton
+                  label="Quay lại"
+                  tintColor={myTheme.primary}
+                  labelStyle={{
+                    fontWeight: "bold",
+                    color: myTheme.primary,
+                    backgroundColor: myTheme.primary,
+                  }}
+                  onPress={() => router.back()}
+                />
+              )}
+              title={
+                useOrderData?.data?.id
+                  ? t("orderDetail.title") +
+                    " " +
+                    `#${useOrderData?.data?.id?.substring(0, 8).toUpperCase()}`
+                  : t("orderDetail.title")
+              }
+              headerTitleStyle={{
+                fontWeight: "bold",
+                color: myTheme.primary,
+              }}
+            />
+          ),
+        }}
+      />
+
       {isFetching && <LoadingContentLayer />}
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerContainer}>
-          <View style={styles.titleContainer}>
+          {/* <View style={styles.titleContainer}>
             <MyText
               text={t("orderDetail.title")}
               styleProps={styles.titleText}
             />
-            {!isFetching && useOrderData?.data && (
-              <MyText
-                text={`#${useOrderData?.data?.id
-                  ?.substring(0, 8)
-                  .toUpperCase()}`}
-                styleProps={styles.orderIdText}
-              />
-            )}
-          </View>
+           
+          </View> */}
           {!isFetching && useOrderData?.data && (
             <View style={styles.statusContainer}>
               <MyText
@@ -474,7 +506,7 @@ const OrderDetail = () => {
                     <MaterialIcons
                       name="message"
                       size={24}
-                      color={myTheme.muted}
+                      color={myTheme.mutedForeground}
                     />
                   }
                   content={
@@ -625,7 +657,7 @@ const OrderDetail = () => {
           </View>
         )}
         {!isFetching && (!useOrderData || !useOrderData?.data) && (
-          <View style={styles.loadingContainer}>
+          <View style={[styles.loadingContainer, styles.marginAuto]}>
             <Empty
               title={t("empty.orderDetail.title")}
               description={t("empty.orderDetail.description")}
@@ -744,6 +776,18 @@ const OrderDetail = () => {
 };
 
 const styles = StyleSheet.create({
+  emptyContainer: {
+    flex: 1,
+    flexDirection: "column",
+    alignContent: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    backgroundColor: myTheme.background,
+  },
+  marginAuto: {
+    margin: "auto",
+  },
   loadingContainer: {
     justifyContent: "center",
     alignItems: "center",
@@ -752,6 +796,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
+    backgroundColor: myTheme.background,
   },
   scrollContent: {
     paddingHorizontal: 12,
@@ -770,26 +815,27 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 18,
     fontWeight: "500",
-    color: myTheme.muted,
+    color: myTheme.mutedForeground,
     marginRight: 4,
   },
   orderIdText: {
     fontSize: 18,
-    color: myTheme.muted,
+    color: myTheme.mutedForeground,
   },
   statusContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 4,
+    marginLeft: "auto",
   },
   statusLabelText: {
     fontSize: 16,
     fontWeight: "500",
-    color: myTheme.muted,
+    color: myTheme.mutedForeground,
   },
   contentContainer: {
     width: "100%",
-    gap: 24,
+    gap: 10,
   },
   alertMessage: {
     width: "100%",
@@ -806,14 +852,12 @@ const styles = StyleSheet.create({
   infoSection: {
     flexDirection: "column",
     width: "100%",
-    gap: 16,
   },
   timelineSection: {
     width: "100%",
   },
   addressSection: {
     width: "100%",
-    gap: 8,
   },
   addressContent: {
     gap: 4,

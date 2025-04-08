@@ -340,7 +340,6 @@ const isSmallDevice = width < 375;
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: myTheme.gray[200],
   },
@@ -358,8 +357,9 @@ const styles = StyleSheet.create({
     width: "16%",
   },
   imageWrapper: {
-    width: isSmallDevice ? 64 : 80,
-    height: isSmallDevice ? 64 : 80,
+    width: 60,
+    height: 60,
+    borderRadius: 6,
   },
   image: {
     width: "100%",
@@ -370,6 +370,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     width: "54%",
     gap: 8,
+    paddingLeft: 4,
   },
   productInfoContainer: {
     flexDirection: "row",

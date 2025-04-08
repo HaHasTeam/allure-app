@@ -31,6 +31,7 @@ const OrderGeneral = ({
 
   const handleContentLayout = (event: LayoutChangeEvent) => {
     const { height } = event.nativeEvent.layout;
+    console.log("height", height);
     setContentHeight(height);
     setIsOverflowing(height > MAX_HEIGHT);
   };
@@ -62,12 +63,13 @@ const OrderGeneral = ({
   const handleExpand = () => {
     setExpanded(!expanded);
   };
+  console.log("overflow", isOverflowing);
   return (
     <View
       style={[
         styles.container,
         {
-          backgroundColor: myTheme.card,
+          backgroundColor: myTheme.white,
           borderColor: borderColor,
         },
       ]}
@@ -80,7 +82,7 @@ const OrderGeneral = ({
       <View style={styles.contentContainer}>
         <View
           ref={contentRef}
-          onLayout={handleContentLayout}
+          // onLayout={handleContentLayout}
           style={[
             styles.content,
             expanded ? styles.contentExpanded : styles.contentCollapsed,
@@ -90,24 +92,23 @@ const OrderGeneral = ({
         </View>
 
         {isOverflowing && !expanded && <View style={styles.gradientOverlay} />}
-
-        {isOverflowing && (
-          <View
-            style={[
-              styles.buttonContainer,
-              expanded ? styles.relative : styles.absolute,
-            ]}
-          >
-            <TouchableOpacity onPress={handleExpand} style={styles.button}>
-              <Feather
-                name={expanded ? "chevron-up" : "chevron-down"}
-                size={18}
-                color={myTheme.primary}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
+      {isOverflowing && (
+        <View
+          style={[
+            styles.buttonContainer,
+            expanded ? styles.relative : styles.absolute,
+          ]}
+        >
+          <TouchableOpacity onPress={handleExpand} style={styles.button}>
+            <Feather
+              name={expanded ? "chevron-up" : "chevron-down"}
+              size={18}
+              color={myTheme.primary}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -124,6 +125,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 1,
     elevation: 2,
+    position: "relative",
   },
   header: {
     gap: 8,
@@ -139,12 +141,13 @@ const styles = StyleSheet.create({
   },
   content: {
     overflow: "hidden",
+    marginBottom: 10,
   },
   contentCollapsed: {
     maxHeight: 176, // Approximately equivalent to max-h-44 (11rem)
   },
   contentExpanded: {
-    maxHeight: null,
+    // maxHeight: null,
   },
   gradientOverlay: {
     position: "absolute",
@@ -158,6 +161,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     bottom: 0,
+    position: "absolute",
   },
   relative: {
     position: "relative",

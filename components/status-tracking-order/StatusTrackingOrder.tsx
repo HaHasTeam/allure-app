@@ -2,41 +2,74 @@ import { useTranslation } from "react-i18next";
 
 import { RequestStatusEnum, ShippingStatusEnum } from "@/types/enum";
 import { Feather } from "@expo/vector-icons";
+import { myTheme } from "@/constants";
 
 export const StatusTrackingIcon = (status: string) => {
   switch (status) {
     case ShippingStatusEnum.JOIN_GROUP_BUYING:
-      return <Feather name="users" size={18} />;
+      return <Feather name="users" size={18} color={myTheme.mutedForeground} />;
     case ShippingStatusEnum.TO_PAY:
-      return <Feather name="dollar-sign" size={18} />;
+      return (
+        <Feather name="dollar-sign" size={18} color={myTheme.mutedForeground} />
+      );
     case ShippingStatusEnum.WAIT_FOR_CONFIRMATION:
-      return <Feather name="package" size={18} />;
+      return (
+        <Feather name="package" size={18} color={myTheme.mutedForeground} />
+      );
     case ShippingStatusEnum.PREPARING_ORDER:
-      return <Feather name="box" size={18} />;
+      return <Feather name="box" size={18} color={myTheme.mutedForeground} />;
     case ShippingStatusEnum.TO_SHIP:
-      return <Feather name="send" size={18} />;
+      return <Feather name="send" size={18} color={myTheme.mutedForeground} />;
     case ShippingStatusEnum.SHIPPING:
-      return <Feather name="truck" size={18} />;
+      return <Feather name="truck" size={18} color={myTheme.mutedForeground} />;
     case ShippingStatusEnum.DELIVERED:
-      return <Feather name="check-square" size={18} />;
+      return (
+        <Feather
+          name="check-square"
+          size={18}
+          color={myTheme.mutedForeground}
+        />
+      );
     case ShippingStatusEnum.COMPLETED:
-      return <Feather name="check" size={18} />;
+      return <Feather name="check" size={18} color={myTheme.mutedForeground} />;
     case ShippingStatusEnum.RETURNING:
-      return <Feather name="corner-down-left" size={18} />;
+      return (
+        <Feather
+          name="corner-down-left"
+          size={18}
+          color={myTheme.mutedForeground}
+        />
+      );
     case ShippingStatusEnum.REFUNDED:
-      return <Feather name="refresh-ccw" size={18} />;
+      return (
+        <Feather name="refresh-ccw" size={18} color={myTheme.mutedForeground} />
+      );
     case ShippingStatusEnum.CANCELLED:
-      return <Feather name="x" size={18} />;
+      return <Feather name="x" size={18} color={myTheme.mutedForeground} />;
     case RequestStatusEnum.APPROVED:
-      return <Feather name="check-circle" size={18} />;
+      return (
+        <Feather
+          name="check-circle"
+          size={18}
+          color={myTheme.mutedForeground}
+        />
+      );
     case RequestStatusEnum.REJECTED:
-      return <Feather name="x-circle" size={18} />;
+      return (
+        <Feather name="x-circle" size={18} color={myTheme.mutedForeground} />
+      );
     case ShippingStatusEnum.BRAND_RECEIVED:
-      return <Feather name="circle" size={18} />;
+      return (
+        <Feather name="circle" size={18} color={myTheme.mutedForeground} />
+      );
     case ShippingStatusEnum.RETURNED_FAIL:
-      return <Feather name="refresh-cw" size={18} />;
+      return (
+        <Feather name="refresh-cw" size={18} color={myTheme.mutedForeground} />
+      );
     default:
-      return <Feather name="package" size={18} />;
+      return (
+        <Feather name="package" size={18} color={myTheme.mutedForeground} />
+      );
   }
 };
 

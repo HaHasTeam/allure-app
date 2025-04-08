@@ -132,7 +132,7 @@ const ProfileScreen = () => {
           color={myTheme.primary}
         />
       ),
-      onPress: () => router.push("/(app)/(profile)/orders/index"),
+      onPress: () => router.push("/(app)/(profile)/orders/orderhistory"),
       title: t("order.myOrder"),
     },
     {

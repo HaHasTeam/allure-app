@@ -46,7 +46,7 @@ export default function SearchOrders({ onSearch }: SearchOrdersProps) {
             inputMode="search"
             placeholder={t("search.orderPlaceholder")}
             placeholderTextColor="grey"
-            style={styles.input}
+            style={[styles.input, styles.overFlowText]}
             numberOfLines={1}
           />
         </View>
@@ -64,6 +64,11 @@ export default function SearchOrders({ onSearch }: SearchOrdersProps) {
 }
 
 const styles = StyleSheet.create({
+  overFlowText: {
+    flexShrink: 1,
+    flexWrap: "wrap",
+    maxWidth: "100%",
+  },
   formContainer: {
     width: "100%",
   },
@@ -90,15 +95,16 @@ const styles = StyleSheet.create({
     width: "100%",
     flex: 1,
     borderWidth: 0,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 8,
     fontSize: 12,
     textOverflow: "ellipsis",
+    lineHeight: 16,
   },
   submitButton: {
     backgroundColor: myTheme.primary,
     paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderTopRightRadius: 6,
     borderBottomRightRadius: 6,
   },
@@ -110,7 +116,7 @@ const styles = StyleSheet.create({
   resetButton: {
     marginLeft: 8,
     paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderWidth: 1,
     borderColor: hexToRgba(myTheme.primary, 0.4),
     borderRadius: 6,

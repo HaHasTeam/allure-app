@@ -32,10 +32,12 @@ import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
 import { myTheme } from "@/constants";
 import { Picker } from "react-native-ui-lib";
 import TriggerList from "@/components/ui/tabs";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
+import { Header, HeaderBackButton } from "@react-navigation/elements";
 
 export default function ProfileOrder() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [orders, setOrders] = useState<IOrderItem[]>([]);
   const [requests, setRequests] = useState<IRequest[]>([]);
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -267,7 +269,31 @@ export default function ProfileOrder() {
 
   return (
     <>
-      <Stack.Screen options={{ title: t("order.myOrder") }} />
+      <Stack.Screen
+        options={{
+          header: () => (
+            <Header
+              headerLeft={() => (
+                <HeaderBackButton
+                  label="Quay lại"
+                  tintColor={myTheme.primary}
+                  labelStyle={{
+                    fontWeight: "bold",
+                    color: myTheme.primary,
+                    backgroundColor: myTheme.primary,
+                  }}
+                  onPress={() => router.back()}
+                />
+              )}
+              title={t("order.myOrder")}
+              headerTitleStyle={{
+                fontWeight: "bold",
+                color: myTheme.primary,
+              }}
+            />
+          ),
+        }}
+      />
       {isLoading && <LoadingContentLayer />}
       <View style={styles.container}>
         <View style={styles.contentContainer}>
@@ -352,7 +378,7 @@ const styles = StyleSheet.create({
   },
   triggerText: {
     fontSize: 16,
-    color: "#666666",
+    color: myTheme.gray[500],
   },
   activeText: {
     color: myTheme.primary,
@@ -362,6 +388,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     flex: 1,
+    backgroundColor: myTheme.background,
   },
   contentContainer: {
     width: "100%",

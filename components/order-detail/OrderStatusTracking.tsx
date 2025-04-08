@@ -25,7 +25,9 @@ const OrderStatusTracking = ({
       status: "ORDER_CREATED",
       createdAt: statusTrackingData[0]?.createdAt,
       text: t("order.created"),
-      icon: <Feather name="package" size={18} />,
+      icon: (
+        <Feather name="package" size={18} color={myTheme.mutedForeground} />
+      ),
     },
   ];
 
@@ -160,7 +162,7 @@ const OrderStatusTracking = ({
             textColor = myTheme.emerald[500];
           } else {
             iconBackgroundColor = myTheme.muted;
-            textColor = myTheme.muted;
+            textColor = myTheme.mutedForeground;
           }
 
           return (

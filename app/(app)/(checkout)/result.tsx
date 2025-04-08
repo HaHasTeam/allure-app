@@ -45,13 +45,13 @@ const result = () => {
           }
           leftButtonAction={
             status === ResultEnum.SUCCESS
-              ? () => router.replace(`/(profile)/orders/`)
+              ? () => router.replace(`/(app)/(profile)/orders/orderhistory`)
               : () => router.replace("/")
           }
           rightButtonAction={
             status === ResultEnum.SUCCESS
               ? () => router.replace("/")
-              : () => router.replace(`/(profile)/orders/`)
+              : () => router.replace(`/(app)/(profile)/orders/orderhistory`)
           }
           leftButtonText={
             status === ResultEnum.SUCCESS

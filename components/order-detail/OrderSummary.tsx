@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   totalValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
   },
   checkoutDescription: {

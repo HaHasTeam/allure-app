@@ -81,13 +81,13 @@ const OrderDetailItems = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <View style={[styles.headerText, { width: "16%" }]}>
-          <Text>
+        <View style={[styles.headerText, { width: "68%" }]}>
+          <Text style={styles.text}>
             {t("orderDetail.products")} ({orderDetails?.length}{" "}
             {t("cart.products")})
           </Text>
         </View>
-        <View style={[styles.headerSection, { width: "54%" }]}>
+        {/* <View style={[styles.headerSection, { width: "54%" }]}>
           <View style={{ flexDirection: "row", gap: 8 }}>
             <View style={{ width: "40%" }} />
             <View style={{ width: "30%" }} />
@@ -95,12 +95,12 @@ const OrderDetailItems = ({
               <Text>{t("orderDetail.price")}</Text>
             </View>
           </View>
-        </View>
+        </View> */}
         <View style={[styles.quantity, { width: "12%" }]}>
-          <Text>{t("orderDetail.quantity")}</Text>
+          <Text style={styles.text}>{t("orderDetail.quantity")}</Text>
         </View>
-        <View style={[styles.subTotal, { width: "18%" }]}>
-          <Text>{t("orderDetail.subTotal")}</Text>
+        <View style={[styles.subTotal, { width: "20%" }]}>
+          <Text style={styles.text}>{t("orderDetail.subTotal")}</Text>
         </View>
       </View>
       <View style={styles.content}>
@@ -130,10 +130,14 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     gap: 8,
-    padding: 8, // default for mobile, scales up for larger screens
-    backgroundColor: hexToRgba(myTheme.secondary, 0.3),
+    backgroundColor: myTheme.white,
     borderRadius: 4,
+    padding: 8,
     color: myTheme.secondaryForeground,
+    borderTopLeftRadius: 5,
+    borderTopEndRadius: 5,
+    borderBottomWidth: 1,
+    borderColor: myTheme.gray[200],
   },
   headerText: {
     overflow: "visible",
@@ -147,6 +151,9 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: 8,
   },
+  text: {
+    fontSize: 11,
+  },
   quantity: {
     alignItems: "center",
     justifyContent: "flex-end",
@@ -159,7 +166,8 @@ const styles = StyleSheet.create({
   },
   content: {
     backgroundColor: myTheme.white,
-    borderRadius: 8,
+    borderBottomLeftRadius: 5,
+    borderBottomEndRadius: 5,
   },
 });
 
