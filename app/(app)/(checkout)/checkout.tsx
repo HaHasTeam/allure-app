@@ -576,6 +576,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignContent: "center",
     justifyContent: "flex-start",
+    backgroundColor: myTheme.background,
   },
   emptyContainer: {
     flex: 1,

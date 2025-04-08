@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     right: 0,
     borderTopWidth: 1,
     borderTopColor: myTheme.gray[200],
-    backgroundColor: hexToRgba(myTheme.secondary, 0.3),
+    backgroundColor: myTheme.white,
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
   },
@@ -447,7 +447,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   deleteButton: {
-    backgroundColor: myTheme.destructive,
+    backgroundColor: myTheme.rose[500],
     borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -514,6 +514,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   buttonDisabled: {
-    backgroundColor: "#ccc",
+    // backgroundColor: "#ccc",
+    opacity: 0.5,
   },
 });

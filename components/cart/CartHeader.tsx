@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 2,
     alignItems: "center",
-    backgroundColor: myTheme.gray[200],
+    backgroundColor: myTheme.slate[100],
     borderRadius: 30,
     paddingVertical: 4,
     paddingHorizontal: 10,
@@ -314,6 +314,7 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     marginLeft: 8,
     fontSize: 14,
+    fontWeight: 500,
     color: myTheme.secondaryForeground,
   },
   resetText: {
@@ -388,7 +389,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     marginTop: 5,
     gap: 4,
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
     paddingVertical: 12,
   },
   innerContainer: {

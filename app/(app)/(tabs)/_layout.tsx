@@ -16,8 +16,10 @@ import MyText from "@/components/common/MyText";
 import useUser from "@/hooks/api/useUser";
 import { TUserPa } from "@/types/user";
 import ShopHeader from "@/components/header/ShopHeader";
+import { useTranslation } from "react-i18next";
 
 export default function TabLayout() {
+  const { t } = useTranslation();
   const { getProfile } = useUser();
   const [user, setUser] = useState<TUserPa>({
     email: "",
@@ -134,7 +136,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          title: "Cart",
+          header: () => (
+            <Header
+              title={t("cart.title")}
+              headerTitleStyle={{
+                color: myTheme.primary,
+                fontFamily: myFontWeight.bold,
+                fontWeight: "bold",
+              }}
+            />
+          ),
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[

@@ -4,7 +4,7 @@ import { ResultEnum } from "@/types/enum";
 import { myTheme } from "@/constants";
 
 interface ResultProps {
-  status: ResultEnum.SUCCESS | ResultEnum.FAILURE;
+  status: ResultEnum;
   title: string;
   description: string;
   leftButtonText: string;
@@ -50,7 +50,14 @@ export default function Result({
 
         {/* Content */}
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>{title}</Text>
+          <Text
+            style={[
+              styles.title,
+              status === ResultEnum.SUCCESS ? styles.success : styles.failed,
+            ]}
+          >
+            {title}
+          </Text>
           <Text style={styles.description}>{description}</Text>
         </View>
 
@@ -85,6 +92,8 @@ export default function Result({
 }
 
 const styles = StyleSheet.create({
+  success: { color: myTheme.green[500] },
+  failed: { color: myTheme.red[500] },
   container: {
     flex: 1,
     alignItems: "center",
@@ -105,12 +114,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconContainer: {
-    width: 80,
-    height: 80,
+    width: 60,
+    height: 60,
     borderRadius: 40,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
   },
   contentContainer: {
     alignItems: "center",

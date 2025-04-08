@@ -306,7 +306,6 @@ const CartScreen = () => {
       setCartItems(filteredData);
     }
   }, [useMyCartData?.data]);
-  console.log(cartItems);
   return (
     <SafeAreaView
       style={
@@ -441,6 +440,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignContent: "center",
     justifyContent: "flex-start",
+    backgroundColor: myTheme.background,
   },
   cartItemsContainer: {
     marginBottom: 143,
