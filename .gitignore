@@ -34,3 +34,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# React Native build files
+android/app/.cxx/
+android/app/build/
+*.o
