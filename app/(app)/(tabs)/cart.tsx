@@ -2,15 +2,10 @@ import React, { useEffect, useState, useCallback, useMemo } from "react";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import MyText from "@/components/common/MyText";
-import { myFontWeight, myTheme } from "../../../constants/index";
+import { myTheme } from "../../../constants/index";
 import Empty from "@/components/empty";
 import { useTranslation } from "react-i18next";
-import {
-  FloatingButton,
-  FloatingButtonLayouts,
-  View,
-} from "react-native-ui-lib";
+
 import { FlatList, StyleSheet } from "react-native";
 import CartHeader from "@/components/cart/CartHeader";
 import {
@@ -36,7 +31,6 @@ import { getMyCartApi } from "@/hooks/api/cart";
 import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
 import CartItem from "@/components/cart/CartItem";
 import CartFooter from "@/components/cart/CartFooter";
-import CartAdditional from "@/components/cart/CartAdditional";
 
 const CartScreen = () => {
   const { t } = useTranslation();

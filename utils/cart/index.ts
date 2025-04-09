@@ -47,7 +47,11 @@ export const createCheckoutItems = (
 export const createCartFromProduct = (
   product: IProduct,
   quantity: number,
-  productClassification: IClassification
+  productClassification: IClassification,
+  liveStream?: {
+    discount: number;
+    id: string;
+  }
 ): ICartByBrand => {
   const brandName = product?.brand?.name ?? "";
   const currentTime = new Date();
@@ -73,6 +77,7 @@ export const createCartFromProduct = (
         item.status === ProductDiscountEnum.ACTIVE
       );
     }) ?? null;
+  const productLivestream = liveStream ?? null;
   const cartItems: ICartItem = {
     id: product?.id,
     quantity: quantity,
@@ -102,6 +107,8 @@ export const createCartFromProduct = (
         productDiscounts: productDiscount ? [productDiscount] : [],
       },
     },
+    livestream: productLivestream ? productLivestream.id : undefined,
+    livestreamDiscount: productLivestream?.discount ?? undefined,
   };
 
   return {

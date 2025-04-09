@@ -105,7 +105,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
         action={action}
         zIndex={1000}
         style={{
-          marginTop: 50, // Add some top margin to avoid status bar
+          marginTop: 50,
           width: "90%",
           alignSelf: "center",
           borderRadius: 6,

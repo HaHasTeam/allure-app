@@ -107,7 +107,9 @@ function PreOrderProductCard({ preOrderProduct }: ProductCardProps) {
   return (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => router.push(`/products/${preOrderProduct.product.id}`)}
+      onPress={() =>
+        router.push(`/(products)/product-detail/${preOrderProduct.product.id}`)
+      }
     >
       <View style={styles.tagContainer}>
         <ProductTag tag={timeStatus === "ongoing" ? "ACTIVE" : "WAITING"} />

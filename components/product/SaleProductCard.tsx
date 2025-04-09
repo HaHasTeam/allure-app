@@ -23,7 +23,7 @@ function SaleProductCard({ product }: SaleProductCardProps) {
   );
 
   return (
-    <Link href={`/products/${product.product.id}`}>
+    <Link href={`/(products)/product-detail/${product.product.id}`}>
       <Card style={styles.card}>
         <View style={styles.imageContainer}>
           <View style={styles.tagContainer}>

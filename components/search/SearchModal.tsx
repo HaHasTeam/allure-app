@@ -1,209 +1,276 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
-  View,
-  StyleSheet,
   Modal,
-  TouchableOpacity,
+  View,
   TextInput,
-  Animated,
-  Dimensions,
-  Platform,
+  FlatList,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
   ActivityIndicator,
+  Platform,
+  Image,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { myTheme } from "@/constants/index";
-import MyText from "../common/MyText";
-import useDebounce from "../../hooks/useDebounce";
+import { height, myTheme } from "@/constants/index";
+import type { IResponseProduct } from "@/types/product";
+import { getCheapestClassification } from "@/utils/product";
+import {
+  DiscountTypeEnum,
+  OrderEnum,
+  ProductEnum,
+  StatusEnum,
+} from "@/types/enum";
+import { calculateDiscountPrice } from "@/utils/price";
+import useDebounce from "@/hooks/useDebounce";
+import { useTranslation } from "react-i18next";
 
 interface SearchModalProps {
   visible: boolean;
   onClose: () => void;
   onSearch: (query: string) => void;
+  initialValue?: string;
+  products?: IResponseProduct[];
+  isLoading?: boolean;
+  onLoadMore?: () => void;
+  hasMore?: boolean;
 }
 
-const { height } = Dimensions.get("window");
-
-const SearchModal = ({ visible, onClose, onSearch }: SearchModalProps) => {
-  const [searchText, setSearchText] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
+const SearchModal = ({
+  visible,
+  onClose,
+  onSearch,
+  initialValue,
+  products = [],
+  isLoading = false,
+  onLoadMore,
+  hasMore = false,
+}: SearchModalProps) => {
+  const [searchText, setSearchText] = useState(initialValue);
+  const { t } = useTranslation();
+  const debouncedSearchText = useDebounce(searchText, 500); // 500ms debounce
   const inputRef = useRef<TextInput>(null);
-  const slideAnim = useRef(new Animated.Value(height)).current;
-
-  // Debounce the search text with a 500ms delay
-  const debouncedSearchText = useDebounce(searchText, 500);
+  const listRef = useRef<FlatList>(null);
+  const prevDebouncedText = useRef(debouncedSearchText);
 
   useEffect(() => {
-    if (visible) {
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-
-      // Auto focus the input when modal opens
+    if (visible && inputRef.current) {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 300);
-    } else {
-      Animated.timing(slideAnim, {
-        toValue: height,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
     }
-  }, [visible, slideAnim]);
+  }, [visible]);
 
-  // Effect for debounced search
+  // Only update searchText from initialValue when the modal becomes visible
   useEffect(() => {
-    // Only perform search if there's text and it's different from the initial render
-    if (debouncedSearchText && debouncedSearchText.trim() !== "") {
-      performSearch(debouncedSearchText);
+    if (visible) {
+      setSearchText(initialValue);
     }
-  }, [debouncedSearchText]);
+  }, [initialValue, visible]);
 
-  const performSearch = async (query: string) => {
-    // Don't search for empty queries
-    if (!query.trim()) return;
+  // Safe search effect that prevents loops
+  useEffect(() => {
+    // Only trigger search if the debounced text has actually changed
+    if (debouncedSearchText !== prevDebouncedText.current) {
+      prevDebouncedText.current = debouncedSearchText;
 
-    setIsSearching(true);
-
-    try {
-      // Simulate API call with a timeout
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      // Here you would typically make an API call to get search results
-      // For now, we'll just call the onSearch callback
-      console.log("Performing search for:", query);
-
-      // We don't close the modal here to allow for continuous searching
-      // onSearch(query);
-    } catch (error) {
-      console.error("Search error:", error);
-    } finally {
-      setIsSearching(false);
+      if (debouncedSearchText.trim().length > 2) {
+        onSearch(debouncedSearchText);
+      } else if (debouncedSearchText === "") {
+        onSearch("");
+      }
     }
-  };
+  }, [debouncedSearchText, onSearch]);
 
-  const handleSearch = () => {
-    if (searchText.trim()) {
-      onSearch(searchText);
-      onClose();
-    }
-  };
-
-  const handleChangeText = (text: string) => {
+  const handleSearchChange = useCallback((text: string) => {
     setSearchText(text);
-    // When text is cleared, reset search state
-    if (!text.trim()) {
-      setIsSearching(false);
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchText("");
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  const renderProductItem = ({ item }: { item: IResponseProduct }) => {
+    const productClassifications = item?.productClassifications?.filter(
+      (classification) => classification.status === StatusEnum.ACTIVE
+    );
+    const productClassification = getCheapestClassification(
+      item.productClassifications ?? []
+    );
+    const isActive = productClassification?.status === StatusEnum.ACTIVE;
+    const hasDiscount = isActive && productClassification?.productDiscount;
+    const hasPreOrder = isActive && productClassification?.preOrderProduct;
+
+    const currentPrice = calculateDiscountPrice(
+      productClassification?.price ?? 0,
+      hasDiscount ? productClassification?.productDiscount?.discount : 0,
+      DiscountTypeEnum.PERCENTAGE
+    );
+
+    const productTag = hasPreOrder
+      ? OrderEnum.PRE_ORDER
+      : hasDiscount
+      ? OrderEnum.FLASH_SALE
+      : item.status === ProductEnum.OFFICIAL
+      ? ""
+      : item.status;
+
+    const mockProduct = {
+      id: item.id,
+      name: item.name,
+      tag: productTag,
+      price: productClassification?.price ?? -1,
+      currentPrice,
+      images: item.images,
+      deal: hasDiscount ? productClassification?.productDiscount?.discount : 0,
+      flashSale: hasDiscount
+        ? {
+            productAmount: (
+              productClassification?.productDiscount?.productClassifications ??
+              []
+            ).filter(
+              (classification) => classification?.status === StatusEnum.ACTIVE
+            )?.[0].quantity,
+            soldAmount: 65,
+          }
+        : null,
+      description: item.description,
+      detail: item.detail,
+      rating: Number(item.averageRating),
+      ratingAmount: Number(item.totalRatings),
+      soldInPastMonth: Number(item.salesLast30Days),
+      salesLast30Days: Number(item.salesLast30Days),
+      classifications: productClassifications,
+      certificates: item.certificates,
+    };
+    return (
+      <TouchableOpacity
+        style={styles.productItem}
+        onPress={() => {
+          // Handle product selection
+          onClose();
+          // Navigate to product detail or perform other actions
+        }}
+      >
+        <View style={styles.productImageContainer}>
+          <Image
+            source={{ uri: mockProduct.images?.[0]?.fileUrl }}
+            style={styles.productImage}
+          />
+        </View>
+        <View style={styles.productContent}>
+          <Text style={styles.productName} numberOfLines={1}>
+            {mockProduct.name}
+          </Text>
+          <Text style={styles.productPrice}>
+            {t("productCard.price", { price: mockProduct?.price })}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const handleEndReached = () => {
+    if (!isLoading && hasMore && onLoadMore) {
+      onLoadMore();
     }
   };
 
   return (
     <Modal
-      transparent
       visible={visible}
-      animationType="none"
+      animationType="slide"
+      transparent={false}
       onRequestClose={onClose}
     >
-      <View style={styles.modalOverlay}>
-        <Animated.View
-          style={[
-            styles.modalContent,
-            { transform: [{ translateY: slideAnim }] },
-          ]}
-        >
-          <View style={styles.searchHeader}>
-            <View style={styles.searchInputContainer}>
-              {isSearching ? (
-                <ActivityIndicator
-                  size="small"
-                  color={myTheme.primary}
-                  style={styles.searchIcon}
-                />
-              ) : (
-                <Feather
-                  name="search"
-                  size={18}
-                  color={myTheme.primary}
-                  style={styles.searchIcon}
-                />
-              )}
-              <TextInput
-                ref={inputRef}
-                style={styles.searchInput}
-                placeholder="Tìm kiếm sản phẩm..."
-                value={searchText}
-                onChangeText={handleChangeText}
-                onSubmitEditing={handleSearch}
-                returnKeyType="search"
-                autoCapitalize="none"
-              />
-              {searchText.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchText("")}>
-                  <Feather name="x" size={18} color="#666" />
-                </TouchableOpacity>
-              )}
-            </View>
-            <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
-              <MyText style={styles.cancelText} text="Hủy"></MyText>
-            </TouchableOpacity>
-          </View>
+      <View style={styles.container}>
+        {/* Search Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={onClose} style={styles.backButton}>
+            <Feather name="arrow-left" size={24} color={myTheme.primary} />
+          </TouchableOpacity>
 
-          <View style={styles.searchContent}>
-            <View style={styles.emptyStateContainer}>
-              <Feather
-                name="search"
-                size={50}
-                color="#e0e0e0"
-                style={styles.emptyStateIcon}
-              />
-              <MyText
-                style={styles.emptyStateText}
-                text="Tìm kiếm sản phẩm"
-              ></MyText>
-              <MyText
-                style={styles.emptyStateSubtext}
-                text="Nhập từ khóa để tìm kiếm sản phẩm bạn muốn"
-              ></MyText>
-            </View>
+          <View style={styles.searchInputContainer}>
+            <Feather
+              name="search"
+              size={18}
+              color={myTheme.primary}
+              style={styles.searchIcon}
+            />
+            <TextInput
+              ref={inputRef}
+              style={styles.searchInput}
+              placeholder="Search products..."
+              value={searchText}
+              onChangeText={handleSearchChange}
+              returnKeyType="search"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            {searchText.length > 0 && (
+              <TouchableOpacity
+                onPress={handleClearSearch}
+                style={styles.clearButton}
+              >
+                <Feather name="x" size={18} color="#999" />
+              </TouchableOpacity>
+            )}
           </View>
-        </Animated.View>
+        </View>
+
+        {/* Search Results */}
+        <FlatList
+          ref={listRef}
+          data={products}
+          renderItem={renderProductItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              {isLoading ? (
+                <ActivityIndicator size="large" color={myTheme.primary} />
+              ) : (
+                <Text style={styles.emptyText}>
+                  {searchText.length > 0
+                    ? `No results found for "${searchText}"`
+                    : "Start typing to search products"}
+                </Text>
+              )}
+            </View>
+          }
+          // ListFooterComponent={renderFooter}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.3}
+          keyboardShouldPersistTaps="handled"
+        />
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  modalOverlay: {
+  container: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "#fff",
   },
-  modalContent: {
-    flex: 1,
-    backgroundColor: "white",
-  },
-  searchHeader: {
+  header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === "ios" ? 50 : 16,
+    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
-    backgroundColor: "white",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
+    backgroundColor: "#fff",
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
   },
   searchInputContainer: {
     flex: 1,
@@ -212,54 +279,72 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
     borderRadius: 20,
     paddingHorizontal: 12,
-    height: 36,
+    height: 40,
   },
   searchIcon: {
     marginRight: 8,
-    width: 18,
-    height: 18,
-    alignItems: "center",
-    justifyContent: "center",
   },
   searchInput: {
     flex: 1,
-    height: "100%",
-    fontSize: 14,
+    height: 40,
+    fontSize: 16,
     color: "#333",
   },
-  cancelButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  clearButton: {
+    padding: 4,
   },
-  cancelText: {
-    color: myTheme.primary,
-    fontSize: 14,
+  listContent: {
+    padding: 16,
+    paddingBottom: 80,
+    minHeight: height * 0.5,
   },
-  searchContent: {
-    flex: 1,
+  productItem: {
+    flexDirection: "row",
     padding: 12,
-    justifyContent: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
     alignItems: "center",
   },
-  emptyStateContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
+  productImageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 4,
+    overflow: "hidden",
+    marginRight: 12,
   },
-  emptyStateIcon: {
-    marginBottom: 16,
+  productImage: {
+    width: "100%",
+    height: "100%",
+    aspectRatio: 1,
   },
-  emptyStateText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#333",
+  productContent: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  productName: {
+    fontSize: 16,
+    fontWeight: "500",
     marginBottom: 8,
-    textAlign: "center",
   },
-  emptyStateSubtext: {
+  productPrice: {
     fontSize: 14,
+    color: myTheme.primary,
+    fontWeight: "600",
+  },
+  emptyContainer: {
+    padding: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    height: height * 0.3,
+  },
+  emptyText: {
+    fontSize: 16,
     color: "#999",
     textAlign: "center",
+  },
+  loaderContainer: {
+    paddingVertical: 20,
+    alignItems: "center",
   },
 });
 
