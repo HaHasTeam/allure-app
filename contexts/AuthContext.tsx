@@ -14,6 +14,11 @@ import { getItem, removeItem, setItem } from "@/utils/asyncStorage";
 import type { TRoleResponse, GetRoleByEnumResponse } from "@/types/role";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useRole from "@/hooks/api/useRole";
+import { useMutation } from "@tanstack/react-query";
+import { createFirebaseTokenApi } from "@/hooks/api/firebase";
+import { firebaseAuth } from "@/utils/firebase";
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import { errorMessage } from "@/constants";
 
 export { useSession } from "../hooks/useSession";
 
@@ -21,7 +26,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [accessToken, setAccessToken] = useState<string | undefined>();
   const [refreshToken, setRefreshToken] = useState<string | undefined>();
   const [firebaseToken, setFirebaseToken] = useState<string | undefined>();
-
+  const [firebaseUser, setFirebaseUser] =
+    useState<FirebaseAuthTypes.User | null>(null);
+  const [firebaseError, setFirebaseError] = useState<string | null>(null);
   const navigation = useNavigation();
   // Use the useRole hook instead of managing role state directly
   const {
@@ -33,6 +40,61 @@ export function SessionProvider({ children }: PropsWithChildren) {
     mappedRoles,
     isLoading: isLoadingRoles,
   } = useRole();
+
+  const { mutateAsync: createCustomToken } = useMutation({
+    mutationFn: createFirebaseTokenApi.fn,
+    mutationKey: [createFirebaseTokenApi.mutationKey],
+  });
+
+  // Initialize Firebase authentication
+  useEffect(() => {
+    if (firebaseToken && firebaseToken.length > 0) {
+      console.log("====================================");
+      console.log("firebaseToken in SessionProvider", firebaseToken);
+      console.log("====================================");
+
+      firebaseAuth
+        .signInWithCustomToken(firebaseToken)
+        .then((result) => {
+          setFirebaseUser(result.user);
+        })
+        .catch((err) => {
+          setFirebaseError(errorMessage.ERM033);
+          console.log(err);
+        });
+    }
+  }, [firebaseToken]);
+
+  // Add auth state change listener
+  // useEffect(() => {
+  //   if (firebaseToken) {
+  //     const subscriber = firebaseAuth.onAuthStateChanged((user) => {
+  //       setFirebaseUser(user);
+  //     });
+  //     return subscriber; // unsubscribe on unmount
+  //   }
+  // }, [firebaseToken]);
+
+  // Initialize Firebase token if needed
+  useEffect(() => {
+    (async () => {
+      if (!(firebaseToken && firebaseToken.length > 0)) {
+        try {
+          const result = await createCustomToken();
+          if (typeof result === "string" || !result) {
+            setFirebaseError(result || errorMessage.ERM033);
+          } else {
+            await setItem("firebaseToken", result.data.token);
+            setFirebaseToken(result.data.token);
+          }
+        } catch (error) {
+          console.error("Error creating custom token:", error);
+          setFirebaseError(errorMessage.ERM033);
+        }
+      }
+    })();
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
@@ -146,6 +208,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
         refreshToken,
         firebaseToken,
         roles,
+        firebaseUser,
+        firebaseError,
         mappedRoles,
         isLoadingRoles,
       }}

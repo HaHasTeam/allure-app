@@ -1,7 +1,9 @@
+"use client";
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { log } from "@/utils/logger";
-import useUserAuth from "./useUserAuth";
 import firestore from "@react-native-firebase/firestore";
+import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 
 // Message type definition
 export interface ChatMessage {
@@ -21,9 +23,15 @@ const SEND_THROTTLE_TIME = 500;
 
 /**
  * Hook for handling high-volume chat in livestream with Firebase
+ * @param livestreamId - ID of the livestream
+ * @param user - Firebase user object from authentication
+ * @param authError - Error from authentication if any
+ * @param messageLimit - Number of messages to load per batch
  */
 export const useFirebaseChat = (
   livestreamId: string,
+  user: FirebaseAuthTypes.User | null | undefined,
+  authError: string | null = null,
   messageLimit = DEFAULT_MESSAGE_LIMIT
 ) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -32,9 +40,6 @@ export const useFirebaseChat = (
   const [error, setError] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
-
-  // Get authenticated user from useUserAuth hook
-  const { user, error: authError } = useUserAuth();
 
   // Refs for managing state without triggering re-renders
   const lastMessageRef = useRef<any>(null);

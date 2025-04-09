@@ -41,6 +41,7 @@ import {
   LiveSteamDetail,
 } from "@/hooks/api/livestream";
 import config from "@/constants/agora.config";
+import { useSession } from "@/hooks/useSession";
 
 const { width, height } = Dimensions.get("window");
 
@@ -54,7 +55,7 @@ export default function LivestreamViewerScreen() {
   const [currentToken, setCurrentToken] = useState<string | null>(null);
   const [isRefreshingToken, setIsRefreshingToken] = useState(false);
   const [listProduct, setListProduct] = useState<LiveSteamDetail[]>([]);
-
+  const { firebaseError, firebaseUser } = useSession();
   const [tokenError, setTokenError] = useState(false);
   const [streamInfo, setStreamInfo] = useState<{
     title: string;
@@ -101,7 +102,7 @@ export default function LivestreamViewerScreen() {
     loadMoreMessages,
     clearError: clearChatError,
     reconnect: reconnectChat,
-  } = useFirebaseChat(livestreamId);
+  } = useFirebaseChat(livestreamId, firebaseUser, firebaseError);
 
   const chatListRef = useRef<
     FlatListType<{

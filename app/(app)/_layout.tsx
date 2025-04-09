@@ -134,7 +134,7 @@ function AppLayout() {
             }}
           />
           <Stack.Screen
-            name="(profile)/orders/index"
+            name="(profile)/orders/orderhistory"
             options={{
               headerShown: false,
             }}
