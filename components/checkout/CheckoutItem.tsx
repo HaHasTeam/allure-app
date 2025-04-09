@@ -1,41 +1,35 @@
-import { CreateOrderSchema } from "@/schema/order.schema";
+"use client";
+
+import type { CreateOrderSchema } from "@/schema/order.schema";
 import useCartStore from "@/store/cart";
-import { IBrand } from "@/types/brand";
-import { ICartItem } from "@/types/cart";
+import type { IBrand } from "@/types/brand";
+import type { ICartItem } from "@/types/cart";
 import {
   ClassificationTypeEnum,
   DiscountTypeEnum,
   OrderEnum,
   StatusEnum,
 } from "@/types/enum";
-import { IBrandBestVoucher, ICheckoutItem, TVoucher } from "@/types/voucher";
-import {
-  calculateCheckoutBrandVoucherDiscount,
-  getTotalBrandProductsPrice,
-} from "@/utils/price";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import { SetStateAction, useMemo, useRef, useState } from "react";
-import {
+import type {
+  IBrandBestVoucher,
+  ICheckoutItem,
+  TVoucher,
+} from "@/types/voucher";
+import { calculateCheckoutBrandVoucherDiscount } from "@/utils/price";
+import { Feather } from "@expo/vector-icons";
+import { useMemo, useRef, useState } from "react";
+import type {
   UseFormRegister,
-  UseFormReturn,
   UseFormSetValue,
   UseFormWatch,
 } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { z } from "zod";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import type { z } from "zod";
 import VoucherBrandList from "../voucher/VoucherBrandList";
 import { formatCurrency, formatNumber } from "@/utils/number";
 import ProductCheckoutLandscape from "../product/ProductCheckoutLandscape";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import BrandSection from "../brand/BrandSection";
 import { myTheme } from "@/constants";
 
@@ -82,7 +76,18 @@ const CheckoutItem = ({
   };
 
   const totalBrandPrice = useMemo(() => {
-    return getTotalBrandProductsPrice(cartBrandItem);
+    return cartBrandItem.reduce((total, item) => {
+      const price = item.productClassification?.price || 0;
+      const quantity = item.quantity || 0;
+      const hasLivestreamDiscount =
+        item.livestreamDiscount !== undefined && item.livestreamDiscount > 0;
+      const discountAmount = hasLivestreamDiscount
+        ? price * (item.livestreamDiscount ?? 0)
+        : 0;
+      const finalPrice = price - discountAmount;
+
+      return total + finalPrice * quantity;
+    }, 0);
   }, [cartBrandItem]);
   const checkoutItems: ICheckoutItem[] = cartBrandItem
     ?.map((cartItem) => ({
@@ -114,6 +119,8 @@ const CheckoutItem = ({
         {/* Product Cards */}
         <ScrollView>
           {cartBrandItem?.map((cartItem) => {
+            console.log("cartItem", cartItem);
+
             const product =
               cartItem?.productClassification?.preOrderProduct?.product ??
               cartItem?.productClassification?.productDiscount?.product ??
@@ -170,6 +177,7 @@ const CheckoutItem = ({
                 eventType={eventType}
                 productQuantity={productQuantity}
                 productClassification={productClassification}
+                livestreamDiscount={cartItem?.livestreamDiscount}
               />
             );
           })}

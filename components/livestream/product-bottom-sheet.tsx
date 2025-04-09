@@ -446,6 +446,9 @@ const ProductSelectionBottomSheet = ({
                   certificates: item.product.certificates,
                   brand: item.product.brand,
                 };
+
+                console.log("mockProduct", item);
+
                 return (
                   <ProductItem
                     product={mockProduct}

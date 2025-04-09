@@ -11,7 +11,6 @@ import { GET, POST } from "@/utils/api.caller";
 import { log } from "@/utils/logger";
 import { getItem, removeItem, setItem } from "@/utils/asyncStorage";
 
-import type { TRoleResponse, GetRoleByEnumResponse } from "@/types/role";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useRole from "@/hooks/api/useRole";
 import { useMutation } from "@tanstack/react-query";
@@ -75,25 +74,65 @@ export function SessionProvider({ children }: PropsWithChildren) {
   //   }
   // }, [firebaseToken]);
 
-  // Initialize Firebase token if needed
+  // Initialize Firebase token if needed - now checks for accessToken as well
   useEffect(() => {
     (async () => {
-      if (!(firebaseToken && firebaseToken.length > 0)) {
+      const hasValidAccessToken =
+        accessToken &&
+        typeof accessToken === "string" &&
+        accessToken.length > 0;
+
+      // Check if we have a valid firebaseToken
+      const hasValidFirebaseToken =
+        firebaseToken &&
+        typeof firebaseToken === "string" &&
+        firebaseToken.length > 0;
+
+      console.log("Auth tokens check:", {
+        hasAccessToken: !!accessToken,
+        accessTokenLength: accessToken ? accessToken.length : 0,
+        isAccessTokenValid: hasValidAccessToken,
+        hasFirebaseToken: !!firebaseToken,
+        firebaseTokenLength: firebaseToken ? firebaseToken.length : 0,
+        isFirebaseTokenValid: hasValidFirebaseToken,
+      });
+
+      // Only proceed if we have a valid accessToken but no valid firebaseToken
+      if (hasValidAccessToken && !hasValidFirebaseToken) {
+        console.log(
+          "Access token exists but no valid Firebase token found, creating a new one..."
+        );
+
         try {
           const result = await createCustomToken();
+
           if (typeof result === "string" || !result) {
+            console.error("Failed to create token:", result);
             setFirebaseError(result || errorMessage.ERM033);
-          } else {
+          } else if (result.data && result.data.token) {
+            console.log("Successfully created new Firebase token");
             await setItem("firebaseToken", result.data.token);
             setFirebaseToken(result.data.token);
+          } else {
+            console.error("Invalid token response format:", result);
+            setFirebaseError(errorMessage.ERM033);
           }
         } catch (error) {
           console.error("Error creating custom token:", error);
           setFirebaseError(errorMessage.ERM033);
         }
+      } else if (!hasValidAccessToken) {
+        console.log("No valid access token, skipping Firebase token creation");
+        // Optionally clear firebase token if access token is invalid
+        // if (hasValidFirebaseToken) {
+        //   await removeItem("firebaseToken")
+        //   setFirebaseToken(undefined)
+        // }
+      } else {
+        console.log("Using existing Firebase token");
       }
     })();
-  }, []);
+  }, [accessToken, firebaseToken, createCustomToken]);
 
   useEffect(() => {
     (async () => {

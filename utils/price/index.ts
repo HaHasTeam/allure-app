@@ -196,13 +196,20 @@ export const calculateCartTotals = (
 ): {
   totalProductCost: number;
   totalProductDiscount: number;
+  totalLivestreamDiscount: number;
   totalPrice: number;
 } => {
   if (!cartByBrand)
-    return { totalProductCost: 0, totalProductDiscount: 0, totalPrice: 0 };
+    return {
+      totalProductCost: 0,
+      totalProductDiscount: 0,
+      totalLivestreamDiscount: 0,
+      totalPrice: 0,
+    };
 
   let totalProductCost = 0;
   let totalProductDiscount = 0;
+  let totalLivestreamDiscount = 0;
   let totalPrice = 0;
 
   selectedCartItems?.forEach((itemId) => {
@@ -219,6 +226,11 @@ export const calculateCartTotals = (
             : 0;
         const discountType = DiscountTypeEnum.PERCENTAGE;
 
+        // Check if livestream discount exists
+        const hasLivestreamDiscount =
+          cartItem.livestreamDiscount !== undefined &&
+          cartItem.livestreamDiscount > 0;
+
         // Calculate total product cost (price without discount)
         const itemTotalCost = productPrice * cartItemQuantity;
         totalProductCost += itemTotalCost;
@@ -234,13 +246,34 @@ export const calculateCartTotals = (
           totalProductDiscount += itemTotalDiscount;
         }
 
-        // Calculate total price after applying discount
-        const discountedPrice = calculateDiscountPrice(
+        // Calculate livestream discount if it exists
+        let livestreamDiscountAmount = 0;
+        if (hasLivestreamDiscount) {
+          // Apply livestream discount on top of any existing discount
+          const priceAfterDiscount = calculateDiscountPrice(
+            productPrice,
+            discount,
+            discountType
+          );
+          livestreamDiscountAmount =
+            priceAfterDiscount * (cartItem.livestreamDiscount ?? 0);
+          totalLivestreamDiscount +=
+            livestreamDiscountAmount * cartItemQuantity;
+        }
+
+        // Calculate total price after applying all discounts
+        let finalPrice = calculateDiscountPrice(
           productPrice,
           discount,
           discountType
         );
-        const itemTotalPrice = discountedPrice * cartItemQuantity;
+
+        // Apply livestream discount if it exists
+        if (hasLivestreamDiscount) {
+          finalPrice -= livestreamDiscountAmount;
+        }
+
+        const itemTotalPrice = finalPrice * cartItemQuantity;
         totalPrice += itemTotalPrice;
       }
     });
@@ -249,6 +282,7 @@ export const calculateCartTotals = (
   return {
     totalProductCost,
     totalProductDiscount,
+    totalLivestreamDiscount,
     totalPrice,
   };
 };
@@ -909,3 +943,19 @@ export const calculatePlatformVoucherDiscount = (
     ? Math.min(discountVoucherValue, maxDiscount)
     : discountVoucherValue;
 };
+/**
+ * Calculate the total livestream discount for a collection of cart items
+ * @param cartItems Array of cart items
+ * @returns Total livestream discount amount
+ */
+export function calculateLivestreamDiscount(cartItems: ICartItem[]): number {
+  return cartItems.reduce((total, item) => {
+    if (item.livestreamDiscount !== undefined && item.livestreamDiscount > 0) {
+      const price = item.productClassification?.price || 0;
+      const quantity = item.quantity || 0;
+      const discountAmount = (price * item.livestreamDiscount) / 100;
+      return total + discountAmount * quantity;
+    }
+    return total;
+  }, 0);
+}
