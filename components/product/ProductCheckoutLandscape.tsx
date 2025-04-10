@@ -1,11 +1,12 @@
+"use client";
+
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
 import { useTranslation } from "react-i18next";
 
-import { IClassification } from "@/types/classification";
+import type { IClassification } from "@/types/classification";
 import { ClassificationTypeEnum, DiscountTypeEnum } from "@/types/enum";
-import { DiscountType } from "@/types/product-discount";
-import { calculateDiscountPrice, calculateTotalPrice } from "@/utils/price";
+import type { DiscountType } from "@/types/product-discount";
+import { calculateDiscountPrice } from "@/utils/price";
 
 import ProductTag from "./ProductTag";
 import { myTheme } from "@/constants";
@@ -23,7 +24,9 @@ interface ProductCheckoutLandscapeProps {
   price: number;
   productQuantity: number;
   productClassification: IClassification | null;
+  livestreamDiscount?: number;
 }
+
 const ProductCheckoutLandscape = ({
   productImage,
   productId,
@@ -35,16 +38,45 @@ const ProductCheckoutLandscape = ({
   selectedClassification,
   price,
   productClassification,
+  livestreamDiscount,
 }: ProductCheckoutLandscapeProps) => {
   const { t } = useTranslation();
   const router = useRouter();
-  const totalPrice = calculateTotalPrice(
-    price,
-    productQuantity,
-    discount,
-    discountType
-  );
-  const discountPrice = calculateDiscountPrice(price, discount, discountType);
+
+  // Check if livestream discount exists and calculate it
+  const hasLivestreamDiscount =
+    livestreamDiscount !== undefined && livestreamDiscount > 0;
+
+  // Calculate prices based on discounts
+  let finalPrice = price;
+  let originalPrice = price;
+
+  // Apply regular discount if it exists
+  if (
+    discount &&
+    discount > 0 &&
+    (discountType === DiscountTypeEnum.AMOUNT ||
+      discountType === DiscountTypeEnum.PERCENTAGE)
+  ) {
+    finalPrice = calculateDiscountPrice(price, discount, discountType);
+  }
+
+  // Apply livestream discount if it exists (on top of any existing discount)
+  if (hasLivestreamDiscount) {
+    originalPrice = finalPrice;
+    const mockDiscount = DiscountTypeEnum.PERCENTAGE;
+    finalPrice = calculateDiscountPrice(
+      finalPrice,
+      livestreamDiscount,
+      mockDiscount
+    );
+
+    // finalPrice =  finalPrice - (finalPrice * livestreamDiscount) / 100;
+  }
+
+  // Calculate total price with quantity
+  const totalPrice = finalPrice * productQuantity;
+
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -53,7 +85,7 @@ const ProductCheckoutLandscape = ({
         >
           <View style={styles.imageContainer}>
             <ImageWithFallback
-              src={productImage}
+              src={productImage || "/placeholder.svg"}
               alt={productName}
               style={styles.image}
               resizeMode="cover"
@@ -74,8 +106,11 @@ const ProductCheckoutLandscape = ({
                 {productName}
               </Text>
             </TouchableOpacity>
-            <View>
+            <View style={styles.tagContainer}>
               {eventType ? <ProductTag tag={eventType} size="small" /> : null}
+              {hasLivestreamDiscount && (
+                <ProductTag tag="LIVESTREAM" size="small" />
+              )}
             </View>
           </View>
           {productClassification?.type === ClassificationTypeEnum.CUSTOM && (
@@ -89,17 +124,19 @@ const ProductCheckoutLandscape = ({
             </View>
           )}
 
-          {discount &&
-          discount > 0 &&
-          (discountType === DiscountTypeEnum.AMOUNT ||
-            discountType === DiscountTypeEnum.PERCENTAGE) ? (
+          {discount || hasLivestreamDiscount ? (
             <View style={styles.priceContainer}>
               <Text style={styles.discountPrice}>
-                {t("productCard.currentPrice", { price: discountPrice })}
+                {t("productCard.currentPrice", { price: finalPrice })}
               </Text>
               <Text style={styles.originalPrice}>
-                {t("productCard.price", { price })}
+                {t("productCard.price", { price: originalPrice })}
               </Text>
+              {hasLivestreamDiscount && (
+                <Text style={styles.discountBadge}>
+                  -{livestreamDiscount * 100}%
+                </Text>
+              )}
             </View>
           ) : (
             <View style={styles.priceContainer}>
@@ -166,6 +203,10 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     gap: 4,
   },
+  tagContainer: {
+    flexDirection: "row",
+    gap: 4,
+  },
   productName: {
     fontSize: 14,
     fontWeight: "bold",
@@ -215,6 +256,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: myTheme.red[500],
     textAlign: "center",
+  },
+  discountBadge: {
+    fontSize: 12,
+    color: myTheme.white,
+    backgroundColor: myTheme.red[500],
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
 });
 

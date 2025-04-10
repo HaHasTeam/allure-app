@@ -1,9 +1,9 @@
-import { z } from "zod";
+import type { z } from "zod";
 
-import { ICartByBrand } from "@/types/cart";
-import { ICreateOrderItem } from "@/types/order";
-import { TVoucher } from "@/types/voucher";
-import { CreateOrderSchema } from "@/schema/order.schema";
+import type { ICartByBrand } from "@/types/cart";
+import type { ICreateOrderItem } from "@/types/order";
+import type { TVoucher } from "@/types/voucher";
+import type { CreateOrderSchema } from "@/schema/order.schema";
 
 interface OrderItemProps {
   selectedCartItem: ICartByBrand | null;
@@ -19,13 +19,16 @@ export const OrderItemCreation = ({
   const orders: ICreateOrderItem[] = selectedCartItem
     ? Object.keys(selectedCartItem).map((brandName, index) => {
         const cartBrandItems = selectedCartItem[brandName];
+        console.log("cartBrandItems", cartBrandItems);
 
         // Map items to the required structure
         const items =
           cartBrandItems?.map((item) => ({
             productClassificationId: item?.productClassification?.id ?? "",
             quantity: item?.quantity,
+            livestreamId: item?.livestream || undefined,
           })) ?? [];
+        console.log("checkItems", items);
 
         // Use the brandId to find the corresponding voucher
         const brand =

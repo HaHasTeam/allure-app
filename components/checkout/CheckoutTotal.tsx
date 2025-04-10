@@ -8,15 +8,16 @@ import { hexToRgba } from "@/utils/color";
 import { myTheme } from "@/constants";
 import LoadingIcon from "../loading/LoadingIcon";
 import { Link } from "expo-router";
-import { UseFormHandleSubmit } from "react-hook-form";
-import { z } from "zod";
-import { CreateOrderSchema } from "@/schema/order.schema";
+import type { UseFormHandleSubmit } from "react-hook-form";
+import type { z } from "zod";
+import type { CreateOrderSchema } from "@/schema/order.schema";
 
 interface CheckoutTotalProps {
   totalProductDiscount: number;
   totalProductCost: number;
   totalBrandDiscount: number;
   totalPlatformDiscount: number;
+  totalLivestreamDiscount?: number;
   totalSavings: number;
   totalPayment: number;
   isLoading: boolean;
@@ -29,6 +30,7 @@ export default function CheckoutTotal({
   totalProductCost,
   totalBrandDiscount,
   totalPlatformDiscount,
+  totalLivestreamDiscount = 0,
   totalSavings,
   isLoading,
   totalPayment,
@@ -84,6 +86,14 @@ export default function CheckoutTotal({
             <Text style={styles.mutedText}>{t("cart.discountPlatform")}</Text>
             <Text style={styles.discountText}>
               -{t("productCard.price", { price: totalPlatformDiscount })}
+            </Text>
+          </View>
+        ) : null}
+        {totalLivestreamDiscount && totalLivestreamDiscount > 0 ? (
+          <View style={styles.rowBetween}>
+            <Text style={styles.mutedText}>Tiết kiệm</Text>
+            <Text style={styles.discountText}>
+              -{t("productCard.price", { price: totalLivestreamDiscount })}
             </Text>
           </View>
         ) : null}

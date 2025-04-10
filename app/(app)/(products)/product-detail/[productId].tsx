@@ -17,7 +17,7 @@ import {
   Pressable,
   Modal,
 } from "react-native";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   AntDesign,
@@ -41,6 +41,9 @@ import {
 } from "@/types/enum";
 import { calculateDiscountPrice } from "@/utils/price";
 import { PreOrderProductEnum } from "@/types/pre-order";
+import { createCartItemApi, getMyCartApi } from "@/hooks/api/cart";
+import useHandleServerError from "@/hooks/useHandleServerError";
+import { useToast } from "@/contexts/ToastContext";
 
 const { width, height } = Dimensions.get("window");
 const ITEM_WIDTH = width;
@@ -74,7 +77,23 @@ const ProductDetailScreen = ({
   const [modalCurrentPage, setModalCurrentPage] = useState(1);
   const [isLoadingReviews, setIsLoading] = useState(false);
   const [isLoadingModalReviews, setIsLoadingModalReviews] = useState(false);
-
+  const { showToast } = useToast();
+  const queryClient = useQueryClient();
+  const handleServerError = useHandleServerError();
+  const { mutateAsync: createCartItemFn, isPending: isAddingToCart } =
+    useMutation({
+      mutationKey: [createCartItemApi.mutationKey],
+      mutationFn: createCartItemApi.fn,
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: [getMyCartApi.queryKey],
+        });
+        showToast(t("cart.addToCartSuccess"), "success", 4000);
+      },
+      onError: (error) => {
+        handleServerError({ error });
+      },
+    });
   // Get product ID from props or route params
   const { productId: routeProductId } = useLocalSearchParams<{
     productId: string;
@@ -247,7 +266,7 @@ const ProductDetailScreen = ({
     setSelectedSize(classification);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product || !selectedSize) return;
 
     console.log("Added to cart:", {
@@ -255,9 +274,11 @@ const ProductDetailScreen = ({
       size: selectedSize.size,
       price: selectedSize.price,
     });
-
-    // Navigate back or to cart
-    router.back();
+    await createCartItemFn({
+      quantity: 1,
+      productClassification: selectedSize.id,
+      classification: selectedSize.title ?? "",
+    });
   };
 
   const handleImageChange = (index: number) => {
@@ -969,10 +990,12 @@ const ProductDetailScreen = ({
         <View>
           <Text style={styles.priceLabel}>Total Price</Text>
           <Text style={styles.price}>
-            $
-            {selectedSize?.price ||
-              cheapestClassification?.price ||
-              product.price}
+            {t("productCard.price", {
+              price:
+                selectedSize?.price ||
+                cheapestClassification?.price ||
+                product.price,
+            })}
           </Text>
         </View>
         <TouchableOpacity

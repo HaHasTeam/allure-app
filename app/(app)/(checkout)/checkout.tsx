@@ -1,13 +1,15 @@
+"use client";
+
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Stack, useRouter } from "expo-router";
 import useCartStore from "@/store/cart";
 import { useToast } from "@/contexts/ToastContext";
 import useHandleServerError from "@/hooks/useHandleServerError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { IAddress } from "@/types/address";
-import {
+import type { IAddress } from "@/types/address";
+import type {
   IBrandBestVoucher,
   ICheckoutItem,
   IPlatformBestVoucher,
@@ -20,8 +22,8 @@ import {
   calculateTotalCheckoutBrandVoucherDiscount,
 } from "@/utils/price";
 import { DiscountTypeEnum, PaymentMethod, ResultEnum } from "@/types/enum";
-import { Form, useForm } from "react-hook-form";
-import { z } from "zod";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   getBestPlatformVouchersApi,
@@ -32,7 +34,7 @@ import { getMyAddressesApi } from "@/hooks/api/address";
 import { createGroupOderApi, createOderApi } from "@/hooks/api/order";
 import { getMyCartApi } from "@/hooks/api/cart";
 import { updateOrderGroupBuyingApi } from "@/hooks/api/group-buying";
-import {
+import type {
   ICreateGroupOrder,
   ICreateOrder,
   IUpdateGroupOrder,
@@ -40,21 +42,15 @@ import {
 import { createCheckoutItem, createCheckoutItems } from "@/utils/cart";
 import { OrderItemCreation } from "@/components/checkout/OrderItemsCreation";
 import { getCreateOrderSchema } from "@/schema/order.schema";
-import useAuth from "@/hooks/api/useAuth";
 import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
 import Empty from "@/components/empty";
 import { myTheme } from "@/constants";
 import CheckoutItem from "@/components/checkout/CheckoutItem";
-import CheckoutHeader from "@/components/checkout/CheckoutHeader";
 import { ProjectInformationEnum } from "@/types/project";
 import CheckoutTotal from "@/components/checkout/CheckoutTotal";
 import AddressSection from "@/components/address/AddressSection";
-import {
-  AntDesign,
-  FontAwesome6,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
+import type { BottomSheetModal } from "@gorhom/bottom-sheet";
 import VoucherPlatformList from "@/components/voucher/VoucherPlatformList";
 
 const checkout = () => {
@@ -100,17 +96,17 @@ const checkout = () => {
     return acc;
   }, {});
 
-  const totalProductCost = useMemo(() => {
-    return calculateCartTotals(selectedCartItems, selectedCartItem)
-      .totalProductCost;
+  // Get cart totals including livestream discount
+  const {
+    totalProductCost,
+    totalProductDiscount,
+    totalLivestreamDiscount,
+    totalPrice,
+  } = useMemo(() => {
+    return calculateCartTotals(selectedCartItems, selectedCartItem);
   }, [selectedCartItem, selectedCartItems]);
-  const totalPrice = useMemo(() => {
-    return calculateCartTotals(selectedCartItems, selectedCartItem).totalPrice;
-  }, [selectedCartItem, selectedCartItems]);
+
   // Calculate total voucher discount
-  // const totalBrandDiscount = useMemo(() => {
-  //   return calculateTotalBrandVoucherDiscount(selectedCartItem, selectedCartItems, chosenBrandVouchers)
-  // }, [chosenBrandVouchers, selectedCartItems, selectedCartItem])
   const totalBrandBEDiscount = useMemo(() => {
     return calculateTotalCheckoutBrandVoucherDiscount(chosenBrandVouchers);
   }, [chosenBrandVouchers]);
@@ -138,19 +134,13 @@ const checkout = () => {
     chosenBrandVouchers,
   ]);
 
-  // Calculate platform voucher discount
-  // const totalPlatformDiscount = useMemo(() => {
-  //   return calculatePlatformVoucherDiscount(chosenPlatformVoucher)
-  // }, [chosenPlatformVoucher])
-
-  const totalProductDiscount = useMemo(() => {
-    return calculateCartTotals(selectedCartItems, selectedCartItem)
-      .totalProductDiscount;
-  }, [selectedCartItem, selectedCartItems]);
-
-  // Total saved price (product discounts + brand vouchers + platform voucher)
+  // Total saved price (product discounts + brand vouchers + platform voucher + livestream discounts)
   const totalSavings =
-    totalProductDiscount + totalBrandDiscount + (platformVoucherDiscount ?? 0);
+    totalProductDiscount +
+    totalBrandDiscount +
+    (platformVoucherDiscount ?? 0) +
+    totalLivestreamDiscount;
+
   const totalPayment =
     totalPrice - totalBrandDiscount - (platformVoucherDiscount ?? 0);
 
@@ -171,13 +161,6 @@ const checkout = () => {
     platformVoucherId: "", // Optional field, default to an empty string
   };
 
-  // const handleReset = () => {
-  //   form.reset();
-  // };
-  // const form = useForm<z.infer<typeof CreateOrderSchema>>({
-  //   resolver: zodResolver(CreateOrderSchema),
-  //   defaultValues: defaultOrderValues,
-  // });
   const {
     control,
     handleSubmit,
@@ -199,10 +182,7 @@ const checkout = () => {
     queryKey: [getMyAddressesApi.queryKey],
     queryFn: getMyAddressesApi.fn,
   });
-  // const { data: useMyCartData, isFetching: isGettingCart } = useQuery({
-  //   queryKey: [getMyCartApi.queryKey],
-  //   queryFn: getMyCartApi.fn,
-  // })
+
   const { mutateAsync: callBestBrandVouchersFn } = useMutation({
     mutationKey: [getBestShopVouchersApi.mutationKey],
     mutationFn: getBestShopVouchersApi.fn,
@@ -353,10 +333,9 @@ const checkout = () => {
         if (selectedCartItem) {
           checkoutItems = Object.entries(selectedCartItem)
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            .map(([_brandName, cartItems]) =>
+            .flatMap(([_brandName, cartItems]) =>
               createCheckoutItem(cartItems, selectedCartItems)
-            )
-            .flat();
+            );
         }
 
         await callBestPlatformVouchersFn({
@@ -510,13 +489,6 @@ const checkout = () => {
                   </View>
                 )}
 
-                {/* {!isInGroupBuying && (
-                  <PaymentSelection
-                    form={form}
-                    hasPreOrderProduct={hasPreOrderProduct()}
-                  />
-                )} */}
-
                 <CheckoutTotal
                   formId={formId}
                   isLoading={isLoading}
@@ -524,6 +496,7 @@ const checkout = () => {
                   totalProductCost={totalProductCost}
                   totalBrandDiscount={totalBrandDiscount}
                   totalPlatformDiscount={platformVoucherDiscount ?? 0}
+                  totalLivestreamDiscount={totalLivestreamDiscount}
                   totalSavings={totalSavings}
                   totalPayment={totalPayment}
                   handleSubmit={handleSubmit}
