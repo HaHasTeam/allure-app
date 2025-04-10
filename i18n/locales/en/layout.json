@@ -103,6 +103,7 @@
   "loginRcm": "Log in to update your skills!",
   "facebook": "Facebook",
   "button": {
+    "collect": "Collect",
     "received": "Received",
     "notReceived": "Haven't received",
     "complaint": "Complaint",

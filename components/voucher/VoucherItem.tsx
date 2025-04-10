@@ -179,7 +179,7 @@ const VoucherItem = ({
                     <ActivityIndicator size="small" color={myTheme.primary} />
                   ) : (
                     <Text style={styles.saveButtonText}>
-                      {t("button.save")}
+                      {t("button.collect")}
                     </Text>
                   )}
                 </TouchableOpacity>

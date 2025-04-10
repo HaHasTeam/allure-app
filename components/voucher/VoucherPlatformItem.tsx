@@ -160,7 +160,9 @@ const VoucherPlatformItem = ({
                 {isCollecting ? (
                   <ActivityIndicator size="small" color={myTheme.primary} />
                 ) : (
-                  <Text style={styles.saveButtonText}>{t("button.save")}</Text>
+                  <Text style={styles.saveButtonText}>
+                    {t("button.collect")}
+                  </Text>
                 )}
               </TouchableOpacity>
             </View>

@@ -103,6 +103,7 @@
   "loginRcm": "Đăng nhập để cập nhật kỹ năng của bạn!",
   "facebook": "Facebook",
   "button": {
+    "collect": "Thu thập",
     "received": "Đã nhận",
     "notReceived": "Chưa nhận",
     "complaint": "Khiếu nại",
