@@ -179,6 +179,11 @@
     "highToLow": "High to Low"
   },
   "empty": {
+    "blog": {
+      "title": "No Blog Found",
+      "description": "The blog you're looking for either does not exist, has been removed, or is currently unavailable.",
+      "button": "Browse Other Blog"
+    },
     "brandHasGroupProduct": {
       "title": "There no brands selling group-buying products",
       "description": "Please come back later to check out the latest group-buying deals from your favorite brands."
@@ -658,6 +663,9 @@
     "BANK_TRANSFER": "Credit Card/Debit Card"
   },
   "order": {
+    "paymentTitle": "Payment Incomplete",
+    "paymentMessage": "It looks like your order hasn’t been paid yet. Please complete the payment soon to avoid any delays in processing.",
+    "payment": "Payment",
     "myOrder": "My Orders",
     "requestManagement": "Request Management",
     "loading": "Loading order...",

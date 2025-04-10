@@ -179,6 +179,11 @@
     "highToLow": "Từ cao đến thấp"
   },
   "empty": {
+    "blog": {
+      "title": "Không tìm thấy blog",
+      "description": "Blog bạn đang tìm kiếm không tồn tại, đã bị xóa hoặc hiện không khả dụng.",
+      "button": "Xem các blog khác"
+    },
     "search": {
       "title": "Không tìm thấy kết quả",
       "description": "Hãy thử điều chỉnh tìm kiếm của bạn để tìm những gì bạn đang tìm.",
@@ -654,6 +659,9 @@
     "BANK_TRANSFER": "Thẻ tín dụng/ghi nợ"
   },
   "order": {
+    "paymentTitle": "Thanh toán chưa hoàn tất",
+    "paymentMessage": "Bạn vẫn chưa thanh toán cho đơn hàng. Vui lòng hoàn tất thanh toán sớm để tránh chậm trễ trong quá trình xử lý.",
+    "payment": "Thanh toán",
     "myOrder": "Đơn Hàng Của Tôi",
     "requestManagement": "Quản Lý Yêu Cầu",
     "loading": "Đang tải đơn hàng...",
