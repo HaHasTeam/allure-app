@@ -89,6 +89,7 @@ export type IOrderCheckoutItem = {
 };
 
 export type ICreateOrderItem = {
+  brandId?: string;
   shopVoucherId?: string;
   items: IOrderCheckoutItem[];
   message?: string;
