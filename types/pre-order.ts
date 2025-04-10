@@ -5,16 +5,10 @@ import { TMetaData } from './request'
 export type TPreOrder = TMetaData & {
   startTime: string
   endTime: string
-  status: PreOrderStatusEnum
+  status: PreOrderProductEnum
   product: TProduct
   productClassifications: TClassification[]
-}
-
-export enum PreOrderStatusEnum {
-  ACTIVE = 'ACTIVE',
-  SOLD_OUT = 'SOLD_OUT',
-  WAITING = 'WAITING',
-  INACTIVE = 'INACTIVE'
+  images?: string[]
 }
 
 export type IPreOrder = TMetaData & {
@@ -25,10 +19,11 @@ export type IPreOrder = TMetaData & {
   productClassifications: IClassification[]
   // images?: IImage[]
 }
+
 export enum PreOrderProductEnum {
   ACTIVE = 'ACTIVE',
   SOLD_OUT = 'SOLD_OUT',
   WAITING = 'WAITING',
   INACTIVE = 'INACTIVE',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
 }

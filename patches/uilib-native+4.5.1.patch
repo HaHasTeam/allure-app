@@ -1,0 +1,144 @@
+diff --git a/node_modules/uilib-native/android/.classpath b/node_modules/uilib-native/android/.classpath
+new file mode 100644
+index 0000000..0b62ab9
+--- /dev/null
++++ b/node_modules/uilib-native/android/.classpath
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<classpath>
++	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-18/"/>
++	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
++	<classpathentry kind="output" path="bin/default"/>
++</classpath>
+diff --git a/node_modules/uilib-native/android/.project b/node_modules/uilib-native/android/.project
+new file mode 100644
+index 0000000..b6d72b0
+--- /dev/null
++++ b/node_modules/uilib-native/android/.project
+@@ -0,0 +1,34 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>react-native-ui-lib</name>
++	<comment>Project react-native-ui-lib created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.jdt.core.javabuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.jdt.core.javanature</nature>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1743656494564</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
+diff --git a/node_modules/uilib-native/android/.settings/org.eclipse.buildship.core.prefs b/node_modules/uilib-native/android/.settings/org.eclipse.buildship.core.prefs
+new file mode 100644
+index 0000000..1675490
+--- /dev/null
++++ b/node_modules/uilib-native/android/.settings/org.eclipse.buildship.core.prefs
+@@ -0,0 +1,2 @@
++connection.project.dir=../../../android
++eclipse.preferences.version=1
+diff --git a/node_modules/uilib-native/android/src/main/java/com/wix/reactnativeuilib/keyboardinput/utils/RuntimeUtils.java b/node_modules/uilib-native/android/src/main/java/com/wix/reactnativeuilib/keyboardinput/utils/RuntimeUtils.java
+index 95c5e8e..9b6c1bc 100644
+--- a/node_modules/uilib-native/android/src/main/java/com/wix/reactnativeuilib/keyboardinput/utils/RuntimeUtils.java
++++ b/node_modules/uilib-native/android/src/main/java/com/wix/reactnativeuilib/keyboardinput/utils/RuntimeUtils.java
+@@ -1,33 +1,66 @@
+ package com.wix.reactnativeuilib.keyboardinput.utils;
+ 
++import android.util.Log;
++import com.facebook.react.bridge.ReactContext;
+ import com.facebook.react.uimanager.UIManagerModule;
+ import com.wix.reactnativeuilib.keyboardinput.ReactContextHolder;
+ 
+ public class RuntimeUtils {
+ 
+-    // TODO Switch to GuardedRunnable when upgrading RN's minimal ver
+-    private static final Runnable sUIUpdateClosure = new Runnable() {
++ private static final Runnable sUIUpdateClosure = new Runnable() {
+         @Override
+         public void run() {
+-            ReactContextHolder.getContext().getNativeModule(UIManagerModule.class).onBatchComplete();
++            try {
++                ReactContext context = ReactContextHolder.getContext();
++                if (context != null) {
++                    UIManagerModule uiManager = context.getNativeModule(UIManagerModule.class);
++                    if (uiManager != null) {
++                        uiManager.onBatchComplete();
++                    }
++                }
++            } catch (Exception e) {
++                e.printStackTrace();
++            }
+         }
+     };
+ 
+     public static void runOnUIThread(Runnable runnable) {
+-        if (ReactContextHolder.getContext() != null) {
+-            ReactContextHolder.getContext().runOnUiQueueThread(runnable);
++        try {
++            if (ReactContextHolder.getContext() != null) {
++                ReactContextHolder.getContext().runOnUiQueueThread(runnable);
++            }
++        } catch (Exception e) {
++            e.printStackTrace();
+         }
+     }
+ 
+     public static void dispatchUIUpdates(final Runnable userRunnable) {
+-        runOnUIThread(new Runnable() {
+-            @Override
+-            public void run() {
+-                userRunnable.run();
+-                if (ReactContextHolder.getContext() != null) {
+-                    ReactContextHolder.getContext().runOnNativeModulesQueueThread(sUIUpdateClosure);
++        if (ReactContextHolder.getContext() == null) {
++            return; // Skip if context is null
++        }
++
++        try {
++            runOnUIThread(new Runnable() {
++                @Override
++                public void run() {
++                    try {
++                        // Re-check context before running user code
++                        if (ReactContextHolder.getContext() != null) {
++                            userRunnable.run();
++
++                            // Get a fresh context reference before queue operation
++                            ReactContext context = ReactContextHolder.getContext();
++                            if (context != null) {
++                                context.runOnNativeModulesQueueThread(sUIUpdateClosure);
++                            }
++                        }
++                    } catch (Exception e) {
++                        e.printStackTrace();
++                    }
+                 }
+-            }
+-        });
++            });
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
+     }
+ }

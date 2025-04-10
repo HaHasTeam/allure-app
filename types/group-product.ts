@@ -18,7 +18,7 @@ export enum GroupProductStatusEnum {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
-  DENIED = 'DENIED'
+  DENIED = 'DENIED',
 }
 
 export type GroupBuyingCriteria = TMetaData & {

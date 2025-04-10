@@ -1,18 +1,7 @@
-export type TServerResponseSuccess<T, TItems = undefined> = {
+export type TServerResponse<T, TItems = undefined> = {
+  message: string;
   data: T & (TItems extends undefined ? object : { items: TItems });
-  error: null;
-  message: string;
 };
-
-export type TServerResponseError = {
-  data: null;
-  error: string;
-  message: string;
-};
-
-export type TServerResponse<T> =
-  | TServerResponseSuccess<T>
-  | TServerResponseError;
 
 export type TMetaData = {
   id: string;

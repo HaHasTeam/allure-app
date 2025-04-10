@@ -30,14 +30,16 @@ import { useRouter } from "expo-router";
 import { useSession } from "@/hooks/useSession";
 
 import { log } from "@/utils/logger";
-import { UserStatusEnum, UserGenderEnum, TUser } from "../../../types/user";
+import { UserStatusEnum, UserGenderEnum, TUserPa } from "../../../types/user";
 import useUser from "@/hooks/api/useUser";
+import { useTranslation } from "react-i18next";
 
 const ProfileScreen = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const { logout } = useSession();
   const { getProfile } = useUser();
-  const [user, setUser] = useState<TUser | null>(null);
+  const [user, setUser] = useState<TUserPa | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -111,11 +113,35 @@ const ProfileScreen = () => {
     },
     {
       icon: (
+        <MaterialIcons
+          name="language"
+          style={style.icon}
+          size={24}
+          color={myTheme.primary}
+        />
+      ),
+      onPress: () => router.push("/(app)/(language)/languageswitcher"),
+      title: t("language.title"),
+    },
+    {
+      icon: (
+        <Feather
+          name="package"
+          style={style.icon}
+          size={24}
+          color={myTheme.primary}
+        />
+      ),
+      onPress: () => router.push("/(app)/(profile)/orders/orderhistory"),
+      title: t("order.myOrder"),
+    },
+    {
+      icon: (
         <MaterialCommunityIcons
           style={style.icon}
           name="logout"
           size={24}
-          color={myTheme.red}
+          color={myTheme.red[500]}
         />
       ),
       onPress: () => handleLogout(),
@@ -141,11 +167,11 @@ const ProfileScreen = () => {
   const getStatusColor = (status: UserStatusEnum | string) => {
     switch (status) {
       case UserStatusEnum.ACTIVE:
-        return myTheme.green;
+        return myTheme.green[500];
       case UserStatusEnum.INACTIVE:
-        return myTheme.red;
+        return myTheme.red[500];
       default:
-        return myTheme.grey;
+        return myTheme.gray[500];
     }
   };
 
@@ -154,7 +180,7 @@ const ProfileScreen = () => {
       case UserGenderEnum.MALE:
         return <Ionicons name="male" size={16} color={myTheme.primary} />;
       case UserGenderEnum.FEMALE:
-        return <Ionicons name="female" size={16} color={myTheme.red} />;
+        return <Ionicons name="female" size={16} color={myTheme.red[500]} />;
       default:
         return null;
     }
@@ -250,7 +276,7 @@ const ProfileScreen = () => {
                       <MaterialIcons
                         name="verified"
                         size={16}
-                        color={myTheme.green}
+                        color={myTheme.green[500]}
                       />
                     </View>
                   )}
@@ -328,7 +354,6 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           )}
         />
-
         {/* Other Menu */}
         <MyText
           text="Khác"

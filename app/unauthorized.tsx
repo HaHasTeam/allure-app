@@ -1,59 +1,88 @@
-"use client";
+import React from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { Stack, useRouter } from "expo-router";
+import { myTheme } from "@/constants";
+import { useTranslation } from "react-i18next";
+const forbidden = require("@/assets/images/Error.png");
 
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
-import { myFontWeight } from "@/constants";
-
-export default function UnauthorizedScreen() {
+const UnauthorizedScreen = () => {
+  const { t } = useTranslation();
   const router = useRouter();
+  const goToHome = () => {
+    router.replace("/");
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Không có quyền truy cập</Text>
-      <Text style={styles.message}>
-        Bạn không có quyền truy cập vào trang này. Vui lòng liên hệ quản trị
-        viên nếu bạn cần trợ giúp.
-      </Text>
+    <>
+      <Stack.Screen options={{ title: t("error.forbiddenTitle") }} />
+      <View style={styles.container}>
+        <View style={styles.imageContainer}>
+          <Image source={forbidden} resizeMode="contain" style={styles.image} />
+        </View>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.replace("/(app)/(tabs)")}
-      >
-        <Text style={styles.buttonText}>Quay lại trang chính</Text>
-      </TouchableOpacity>
-    </View>
+        <View style={styles.content}>
+          <Text style={styles.text}>{t("error.forbidden")}</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={goToHome}>
+              <Text style={styles.buttonText}>{t("button.goToHome")}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: myTheme.background,
+    paddingHorizontal: 16,
+    paddingVertical: 48,
   },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    fontFamily: myFontWeight.bold,
+  imageContainer: {
+    height: 300,
+    width: "100%",
+    overflow: "hidden",
   },
-  message: {
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  content: {
+    alignItems: "center",
+    maxWidth: 300,
+  },
+  text: {
+    marginTop: 16,
     fontSize: 16,
+    color: myTheme.mutedForeground,
     textAlign: "center",
-    marginBottom: 30,
-    fontFamily: myFontWeight.regular,
-    color: "#666",
+  },
+  buttonContainer: {
+    marginTop: 24,
   },
   button: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: myTheme.primary,
+    borderRadius: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontFamily: myFontWeight.medium,
+    fontSize: 14,
+    fontWeight: "500",
+    color: myTheme.primaryForeground,
   },
 });
+
+export default UnauthorizedScreen;

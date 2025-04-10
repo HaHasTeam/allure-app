@@ -1,28 +1,27 @@
 import Feather from "@expo/vector-icons/Feather";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Header } from "@react-navigation/elements";
 import { Tabs, useRouter } from "expo-router";
 import React, { useState } from "react";
-import { ImageBackground, StyleSheet, TouchableOpacity } from "react-native";
+import { ImageBackground, StyleSheet } from "react-native";
 import { Avatar, View } from "react-native-ui-lib";
 
 import {
   myDeviceWidth,
   myFontWeight,
-  myTextColor,
   myTheme,
   width,
 } from "../../../constants/index";
 import { FontAwesome5 } from "@expo/vector-icons";
 import MyText from "@/components/common/MyText";
 import useUser from "@/hooks/api/useUser";
-import { TUser } from "@/types/user";
+import { TUserPa } from "@/types/user";
 import ShopHeader from "@/components/header/ShopHeader";
+import { useTranslation } from "react-i18next";
 
 export default function TabLayout() {
-  const router = useRouter();
+  const { t } = useTranslation();
   const { getProfile } = useUser();
-  const [user, setUser] = useState<TUser>({
+  const [user, setUser] = useState<TUserPa>({
     email: "",
     id: "",
     username: "",
@@ -33,6 +32,7 @@ export default function TabLayout() {
     role: "",
     status: "",
     isEmailVerify: false,
+    password: "",
   });
   const style = StyleSheet.create({
     iconContainer: {
@@ -73,10 +73,6 @@ export default function TabLayout() {
             <ShopHeader
               cartItemCount={3} // Replace with your actual cart count
               notificationCount={5} // Replace with your actual notification count
-              onSearchChange={(text) => {
-                // Handle search text changes here
-                console.log("Search text:", text);
-              }}
             />
           ),
           tabBarIcon: ({ color, focused }) => (
@@ -98,6 +94,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
+          headerShown: false,
           title: "Explore",
           tabBarIcon: ({ color, focused }) => (
             <View
@@ -118,7 +115,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="live"
         options={{
-          title: "Live",
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[
@@ -139,7 +136,16 @@ export default function TabLayout() {
       <Tabs.Screen
         name="cart"
         options={{
-          title: "Cart",
+          header: () => (
+            <Header
+              title={t("cart.title")}
+              headerTitleStyle={{
+                color: myTheme.primary,
+                fontFamily: myFontWeight.bold,
+                fontWeight: "bold",
+              }}
+            />
+          ),
           tabBarIcon: ({ color, focused }) => (
             <View
               style={[

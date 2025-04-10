@@ -6,7 +6,7 @@ export const toQueryFetcher = <TParams = unknown, TResponse = unknown>(
   fetcher: (
     params?: TParams,
     options?: Partial<AxiosRequestConfig<TParams>>
-  ) => Promise<TServerResponse<TResponse>>,
+  ) => Promise<TResponse>,
   options?: Partial<AxiosRequestConfig<TParams>>
 ) => {
   const fn = async ({
@@ -29,7 +29,7 @@ export const toMutationFetcher = <TParams = unknown, TResponse = unknown>(
   fetcher: (
     params: TParams,
     options?: Partial<AxiosRequestConfig<TParams>>
-  ) => Promise<TServerResponse<TResponse>>,
+  ) => Promise<TResponse>,
   options?: Partial<AxiosRequestConfig<TParams>>
 ) => {
   const fn = async (params: TParams) => {

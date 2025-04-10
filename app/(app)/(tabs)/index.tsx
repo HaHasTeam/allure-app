@@ -1,7 +1,10 @@
+import "@/i18n/i18n";
+
 import { Feather } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  FlatList,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -14,6 +17,11 @@ import { LoaderScreen, TextField, View } from "react-native-ui-lib";
 
 import MyLink from "@/components/common/MyLink";
 import MyText from "@/components/common/MyText";
+import HomeBanner from "@/components/home/HomeBanner";
+import BeautyOffers from "@/components/home/BeautyOffers";
+import FlashSale from "@/components/home/FlashSale";
+import RecommendProduct from "@/components/home/RecommendProduct";
+import PreOrderProductSections from "@/components/home/PreOrderProductSection";
 
 interface IHomeLayout {
   title: string;
@@ -30,7 +38,20 @@ export default function HomeScreen() {
           style={{ flex: 1, backgroundColor: "#FFF" }}
           keyboardVerticalOffset={100}
         >
-          <MyText text="hello" />
+          <FlatList
+            data={[]}
+            renderItem={() => null}
+            ListHeaderComponent={
+              <>
+                <HomeBanner />
+                <BeautyOffers />
+                <FlashSale />
+                <PreOrderProductSections />
+                <RecommendProduct />
+              </>
+            }
+            keyExtractor={(item, index) => index.toString()}
+          />
         </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </>
