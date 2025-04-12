@@ -60,7 +60,7 @@ const ProductCard = ({
         </View>
         <View style={styles.imageContainer}>
           <ImageWithFallback
-            src={product?.images[0]?.fileUrl}
+            source={{ uri: product?.images[0]?.fileUrl }}
             style={styles.image}
             resizeMode="cover"
           />

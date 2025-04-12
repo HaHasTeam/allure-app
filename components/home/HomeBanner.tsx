@@ -11,6 +11,7 @@ const HomeBanner = () => {
     queryKey: [getMasterConfigApi.queryKey],
     queryFn: getMasterConfigApi.fn,
   });
+  console.log("masterConfig?.data[0]", masterConfig?.data[0]);
 
   return (
     <View style={styles.container}>
@@ -27,9 +28,9 @@ const HomeBanner = () => {
           (banner: TServerFile, index: number) => (
             <View key={banner.id} style={styles.page}>
               <ImageWithFallback
-                src={banner.fileUrl ?? ""}
+                source={{ uri: banner.fileUrl ?? "" }}
                 style={styles.image}
-                resizeMode="cover"
+                // resizeMode="cover"
               />
             </View>
           )
