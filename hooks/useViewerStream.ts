@@ -149,6 +149,13 @@ export const useViewerStream = ({
   const onUserJoined = useCallback(
     (connection: RtcConnection, remoteUid: number, elapsed: number) => {
       log.debug("Host joined:", remoteUid);
+      console.log(
+        "checked 177",
+        connection.channelId === channel && remoteUid === hostUid,
+        remoteUid,
+        hostUid,
+        connection.channelId
+      );
       if (connection.channelId === channel) {
         // Assuming the first broadcaster is the host
         setHostUid(remoteUid);
