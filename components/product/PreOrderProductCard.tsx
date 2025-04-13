@@ -7,6 +7,7 @@ import { Countdown } from "../countDown/CountDown";
 import { Entypo } from "@expo/vector-icons";
 import { myTheme } from "@/constants";
 import ProductTag from "./ProductTag";
+import ImageWithFallback from "../image/ImageWithFallBack";
 
 interface ProductCardProps {
   preOrderProduct: IPreOrder;
@@ -115,14 +116,23 @@ function PreOrderProductCard({ preOrderProduct }: ProductCardProps) {
         <ProductTag tag={timeStatus === "ongoing" ? "ACTIVE" : "WAITING"} />
       </View>
       <View style={styles.cardContent}>
-        <Image
+        <ImageWithFallback
           source={{
             uri:
               preOrderProduct.productClassifications[0]?.images[0]?.fileUrl ||
               "/placeholder.svg",
           }}
           style={styles.image}
+          resizeMode="cover"
         />
+        {/* <Image
+          source={{
+            uri:
+              preOrderProduct.productClassifications[0]?.images[0]?.fileUrl ||
+              "/placeholder.svg",
+          }}
+          style={styles.image}
+        /> */}
         <View style={styles.infoContainer}>
           <Text style={styles.productName}>{preOrderProduct.product.name}</Text>
           <View style={styles.dateInfoWrapper}>{renderDateInfo()}</View>

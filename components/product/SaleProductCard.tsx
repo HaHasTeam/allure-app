@@ -11,6 +11,7 @@ import { DiscountTypeEnum, OrderEnum, StatusEnum } from "@/types/enum";
 import { calculateDiscountPrice } from "@/utils/price";
 import { TFlashSale } from "@/types/flash-sale";
 import SoldProgress from "../sold-progress";
+import ImageWithFallback from "../image/ImageWithFallBack";
 
 interface SaleProductCardProps {
   product: TFlashSale;
@@ -29,14 +30,14 @@ function SaleProductCard({ product }: SaleProductCardProps) {
           <View style={styles.tagContainer}>
             <ProductTag tag={OrderEnum.FLASH_SALE} />
           </View>
-          <Image
+          <ImageWithFallback
             source={{
               uri: cheapestClassification?.images?.find(
                 (img) => img.status === StatusEnum.ACTIVE
               )?.fileUrl,
             }}
             style={styles.image}
-            resizeMode="cover"
+            // resizeMode="cover"
           />
         </View>
         <View style={styles.footer}>
@@ -85,6 +86,8 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     position: "relative",
+    width: "100%",
+    aspectRatio: 1,
   },
   tagContainer: {
     position: "absolute",
@@ -92,9 +95,11 @@ const styles = StyleSheet.create({
     left: 12,
     zIndex: 10,
   },
+
   image: {
     width: "100%",
-    aspectRatio: 1,
+    height: "100%",
+    resizeMode: "cover",
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },

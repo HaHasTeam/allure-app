@@ -59,7 +59,7 @@ export const getActiveLiveStreamApi = toQueryFetcher<
   LivestreamFilterParams,
   TServerResponse<LivestreamResponse[]>
 >("getListLiveStreamApi", async (params) => {
-  return publicRequest(`livestreams/active-live`, {
+  return privateRequest(`livestreams/active-live`, {
     method: "GET",
     params: {
       ...params,
@@ -85,7 +85,7 @@ export const getLiveStreamByIdMutation = toMutationFetcher<
 });
 export const getCustomTokenLivestreamApi = toMutationFetcher<
   TokenRequestParams,
-  TServerResponse<TokenResponse>
+  TServerResponse<string>
 >("getCustomTokenLivestreamApi", async (params) => {
   return privateRequest(`livestreams/token`, {
     method: "POST",

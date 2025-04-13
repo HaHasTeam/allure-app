@@ -28,6 +28,7 @@ const FlashSale = () => {
     queryFn: getFlashSaleProductFilterApi.fn,
     select: (data) => data.data,
   });
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>

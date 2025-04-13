@@ -40,9 +40,6 @@ import {
   getLiveStreamByIdMutation,
   LiveSteamDetail,
 } from "@/hooks/api/livestream";
-import config from "@/constants/agora.config";
-import { useSession } from "@/hooks/useSession";
-
 const { width, height } = Dimensions.get("window");
 
 export default function LivestreamViewerScreen() {
@@ -55,7 +52,7 @@ export default function LivestreamViewerScreen() {
   const [currentToken, setCurrentToken] = useState<string | null>(null);
   const [isRefreshingToken, setIsRefreshingToken] = useState(false);
   const [listProduct, setListProduct] = useState<LiveSteamDetail[]>([]);
-  const { firebaseError, firebaseUser } = useSession();
+  // const { firebaseError, firebaseUser } = useSession();
   const [tokenError, setTokenError] = useState(false);
   const [streamInfo, setStreamInfo] = useState<{
     title: string;
@@ -102,7 +99,7 @@ export default function LivestreamViewerScreen() {
     loadMoreMessages,
     clearError: clearChatError,
     reconnect: reconnectChat,
-  } = useFirebaseChat(livestreamId, firebaseUser, firebaseError);
+  } = useFirebaseChat(livestreamId);
 
   const chatListRef = useRef<
     FlatListType<{
@@ -166,17 +163,19 @@ export default function LivestreamViewerScreen() {
           });
           setListProduct(livestreamData.livestreamProducts);
         }
+        const privilegeExpiredTs = Math.floor(Date.now() / 1000) + 3600;
 
         // Fetch token
         const { data: tokenResult } = await getLivestreamToken({
           channelName: livestreamId,
-          privilegeExpirationInSecond: 3600,
+          privilegeExpirationInSecond: privilegeExpiredTs,
           role: ClientRoleType.ClientRoleAudience,
         });
+        console.log("token", tokenResult);
 
         if (tokenResult) {
           // Fallback in case the structure is different
-          setCurrentToken(tokenResult.token);
+          setCurrentToken(tokenResult);
         } else {
           setTokenError(true);
           Alert.alert(
@@ -207,7 +206,7 @@ export default function LivestreamViewerScreen() {
     leaveChannel,
     viewerCount,
   } = useViewerStreamAttachment({
-    appId: config.appId, // Replace with your Agora App ID
+    appId: "00f5d43335cb4a19969ef78bb8955d2c", // Replace with your Agora App ID
     channel: livestreamId,
     token: currentToken,
     userId: account?.id || "viewer",
@@ -471,6 +470,7 @@ export default function LivestreamViewerScreen() {
       },
     ]);
   };
+  console.log("isHostVideoEnabled", isHostVideoEnabled, hostUid);
 
   return (
     <View style={styles.container} onTouchStart={resetControlsTimer}>

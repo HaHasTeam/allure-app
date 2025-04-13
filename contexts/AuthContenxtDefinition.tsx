@@ -24,8 +24,8 @@ const AuthContext = createContext<{
   getRoleByEnum?: (roleEnum: string) => TRoleResponse | undefined;
   getRoleNameByEnum?: (roleEnum: string) => string;
   isRolesLoaded?: () => boolean;
-  firebaseUser: FirebaseAuthTypes.User | null;
-  firebaseError: string | null;
+  // firebaseUser: FirebaseAuthTypes.User | null;
+  // firebaseError: string | null;
 }>({
   login: () => Promise.resolve(false),
   logout: () => Promise.resolve(""),
