@@ -1,13 +1,13 @@
 import { StateCreator } from 'zustand'
 
-import { TUserPa } from '@/types/user'
-
 import { AuthSlice, AuthState } from './auth.type'
+
+import { TUserPa } from '@/types/user'
 
 const initialState: AuthState = {
   isLoading: false,
   isAuthenticated: false,
-  user: null,
+  user: null
 } as AuthState
 
 export const createAuthSlice: StateCreator<AuthSlice, [['zustand/immer', never]], [], AuthSlice> = (set) => ({
@@ -40,5 +40,5 @@ export const createAuthSlice: StateCreator<AuthSlice, [['zustand/immer', never]]
       state.user = user ?? state.user
       state.authData = authData ?? state.authData
     }),
-  resetAuth: () => set(initialState),
+  resetAuth: () => set(initialState)
 })

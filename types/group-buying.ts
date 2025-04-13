@@ -13,5 +13,5 @@ export type TGroupBuying = TMetaData & {
 
 export enum GroupBuyingStatusEnum {
   'ACTIVE' = 'ACTIVE',
-  'INACTIVE' = 'INACTIVE',
+  'INACTIVE' = 'INACTIVE'
 }

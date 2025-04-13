@@ -1,16 +1,16 @@
-import { type ApiError } from "@/utils/error-handler";
+import { useNavigation } from '@react-navigation/native'
+import { useState, useCallback } from 'react'
 
-import { useState, useCallback } from "react";
-import { useNavigation } from "@react-navigation/native";
-import { safeApiCall } from "@/utils/api.caller";
+import { safeApiCall } from '@/utils/api.caller'
+import { type ApiError } from '@/utils/error-handler'
 
 /**
  * Hook for making API calls with built-in loading state and error handling
  */
 export function useApi() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<ApiError | null>(null);
-  const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<ApiError | null>(null)
+  const navigation = useNavigation()
 
   /**
    * Execute an API call with loading state and error handling
@@ -19,55 +19,55 @@ export function useApi() {
     async <T>(
       apiCallFn: () => Promise<T>,
       options: {
-        showError?: boolean;
-        onSuccess?: (data: T) => void;
-        onError?: (error: ApiError) => void;
+        showError?: boolean
+        onSuccess?: (data: T) => void
+        onError?: (error: ApiError) => void
       } = {}
     ): Promise<T | null> => {
-      const { showError = true, onSuccess, onError } = options;
+      const { showError = true, onSuccess, onError } = options
 
-      setIsLoading(true);
-      setError(null);
+      setIsLoading(true)
+      setError(null)
 
       try {
         const result = await safeApiCall(apiCallFn(), {
           showError,
           retryAction: () => execute(apiCallFn, options),
-          goBackAction: () => navigation.goBack(),
-        });
+          goBackAction: () => navigation.goBack()
+        })
 
         if (onSuccess) {
-          onSuccess(result);
+          onSuccess(result)
         }
 
-        return result;
+        return result
       } catch (err) {
-        const apiError = err as ApiError;
-        setError(apiError);
+        const apiError = err as ApiError
+        setError(apiError)
 
         if (onError) {
-          onError(apiError);
+          onError(apiError)
         }
 
-        return null;
+        return null
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     },
     [navigation]
-  );
+  )
 
   /**
    * Reset the error state
    */
   const resetError = useCallback(() => {
-    setError(null);
-  }, []);
+    setError(null)
+  }, [])
 
   return {
     isLoading,
     error,
     execute,
-    resetError,
-  };
+    resetError
+  }
 }

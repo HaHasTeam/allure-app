@@ -1,36 +1,34 @@
-import { create } from "zustand";
+import { create } from 'zustand'
 
-import { ICartByBrand } from "@/types/cart";
-import { TGroupBuying } from "@/types/group-buying";
-import { IOrder } from "@/types/order";
-import { TVoucher } from "@/types/voucher";
+import { ICartByBrand } from '@/types/cart'
+import { TGroupBuying } from '@/types/group-buying'
+import { IOrder } from '@/types/order'
+import { TVoucher } from '@/types/voucher'
 
 export interface CartState {
   //myCart
-  cartItems: ICartByBrand;
-  groupBuying?: TGroupBuying;
-  groupBuyingOrder?: IOrder;
-  setGroupBuyingOrder: (groupBuyingOrder?: IOrder) => void;
-  setGroupBuying: (groupBuying?: TGroupBuying) => void;
-  setCartItems: (cartItem: ICartByBrand) => void;
+  cartItems: ICartByBrand
+  groupBuying?: TGroupBuying
+  groupBuyingOrder?: IOrder
+  setGroupBuyingOrder: (groupBuyingOrder?: IOrder) => void
+  setGroupBuying: (groupBuying?: TGroupBuying) => void
+  setCartItems: (cartItem: ICartByBrand) => void
   // Selected cart items
-  selectedCartItem: ICartByBrand | null;
-  setSelectedCartItem: (cart: ICartByBrand | null) => void;
+  selectedCartItem: ICartByBrand | null
+  setSelectedCartItem: (cart: ICartByBrand | null) => void
 
   // Vouchers by brand
-  chosenBrandVouchers: { [brandId: string]: TVoucher | null };
-  setChosenBrandVouchers: (vouchers: {
-    [brandId: string]: TVoucher | null;
-  }) => void;
-  updateBrandVoucher: (brandId: string, voucher: TVoucher | null) => void;
+  chosenBrandVouchers: { [brandId: string]: TVoucher | null }
+  setChosenBrandVouchers: (vouchers: { [brandId: string]: TVoucher | null }) => void
+  updateBrandVoucher: (brandId: string, voucher: TVoucher | null) => void
 
   // Platform voucher
-  chosenPlatformVoucher: TVoucher | null;
-  setChosenPlatformVoucher: (voucher: TVoucher | null) => void;
+  chosenPlatformVoucher: TVoucher | null
+  setChosenPlatformVoucher: (voucher: TVoucher | null) => void
 
   // Reset state
-  resetSelectedCartItem: () => void;
-  resetCart: () => void;
+  resetSelectedCartItem: () => void
+  resetCart: () => void
 }
 
 const initialState = {
@@ -39,8 +37,8 @@ const initialState = {
   selectedCartItem: null,
   chosenBrandVouchers: {},
   chosenPlatformVoucher: null,
-  groupBuyingOrder: undefined,
-};
+  groupBuyingOrder: undefined
+}
 
 const useCartStore = create<CartState>((set) => ({
   // Initial state
@@ -55,30 +53,26 @@ const useCartStore = create<CartState>((set) => ({
     set((state) => ({
       chosenBrandVouchers: {
         ...state.chosenBrandVouchers,
-        [brandId]: voucher,
-      },
+        [brandId]: voucher
+      }
     })),
 
-  setChosenPlatformVoucher: (voucher) =>
-    set({ chosenPlatformVoucher: voucher }),
+  setChosenPlatformVoucher: (voucher) => set({ chosenPlatformVoucher: voucher }),
   resetSelectedCartItem: () =>
     set({
       selectedCartItem: null,
       chosenBrandVouchers: {},
-      chosenPlatformVoucher: null,
+      chosenPlatformVoucher: null
     }),
 
   // Reset function
   resetCart: () => set(initialState),
   setGroupBuying: (groupBuying) => set({ groupBuying }),
-  setGroupBuyingOrder: (groupBuyingOrder) => set({ groupBuyingOrder }),
-}));
+  setGroupBuyingOrder: (groupBuyingOrder) => set({ groupBuyingOrder })
+}))
 
-export default useCartStore;
+export default useCartStore
 
-export const useSelectedCartItem = () =>
-  useCartStore((state) => state.selectedCartItem);
-export const useChosenVouchersByBrand = () =>
-  useCartStore((state) => state.chosenBrandVouchers);
-export const usePlatformChosenVoucher = () =>
-  useCartStore((state) => state.chosenPlatformVoucher);
+export const useSelectedCartItem = () => useCartStore((state) => state.selectedCartItem)
+export const useChosenVouchersByBrand = () => useCartStore((state) => state.chosenBrandVouchers)
+export const usePlatformChosenVoucher = () => useCartStore((state) => state.chosenPlatformVoucher)

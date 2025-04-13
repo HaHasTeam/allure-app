@@ -1,41 +1,30 @@
-import { useToast } from "@/contexts/ToastContext";
-import { collectVoucherApi } from "@/hooks/api/voucher";
-import useHandleServerError from "@/hooks/useHandleServerError";
-import {
-  DiscountTypeEnum,
-  VoucherApplyTypeEnum,
-  VoucherUsedStatusEnum,
-} from "@/types/enum";
-import { IBrandBestVoucher, TVoucher } from "@/types/voucher";
-import { useMutation } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useState } from "react";
-import { useTranslation } from "react-i18next";
-import StatusTag from "../tag/StatusTag";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import ImageWithFallback from "../image/ImageWithFallBack";
-import { myTheme } from "@/constants";
-import VoucherWarning from "./VoucherWarning";
-import { RadioButton } from "react-native-ui-lib";
+import { useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { RadioButton } from 'react-native-ui-lib'
+
+import VoucherWarning from './VoucherWarning'
+import ImageWithFallback from '../image/ImageWithFallBack'
+import StatusTag from '../tag/StatusTag'
+
+import { myTheme } from '@/constants'
+import { useToast } from '@/contexts/ToastContext'
+import { collectVoucherApi } from '@/hooks/api/voucher'
+import useHandleServerError from '@/hooks/useHandleServerError'
+import { DiscountTypeEnum, VoucherApplyTypeEnum, VoucherUsedStatusEnum } from '@/types/enum'
+import { IBrandBestVoucher, TVoucher } from '@/types/voucher'
 
 interface VoucherItemProps {
-  voucher: TVoucher;
-  brandLogo: string;
-  brandName: string;
-  hasBrandProductSelected: boolean;
-  selectedVoucher: string;
-  onCollectSuccess?: () => void;
-  status?:
-    | VoucherUsedStatusEnum.AVAILABLE
-    | VoucherUsedStatusEnum.UNAVAILABLE
-    | VoucherUsedStatusEnum.UNCLAIMED;
-  bestVoucherForBrand: IBrandBestVoucher;
-  handleVoucherSelection: (voucherId: string) => void;
+  voucher: TVoucher
+  brandLogo: string
+  brandName: string
+  hasBrandProductSelected: boolean
+  selectedVoucher: string
+  onCollectSuccess?: () => void
+  status?: VoucherUsedStatusEnum.AVAILABLE | VoucherUsedStatusEnum.UNAVAILABLE | VoucherUsedStatusEnum.UNCLAIMED
+  bestVoucherForBrand: IBrandBestVoucher
+  handleVoucherSelection: (voucherId: string) => void
 }
 const VoucherItem = ({
   voucher,
@@ -46,40 +35,40 @@ const VoucherItem = ({
   status,
   onCollectSuccess,
   bestVoucherForBrand,
-  handleVoucherSelection,
+  handleVoucherSelection
 }: VoucherItemProps) => {
-  const { t } = useTranslation();
-  const [isCollecting, setIsCollecting] = useState(false);
-  const handleServerError = useHandleServerError();
-  const { showToast } = useToast();
+  const { t } = useTranslation()
+  const [isCollecting, setIsCollecting] = useState(false)
+  const handleServerError = useHandleServerError()
+  const { showToast } = useToast()
 
   const { mutateAsync: collectVoucherFn } = useMutation({
     mutationKey: [collectVoucherApi.mutationKey],
     mutationFn: collectVoucherApi.fn,
     onSuccess: async (data) => {
-      console.log(data);
-      setIsCollecting(false);
+      console.log(data)
+      setIsCollecting(false)
       try {
-        showToast(t("voucher.collectSuccess"), "success", 4000);
+        showToast(t('voucher.collectSuccess'), 'success', 4000)
         if (onCollectSuccess) {
-          onCollectSuccess();
+          onCollectSuccess()
         }
       } catch (error) {
-        handleServerError({ error });
+        handleServerError({ error })
       }
     },
     onError: (error) => {
-      setIsCollecting(false);
-      handleServerError({ error });
-    },
-  });
+      setIsCollecting(false)
+      handleServerError({ error })
+    }
+  })
   async function handleCollectVoucher() {
     try {
-      setIsCollecting(true);
-      await collectVoucherFn(voucher);
+      setIsCollecting(true)
+      await collectVoucherFn(voucher)
     } catch (error) {
-      setIsCollecting(false);
-      handleServerError({ error });
+      setIsCollecting(false)
+      handleServerError({ error })
     }
   }
   return (
@@ -87,24 +76,19 @@ const VoucherItem = ({
       <View style={styles.contentContainer}>
         {bestVoucherForBrand?.bestVoucher?.id === voucher?.id && (
           <View style={styles.tagContainer}>
-            <StatusTag tag="BestVoucher" />
+            <StatusTag tag='BestVoucher' />
           </View>
         )}
-        <View
-          style={[
-            status === VoucherUsedStatusEnum.UNAVAILABLE && styles.opacity,
-            styles.voucherContentContainer,
-          ]}
-        >
+        <View style={[status === VoucherUsedStatusEnum.UNAVAILABLE && styles.opacity, styles.voucherContentContainer]}>
           <View style={styles.commonFlex}>
             {/* Logo Section */}
 
-            {brandLogo && brandLogo !== "" ? (
+            {brandLogo && brandLogo !== '' ? (
               <View style={styles.imageContainer}>
                 <ImageWithFallback
-                  src={brandLogo}
-                  alt="Brand logo"
-                  resizeMode="contain"
+                  source={{ uri: brandLogo }}
+                  alt='Brand logo'
+                  resizeMode='contain'
                   style={[styles.fullWidth, styles.fullHeight, styles.radiusSm]}
                 />
               </View>
@@ -122,18 +106,18 @@ const VoucherItem = ({
                     <View style={styles.textContainer}>
                       <Text style={styles.fontMedium}>
                         {voucher?.discountType === DiscountTypeEnum.PERCENTAGE
-                          ? t("voucher.off.percentage", {
-                              percentage: voucher?.discountValue * 100,
-                            }) + ". "
-                          : t("voucher.off.amount", {
-                              amount: voucher?.discountValue,
-                            }) + ". "}
+                          ? t('voucher.off.percentage', {
+                              percentage: voucher?.discountValue * 100
+                            }) + '. '
+                          : t('voucher.off.amount', {
+                              amount: voucher?.discountValue
+                            }) + '. '}
                       </Text>
                       {voucher?.maxDiscount && (
                         <Text style={styles.fontMedium}>
-                          {t("voucher.off.maxDiscount", {
-                            amount: voucher?.maxDiscount,
-                          }) + ". "}
+                          {t('voucher.off.maxDiscount', {
+                            amount: voucher?.maxDiscount
+                          }) + '. '}
                         </Text>
                       )}
                     </View>
@@ -144,25 +128,23 @@ const VoucherItem = ({
                   </View>
                   {voucher?.minOrderValue && (
                     <Text style={styles.minOrderText}>
-                      {t("voucher.off.minOrder", {
-                        amount: voucher?.minOrderValue,
+                      {t('voucher.off.minOrder', {
+                        amount: voucher?.minOrderValue
                       })}
                     </Text>
                   )}
 
                   {voucher?.applyType === VoucherApplyTypeEnum.SPECIFIC && (
                     <View style={styles.specificTag}>
-                      <Text style={styles.specificTagText}>
-                        {t("voucher.off.specific")}
-                      </Text>
+                      <Text style={styles.specificTagText}>{t('voucher.off.specific')}</Text>
                     </View>
                   )}
                 </View>
               </View>
               <Text style={styles.expiryText}>
-                {t("date.exp")}:{" "}
-                {t("date.toLocaleDateTimeString", {
-                  val: new Date(voucher?.endTime),
+                {t('date.exp')}:{' '}
+                {t('date.toLocaleDateTimeString', {
+                  val: new Date(voucher?.endTime)
                 })}
               </Text>
             </View>
@@ -172,30 +154,24 @@ const VoucherItem = ({
                 <TouchableOpacity
                   style={styles.saveButton}
                   onPress={() => {
-                    handleCollectVoucher();
+                    handleCollectVoucher()
                   }}
                 >
                   {isCollecting ? (
-                    <ActivityIndicator size="small" color={myTheme.primary} />
+                    <ActivityIndicator size='small' color={myTheme.primary} />
                   ) : (
-                    <Text style={styles.saveButtonText}>
-                      {t("button.collect")}
-                    </Text>
+                    <Text style={styles.saveButtonText}>{t('button.collect')}</Text>
                   )}
                 </TouchableOpacity>
               </View>
             ) : (
-              (status === VoucherUsedStatusEnum?.UNAVAILABLE ||
-                status === VoucherUsedStatusEnum?.AVAILABLE) && (
+              (status === VoucherUsedStatusEnum?.UNAVAILABLE || status === VoucherUsedStatusEnum?.AVAILABLE) && (
                 <RadioButton
                   selected={voucher?.id === selectedVoucher}
                   id={voucher?.id}
                   onPress={() => handleVoucherSelection(voucher?.id)}
                   //   checked={voucher?.id === selectedVoucher}
-                  disabled={
-                    !hasBrandProductSelected ||
-                    status === VoucherUsedStatusEnum?.UNAVAILABLE
-                  }
+                  disabled={!hasBrandProductSelected || status === VoucherUsedStatusEnum?.UNAVAILABLE}
                   size={16}
                   color={myTheme.primary}
                 />
@@ -207,132 +183,129 @@ const VoucherItem = ({
         </View>
       </View>
       {status === VoucherUsedStatusEnum?.UNAVAILABLE && (
-        <VoucherWarning
-          reason={voucher?.reason}
-          minOrderValue={voucher?.minOrderValue}
-        />
+        <VoucherWarning reason={voucher?.reason} minOrderValue={voucher?.minOrderValue} />
       )}
     </View>
-  );
-};
+  )
+}
 
-export default VoucherItem;
+export default VoucherItem
 
 const styles = StyleSheet.create({
   saveButtonText: {
-    fontWeight: "bold",
-    color: myTheme.white,
+    fontWeight: 'bold',
+    color: myTheme.white
   },
   saveButton: {
     backgroundColor: myTheme.primary,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: "auto",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 'auto'
   },
   radiusSm: {
-    borderRadius: 8,
+    borderRadius: 8
   },
   flex: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 
   brandText: {
     fontSize: 16,
-    fontWeight: "bold",
-    textTransform: "uppercase",
+    fontWeight: 'bold',
+    textTransform: 'uppercase'
   },
   imageContainer: {
     width: 60,
-    height: 60,
+    height: 60
   },
   container: {
-    flexDirection: "column",
+    flexDirection: 'column',
     gap: 3,
-    marginBottom: 7,
+    marginBottom: 7
   },
   commonFlex: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4
   },
   contentContainer: {
     borderWidth: 1,
     borderColor: myTheme.gray[200],
     borderRadius: 10,
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    position: "relative",
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    position: 'relative'
   },
   tagContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: -4,
-    left: 0,
+    left: 0
   },
   voucherContentContainer: {
     paddingHorizontal: 4,
     paddingVertical: 8,
-    position: "relative",
+    position: 'relative'
   },
   fullWidth: {
-    width: "100%",
+    width: '100%'
   },
   fullHeight: {
-    height: "100%",
+    height: '100%'
   },
   opacity: {
-    opacity: 0.5,
+    opacity: 0.5
   },
   contentSectionContainer: {
-    flex: 1,
+    flex: 1
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    width: "100%",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    width: '100%'
   },
   detailsContainer: {
-    width: "100%",
+    width: '100%'
   },
   discountContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8
   },
   textContainer: {
-    flexDirection: "column",
-    flexWrap: "wrap",
-    alignItems: "flex-start",
-    gap: 4,
+    flexDirection: 'column',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+    gap: 4
   },
   fontMedium: {
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500'
   },
   minOrderText: {
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 4
   },
   specificTag: {
     borderWidth: 1,
-    borderColor: "red",
+    borderColor: 'red',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 4,
     marginTop: 4,
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start'
   },
   specificTagText: {
-    color: "red",
-    fontSize: 12,
+    color: 'red',
+    fontSize: 12
   },
   expiryText: {
     marginTop: 4,
     fontSize: 10,
-    color: "gray",
-  },
-});
+    color: 'gray'
+  }
+})

@@ -1,25 +1,26 @@
-import { useRequireRole } from "@/hooks/useRequireRole";
-import { Redirect } from "expo-router";
+import { Redirect } from 'expo-router'
+
+import { useRequireRole } from '@/hooks/useRequireRole'
 
 // Component to protect routes based on role
 export function RoleProtected({
   children,
   requiredRole,
-  fallbackPath = "/unauthorized",
+  fallbackPath = '/unauthorized'
 }: {
-  children: React.ReactNode;
-  requiredRole: string;
-  fallbackPath?: string;
+  children: React.ReactNode
+  requiredRole: string
+  fallbackPath?: string
 }) {
-  const { hasRole, isLoading } = useRequireRole(requiredRole);
+  const { hasRole, isLoading } = useRequireRole(requiredRole)
 
   if (isLoading) {
-    return null; // Or a loading indicator
+    return null // Or a loading indicator
   }
 
   if (!hasRole) {
-    return <Redirect href={fallbackPath as any} />;
+    return <Redirect href={fallbackPath as any} />
   }
 
-  return <>{children}</>;
+  return <>{children}</>
 }

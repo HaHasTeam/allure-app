@@ -9,7 +9,7 @@ export const handleDownload = async (certificateUrl: string, name?: string, inde
     const fileName = index !== '' ? `'${name}' ${index}` : `'${name}'`
     link.href = url
     link.download = i18next.t('productDetail.certificateOfProduct', {
-      name: name ? fileName : i18next.t('cart.product'),
+      name: name ? fileName : i18next.t('cart.product')
     })
     document.body.appendChild(link)
     link.click()

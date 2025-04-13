@@ -1,57 +1,41 @@
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { ActivityIndicator } from "react-native";
-import { myTheme } from "@/constants";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import useHandleServerError from "@/hooks/useHandleServerError";
-import { useTranslation } from "react-i18next";
-import {
-  IBrandBestVoucher,
-  ICheckoutItem,
-  IVoucherUI,
-  TVoucher,
-} from "@/types/voucher";
-import { useMutation } from "@tanstack/react-query";
-import { getCheckoutListBrandVouchersApi } from "@/hooks/api/voucher";
-import { Feather } from "@expo/vector-icons";
-import Empty from "../empty";
-import { VoucherUsedStatusEnum } from "@/types/enum";
-import VoucherItem from "./VoucherItem";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Feather } from '@expo/vector-icons'
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetView,
-  TouchableWithoutFeedback,
-} from "@gorhom/bottom-sheet";
+  TouchableWithoutFeedback
+} from '@gorhom/bottom-sheet'
+import { useMutation } from '@tanstack/react-query'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native'
+
+import Empty from '../empty'
+import VoucherItem from './VoucherItem'
+
+import { myTheme } from '@/constants'
+import { getCheckoutListBrandVouchersApi } from '@/hooks/api/voucher'
+import useHandleServerError from '@/hooks/useHandleServerError'
+import { VoucherUsedStatusEnum } from '@/types/enum'
+import { IBrandBestVoucher, ICheckoutItem, IVoucherUI, TVoucher } from '@/types/voucher'
 
 interface VoucherBrandListProps {
-  triggerText: string;
-  brandName: string;
-  brandId: string;
-  brandLogo: string;
-  hasBrandProductSelected: boolean;
-  checkoutItems: ICheckoutItem[];
-  selectedCheckoutItems: ICheckoutItem[];
-  handleVoucherChange: (voucher: TVoucher | null) => void;
-  bestVoucherForBrand: IBrandBestVoucher;
-  chosenBrandVoucher: TVoucher | null;
-  voucherDiscount: number;
-  setIsModalVisible: Dispatch<SetStateAction<boolean>>;
-  toggleModalVisibility: () => void;
-  bottomSheetModalRef: React.RefObject<BottomSheetModal>;
+  triggerText: string
+  brandName: string
+  brandId: string
+  brandLogo: string
+  hasBrandProductSelected: boolean
+  checkoutItems: ICheckoutItem[]
+  selectedCheckoutItems: ICheckoutItem[]
+  handleVoucherChange: (voucher: TVoucher | null) => void
+  bestVoucherForBrand: IBrandBestVoucher
+  chosenBrandVoucher: TVoucher | null
+  voucherDiscount: number
+  setIsModalVisible: Dispatch<SetStateAction<boolean>>
+  toggleModalVisibility: () => void
+  bottomSheetModalRef: React.RefObject<BottomSheetModal>
 }
 
 const VoucherBrandList = ({
@@ -68,24 +52,20 @@ const VoucherBrandList = ({
   voucherDiscount,
   setIsModalVisible,
   toggleModalVisibility,
-  bottomSheetModalRef,
+  bottomSheetModalRef
 }: VoucherBrandListProps) => {
-  const { t } = useTranslation();
-  const handleServerError = useHandleServerError();
-  const [open, setOpen] = useState<boolean>(false);
-  const [selectedVoucher, setSelectedVoucher] = useState<string>(
-    chosenBrandVoucher?.id ?? ""
-  );
-  const [allVouchers, setAllVouchers] = useState<IVoucherUI[]>([]);
-  const [unclaimedVouchers, setUnclaimedVouchers] = useState<TVoucher[]>([]);
-  const [availableVouchers, setAvailableVouchers] = useState<TVoucher[]>([]);
-  const [unAvailableVouchers, setUnAvailableVouchers] = useState<TVoucher[]>(
-    []
-  );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const { t } = useTranslation()
+  const handleServerError = useHandleServerError()
+  const [open, setOpen] = useState<boolean>(false)
+  const [selectedVoucher, setSelectedVoucher] = useState<string>(chosenBrandVoucher?.id ?? '')
+  const [allVouchers, setAllVouchers] = useState<IVoucherUI[]>([])
+  const [unclaimedVouchers, setUnclaimedVouchers] = useState<TVoucher[]>([])
+  const [availableVouchers, setAvailableVouchers] = useState<TVoucher[]>([])
+  const [unAvailableVouchers, setUnAvailableVouchers] = useState<TVoucher[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // bottom sheet for classification
-  const snapPoints = useMemo(() => ["50%", "60%", "100%"], []);
+  const snapPoints = useMemo(() => ['50%', '60%', '100%'], [])
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -96,17 +76,18 @@ const VoucherBrandList = ({
         disappearsOnIndex={-1}
       />
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
-  );
+  )
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+    console.log('handleSheetChanges', index)
+  }, [])
   const handleModalDismiss = () => {
-    bottomSheetModalRef.current?.close();
-    setIsModalVisible(false);
-  };
+    bottomSheetModalRef.current?.close()
+    setIsModalVisible(false)
+  }
 
   // const { data: useBrandVoucher } = useQuery({
   //   queryKey: [getBrandVouchersApi.queryKey, brandId as string],
@@ -117,27 +98,27 @@ const VoucherBrandList = ({
     mutationKey: [getCheckoutListBrandVouchersApi.mutationKey],
     mutationFn: getCheckoutListBrandVouchersApi.fn,
     onSuccess: (data) => {
-      console.log(data);
-      setUnclaimedVouchers(data?.data?.unclaimedVouchers);
-      setAvailableVouchers(data?.data?.availableVouchers);
-      setUnAvailableVouchers(data?.data?.unAvailableVouchers);
+      console.log(data)
+      setUnclaimedVouchers(data?.data?.unclaimedVouchers)
+      setAvailableVouchers(data?.data?.availableVouchers)
+      setUnAvailableVouchers(data?.data?.unAvailableVouchers)
       setAllVouchers([
         ...(data?.data.availableVouchers || []).map((voucher) => ({
           ...voucher,
-          statusVoucher: VoucherUsedStatusEnum.AVAILABLE,
+          statusVoucher: VoucherUsedStatusEnum.AVAILABLE
         })),
         ...(data?.data.unAvailableVouchers || []).map((voucher) => ({
           ...voucher,
-          statusVoucher: VoucherUsedStatusEnum.UNAVAILABLE,
+          statusVoucher: VoucherUsedStatusEnum.UNAVAILABLE
         })),
         ...(data?.data.unclaimedVouchers || []).map((voucher) => ({
           ...voucher,
-          statusVoucher: VoucherUsedStatusEnum.UNCLAIMED,
-        })),
-      ]);
-      setIsLoading(false);
-    },
-  });
+          statusVoucher: VoucherUsedStatusEnum.UNCLAIMED
+        }))
+      ])
+      setIsLoading(false)
+    }
+  })
 
   // const handleConfirm = () => {
   //   handleVoucherChange(
@@ -149,60 +130,51 @@ const VoucherBrandList = ({
 
   const handleConfirm = () => {
     // Find the selected voucher from allVouchers instead of availableVouchers
-    const selectedVoucherObj = allVouchers.find(
-      (voucher) => voucher.id === selectedVoucher
-    );
+    const selectedVoucherObj = allVouchers.find((voucher) => voucher.id === selectedVoucher)
 
     // Only select vouchers that are available
-    if (
-      selectedVoucherObj &&
-      selectedVoucherObj.statusVoucher === VoucherUsedStatusEnum.AVAILABLE
-    ) {
-      handleVoucherChange(selectedVoucherObj);
+    if (selectedVoucherObj && selectedVoucherObj.statusVoucher === VoucherUsedStatusEnum.AVAILABLE) {
+      handleVoucherChange(selectedVoucherObj)
     } else {
-      handleVoucherChange(null);
+      handleVoucherChange(null)
     }
 
-    setOpen(false);
-    handleModalDismiss();
-  };
+    setOpen(false)
+    handleModalDismiss()
+  }
 
   async function handleCallBrandVouchers() {
     try {
       if (checkoutItems && checkoutItems?.length > 0) {
-        setIsLoading(true);
+        setIsLoading(true)
         await callBrandVouchersFn({
           checkoutItems:
-            selectedCheckoutItems && selectedCheckoutItems?.length > 0
-              ? selectedCheckoutItems
-              : checkoutItems,
+            selectedCheckoutItems && selectedCheckoutItems?.length > 0 ? selectedCheckoutItems : checkoutItems,
           brandItems:
-            selectedCheckoutItems && selectedCheckoutItems?.length > 0
-              ? selectedCheckoutItems
-              : checkoutItems,
-          brandId: brandId,
-        });
+            selectedCheckoutItems && selectedCheckoutItems?.length > 0 ? selectedCheckoutItems : checkoutItems,
+          brandId
+        })
       }
     } catch (error) {
-      handleServerError({ error });
-      setIsLoading(false);
+      handleServerError({ error })
+      setIsLoading(false)
     }
   }
 
   const openModal = () => {
-    setOpen(true);
-    handleCallBrandVouchers(); // Load the vouchers when opening the modal
-    bottomSheetModalRef.current?.present();
-    setIsModalVisible(true);
-  };
+    setOpen(true)
+    handleCallBrandVouchers() // Load the vouchers when opening the modal
+    bottomSheetModalRef.current?.present()
+    setIsModalVisible(true)
+  }
 
   useEffect(() => {
     if (chosenBrandVoucher?.id) {
-      setSelectedVoucher(chosenBrandVoucher.id);
+      setSelectedVoucher(chosenBrandVoucher.id)
     } else {
-      setSelectedVoucher("");
+      setSelectedVoucher('')
     }
-  }, [chosenBrandVoucher]);
+  }, [chosenBrandVoucher])
 
   // useEffect(() => {
   //   if (useBrandVoucher && useBrandVoucher?.data?.length > 0) {
@@ -211,18 +183,14 @@ const VoucherBrandList = ({
   //   }
   // }, [useBrandVoucher])
   const handleVoucherSelection = (voucherId: string) => {
-    setSelectedVoucher(voucherId);
-  };
+    setSelectedVoucher(voucherId)
+  }
   useEffect(() => {
     if (!hasBrandProductSelected || voucherDiscount === 0) {
-      setSelectedVoucher("");
+      setSelectedVoucher('')
     }
-  }, [hasBrandProductSelected, voucherDiscount]);
-  const renderVoucherItem = ({
-    item,
-  }: {
-    item: TVoucher & { statusVoucher: VoucherUsedStatusEnum };
-  }) => (
+  }, [hasBrandProductSelected, voucherDiscount])
+  const renderVoucherItem = ({ item }: { item: TVoucher & { statusVoucher: VoucherUsedStatusEnum } }) => (
     <VoucherItem
       key={item.id}
       handleVoucherSelection={handleVoucherSelection}
@@ -235,14 +203,14 @@ const VoucherBrandList = ({
       onCollectSuccess={handleCallBrandVouchers}
       bestVoucherForBrand={bestVoucherForBrand}
     />
-  );
+  )
   return (
     <>
       <Text
         style={styles.link}
         onPress={() => {
-          toggleModalVisibility();
-          handleCallBrandVouchers();
+          toggleModalVisibility()
+          handleCallBrandVouchers()
         }}
       >
         {triggerText}
@@ -262,23 +230,17 @@ const VoucherBrandList = ({
           <View>
             <View style={styles.fullWidth}>
               <Text style={styles.title}>
-                {brandName} {t("voucher.title")}
+                {brandName} {t('voucher.title')}
               </Text>
               {!hasBrandProductSelected && (
                 <View style={styles.alertBox}>
-                  <Feather
-                    name="alert-circle"
-                    size={20}
-                    style={styles.alertIcon}
-                  />
-                  <Text style={styles.warningText}>
-                    {t("voucher.chooseProductBrandAlert")}
-                  </Text>
+                  <Feather name='alert-circle' size={20} style={styles.alertIcon} />
+                  <Text style={styles.warningText}>{t('voucher.chooseProductBrandAlert')}</Text>
                 </View>
               )}
 
               {isLoading ? (
-                <ActivityIndicator size="small" color={myTheme.primary} />
+                <ActivityIndicator size='small' color={myTheme.primary} />
               ) : allVouchers && allVouchers?.length > 0 ? (
                 <View style={styles.gap}>
                   <FlatList
@@ -288,37 +250,24 @@ const VoucherBrandList = ({
                     showsVerticalScrollIndicator={false}
                   />
                   <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                      style={styles.buttonCancel}
-                      onPress={() => toggleModalVisibility()}
-                    >
-                      <Text style={[styles.textPrimary, styles.fontBold]}>
-                        {t("dialog.cancel")}
-                      </Text>
+                    <TouchableOpacity style={styles.buttonCancel} onPress={() => toggleModalVisibility()}>
+                      <Text style={[styles.textPrimary, styles.fontBold]}>{t('dialog.cancel')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={[
-                        styles.buttonConfirm,
-                        !hasBrandProductSelected && styles.buttonDisabled,
-                      ]}
+                      style={[styles.buttonConfirm, !hasBrandProductSelected && styles.buttonDisabled]}
                       onPress={() => {
-                        handleConfirm();
-                        toggleModalVisibility();
+                        handleConfirm()
+                        toggleModalVisibility()
                       }}
                       disabled={!hasBrandProductSelected}
                     >
-                      <Text style={[styles.textWhite, styles.fontBold]}>
-                        {t("dialog.ok")}
-                      </Text>
+                      <Text style={[styles.textWhite, styles.fontBold]}>{t('dialog.ok')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               ) : (
                 <View style={styles.emptyContainer}>
-                  <Empty
-                    title={t("empty.brandVoucher.title")}
-                    description={t("empty.brandVoucher.description")}
-                  />
+                  <Empty title={t('empty.brandVoucher.title')} description={t('empty.brandVoucher.description')} />
                 </View>
               )}
             </View>
@@ -326,48 +275,48 @@ const VoucherBrandList = ({
         </BottomSheetView>
       </BottomSheetModal>
     </>
-  );
-};
+  )
+}
 
-export default VoucherBrandList;
+export default VoucherBrandList
 
 const styles = StyleSheet.create({
   link: { color: myTheme.blue[700] },
   contentContainer: {
     flex: 1,
     paddingVertical: 20,
-    paddingHorizontal: 25,
+    paddingHorizontal: 25
   },
   overlay: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
-    zIndex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    zIndex: 1
   },
   text: {
-    color: "blue",
-    textDecorationLine: "underline",
+    color: 'blue',
+    textDecorationLine: 'underline'
   },
   fontBold: {
-    fontWeight: "bold",
+    fontWeight: 'bold'
   },
   button: {
     width: 70,
     height: 35,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 8,
-    borderWidth: 1,
+    borderWidth: 1
   },
   textPrimary: {
-    color: myTheme.primary,
+    color: myTheme.primary
   },
   textWhite: {
-    color: myTheme.white,
+    color: myTheme.white
   },
   buttonCancel: {
     borderWidth: 1,
@@ -376,7 +325,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     minWidth: 80,
-    alignItems: "center",
+    alignItems: 'center'
   },
   buttonConfirm: {
     backgroundColor: myTheme.primary,
@@ -384,59 +333,59 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 8,
     minWidth: 80,
-    alignItems: "center",
+    alignItems: 'center'
   },
   buttonDisabled: {
-    backgroundColor: "#ccc",
+    backgroundColor: '#ccc'
   },
-  fullWidth: { width: "100%" },
+  fullWidth: { width: '100%' },
   voucherContainer: {
     paddingHorizontal: 6,
-    flexDirection: "column",
-    gap: 6,
+    flexDirection: 'column',
+    gap: 6
   },
   gap: {
     gap: 6,
-    flexDirection: "column",
+    flexDirection: 'column'
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: 8,
-    width: "100%",
-    paddingTop: 16,
+    width: '100%',
+    paddingTop: 16
   },
   title: {
     fontSize: 20,
-    fontWeight: "500",
-    marginBottom: 16,
+    fontWeight: '500',
+    marginBottom: 16
   },
 
   alertBox: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
     fontSize: 14,
-    color: "#EF4444",
+    color: '#EF4444',
     backgroundColor: myTheme.red[100],
     padding: 8,
     borderRadius: 4,
-    marginBottom: 4,
+    marginBottom: 4
   },
   warningText: {
     color: myTheme.red[500],
     fontSize: 14,
-    marginLeft: 8,
+    marginLeft: 8
   },
   alertIcon: {
     width: 16,
     height: 16,
-    color: myTheme.red[500],
+    color: myTheme.red[500]
   },
 
   emptyContainer: {
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+})

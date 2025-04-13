@@ -1,71 +1,62 @@
-import { FileStatusEnum } from "@/types/enum";
-import { CustomFile, TFile } from "@/types/file";
+import { FileStatusEnum } from '@/types/enum'
+import { CustomFile, TFile } from '@/types/file'
 
-export async function createFiles(
-  files: TFile[] | string[]
-): Promise<CustomFile[]> {
-  if (typeof files[0] === "string") {
-    files = files as string[];
+export async function createFiles(files: TFile[] | string[]): Promise<CustomFile[]> {
+  if (typeof files[0] === 'string') {
+    files = files as string[]
     const constructedFiles = await Promise.all(
       files.map(async (file) => {
-        const response = await fetch(file);
-        const data = await response.blob();
+        const response = await fetch(file)
+        const data = await response.blob()
         const metadata = {
           type: data.type,
-          name: file.split("/").pop(),
-        };
-        const newFile = new File(
-          [data],
-          file.split("/").pop() ?? "untitled",
-          metadata
-        );
+          name: file.split('/').pop()
+        }
+        const newFile = new File([data], file.split('/').pop() ?? 'untitled', metadata)
 
-        Object.defineProperty(newFile, "fileUrl", {
+        Object.defineProperty(newFile, 'fileUrl', {
           value: file,
-          writable: true,
-        });
-        Object.defineProperty(newFile, "status", {
+          writable: true
+        })
+        Object.defineProperty(newFile, 'status', {
           value: FileStatusEnum.ACTIVE,
-          writable: true,
-        });
+          writable: true
+        })
 
-        return newFile;
+        return newFile
       })
-    );
-    return constructedFiles;
+    )
+    return constructedFiles
   }
-  if (files.length && typeof files[0] !== "string") {
-    files = files as TFile[];
+  if (files.length && typeof files[0] !== 'string') {
+    files = files as TFile[]
     const constructedFiles = await Promise.all(
       files.map(async (file) => {
-        const response =
-          file.status !== FileStatusEnum.INACTIVE
-            ? await fetch(file.fileUrl)
-            : new Response(new Blob());
-        const data = await response.blob();
+        const response = file.status !== FileStatusEnum.INACTIVE ? await fetch(file.fileUrl) : new Response(new Blob())
+        const data = await response.blob()
         const metadata = {
           type: data.type,
-          name: file.name,
-        };
-        const newFile = new File([data], file.name, metadata);
+          name: file.name
+        }
+        const newFile = new File([data], file.name, metadata)
 
-        Object.defineProperty(newFile, "fileUrl", {
+        Object.defineProperty(newFile, 'fileUrl', {
           value: file.fileUrl,
-          writable: true,
-        });
-        Object.defineProperty(newFile, "id", {
+          writable: true
+        })
+        Object.defineProperty(newFile, 'id', {
           value: file.id,
-          writable: true,
-        });
-        Object.defineProperty(newFile, "status", {
+          writable: true
+        })
+        Object.defineProperty(newFile, 'status', {
           value: file.status,
-          writable: true,
-        });
+          writable: true
+        })
 
-        return newFile;
+        return newFile
       })
-    );
-    return constructedFiles;
+    )
+    return constructedFiles
   }
-  return [];
+  return []
 }

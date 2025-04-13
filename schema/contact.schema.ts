@@ -8,7 +8,7 @@ export const getContactUsSchema = () => {
     fullName: z.string().min(1, i18next.t('validation.required')),
     email: z.string().refine((val) => emailRegex.pattern.test(val), { message: emailRegex.message }),
     phone: z.string().refine(phoneRegex.pattern, phoneRegex.message),
-    message: z.string().min(1, i18next.t('validation.required')).max(255, i18next.t('validation.tooLong')),
+    message: z.string().min(1, i18next.t('validation.required')).max(255, i18next.t('validation.tooLong'))
   })
 }
 export const ContactUsSchema = getContactUsSchema()

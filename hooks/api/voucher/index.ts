@@ -1,3 +1,5 @@
+import { TRequestCreateVoucherParams, TUpdateStatusVoucherRequestParams, TUpdateVoucherRequestParams } from './type'
+
 import { TServerResponse } from '@/types/request'
 import {
   IBestVoucher,
@@ -5,21 +7,19 @@ import {
   ICategoryVoucher,
   ICategoryVoucherResponse,
   IPlatformBestVoucher,
-  TVoucher,
+  TVoucher
 } from '@/types/voucher'
 import { toMutationFetcher, toQueryFetcher } from '@/utils/query'
 import { privateRequest, publicRequest } from '@/utils/request'
-
-import { TRequestCreateVoucherParams, TUpdateStatusVoucherRequestParams, TUpdateVoucherRequestParams } from './type'
 
 export const createVoucherApi = toMutationFetcher<TRequestCreateVoucherParams, TServerResponse<TVoucher>>(
   'createVoucher',
   async (params) => {
     return privateRequest('/vouchers/create', {
       method: 'POST',
-      data: params,
+      data: params
     })
-  },
+  }
 )
 export const updateStatusVoucherByIdApi = toMutationFetcher<
   TUpdateStatusVoucherRequestParams,
@@ -27,7 +27,7 @@ export const updateStatusVoucherByIdApi = toMutationFetcher<
 >('updateStatusVoucherById', async (params) => {
   return publicRequest(`/vouchers/update-status/${params?.voucherId}`, {
     method: 'PUT',
-    data: params,
+    data: params
   })
 })
 
@@ -36,36 +36,36 @@ export const updateVoucherByIdApi = toMutationFetcher<TUpdateVoucherRequestParam
   async (params) => {
     return privateRequest(`/vouchers/update-detail/${params?.id}`, {
       method: 'PUT',
-      data: params,
+      data: params
     })
-  },
+  }
 )
 
 export const getVoucherByIdApi = toQueryFetcher<string, TServerResponse<TVoucher>>('getVoucherById', async (params) => {
   return publicRequest(`/vouchers/get-by-id/${params}`, {
-    method: 'GET',
+    method: 'GET'
   })
 })
 export const getAllVouchersApi = toQueryFetcher<void, TServerResponse<TVoucher[]>>('getAllVouchers', async () => {
   return privateRequest(`/vouchers/`, {
-    method: 'GET',
+    method: 'GET'
   })
 })
 export const getPlatformVouchersApi = toQueryFetcher<void, TServerResponse<TVoucher[]>>(
   'getPlatformVouchersApi',
   async () => {
     return privateRequest(`/vouchers/get-platform-vouchers`, {
-      method: 'GET',
+      method: 'GET'
     })
-  },
+  }
 )
 export const getBrandVouchersApi = toQueryFetcher<string, TServerResponse<TVoucher[]>>(
   'getBrandVouchersApi',
   async (params) => {
     return privateRequest(`/vouchers/get-by-brand/${params}`, {
-      method: 'GET',
+      method: 'GET'
     })
-  },
+  }
 )
 export const getCheckoutListBrandVouchersApi = toMutationFetcher<
   ICategoryVoucher,
@@ -73,7 +73,7 @@ export const getCheckoutListBrandVouchersApi = toMutationFetcher<
 >('getCheckoutListBrandVouchersApi', async (data) => {
   return privateRequest(`/vouchers/categorize-shop-vouchers-when-checkout`, {
     method: 'POST',
-    data,
+    data
   })
 })
 export const getBestShopVouchersApi = toMutationFetcher<IBestVoucher, TServerResponse<IBrandBestVoucher[]>>(
@@ -81,18 +81,18 @@ export const getBestShopVouchersApi = toMutationFetcher<IBestVoucher, TServerRes
   async (data) => {
     return privateRequest(`/vouchers/get-best-shop-vouchers-for-products`, {
       method: 'POST',
-      data,
+      data
     })
-  },
+  }
 )
 export const getBestPlatformVouchersApi = toMutationFetcher<ICategoryVoucher, TServerResponse<IPlatformBestVoucher>>(
   'getBestPlatformVouchersApi',
   async (data) => {
     return privateRequest(`/vouchers/get-best-platform-vouchers-for-products`, {
       method: 'POST',
-      data,
+      data
     })
-  },
+  }
 )
 export const getCheckoutListPlatformVouchersApi = toMutationFetcher<
   ICategoryVoucher,
@@ -100,7 +100,7 @@ export const getCheckoutListPlatformVouchersApi = toMutationFetcher<
 >('getCheckoutListPlatformVouchersApi', async (data) => {
   return privateRequest(`/vouchers/categorize-platform-vouchers-when-checkout`, {
     method: 'POST',
-    data,
+    data
   })
 })
 export const collectVoucherApi = toMutationFetcher<TVoucher, TServerResponse<TVoucher>>(
@@ -108,7 +108,7 @@ export const collectVoucherApi = toMutationFetcher<TVoucher, TServerResponse<TVo
   async (params) => {
     return privateRequest(`/vouchers/collect-voucher/${params?.code}`, {
       method: 'POST',
-      data: params,
+      data: params
     })
-  },
+  }
 )
