@@ -1,29 +1,31 @@
-import { useCountdown } from "@/hooks/useCountDown";
-import { TimeUnit } from "./UnitTime";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from 'react-native'
+
+import { TimeUnit } from './UnitTime'
+
+import { useCountdown } from '@/hooks/useCountDown'
 
 interface CountdownProps {
-  targetDate: string;
-  language?: "en" | "vi";
+  targetDate: string
+  language?: 'en' | 'vi'
 }
 
 const labels = {
   en: {
-    days: "days",
-    hours: "hrs",
-    minutes: "min",
-    seconds: "sec",
+    days: 'days',
+    hours: 'hrs',
+    minutes: 'min',
+    seconds: 'sec'
   },
   vi: {
-    days: "ngày",
-    hours: "giờ",
-    minutes: "phút",
-    seconds: "giây",
-  },
-};
+    days: 'ngày',
+    hours: 'giờ',
+    minutes: 'phút',
+    seconds: 'giây'
+  }
+}
 
-export function Countdown({ targetDate, language = "en" }: CountdownProps) {
-  const timeLeft = useCountdown(targetDate);
+export function Countdown({ targetDate, language = 'en' }: CountdownProps) {
+  const timeLeft = useCountdown(targetDate)
 
   return (
     <View style={styles.container}>
@@ -35,20 +37,20 @@ export function Countdown({ targetDate, language = "en" }: CountdownProps) {
       <Text style={styles.separator}>:</Text>
       <TimeUnit value={timeLeft.seconds} label={labels[language].seconds} />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    width: "100%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    width: '100%'
   },
   separator: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginHorizontal: 4,
-  },
-});
+    fontWeight: 'bold',
+    marginHorizontal: 4
+  }
+})

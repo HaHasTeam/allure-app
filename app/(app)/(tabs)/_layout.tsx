@@ -1,45 +1,41 @@
-import Feather from "@expo/vector-icons/Feather";
-import { Header } from "@react-navigation/elements";
-import { Tabs, useRouter } from "expo-router";
-import React, { useState } from "react";
-import { ImageBackground, StyleSheet } from "react-native";
-import { Avatar, View } from "react-native-ui-lib";
+import { FontAwesome5 } from '@expo/vector-icons'
+import Feather from '@expo/vector-icons/Feather'
+import { Header } from '@react-navigation/elements'
+import { Tabs } from 'expo-router'
+import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { ImageBackground, StyleSheet } from 'react-native'
+import { Avatar, View } from 'react-native-ui-lib'
 
-import {
-  myDeviceWidth,
-  myFontWeight,
-  myTheme,
-  width,
-} from "../../../constants/index";
-import { FontAwesome5 } from "@expo/vector-icons";
-import MyText from "@/components/common/MyText";
-import useUser from "@/hooks/api/useUser";
-import { TUserPa } from "@/types/user";
-import ShopHeader from "@/components/header/ShopHeader";
-import { useTranslation } from "react-i18next";
+import { myDeviceWidth, myFontWeight, myTheme, width } from '../../../constants/index'
+
+import MyText from '@/components/common/MyText'
+import ShopHeader from '@/components/header/ShopHeader'
+import useUser from '@/hooks/api/useUser'
+import { TUserPa } from '@/types/user'
 
 export default function TabLayout() {
-  const { t } = useTranslation();
-  const { getProfile } = useUser();
+  const { t } = useTranslation()
+  const { getProfile } = useUser()
   const [user, setUser] = useState<TUserPa>({
-    email: "",
-    id: "",
-    username: "",
-    avatar: "",
-    phone: "",
+    email: '',
+    id: '',
+    username: '',
+    avatar: '',
+    phone: '',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    role: "",
-    status: "",
+    role: '',
+    status: '',
     isEmailVerify: false,
-    password: "",
-  });
+    password: ''
+  })
   const style = StyleSheet.create({
     iconContainer: {
       padding: 5,
-      borderRadius: 15,
-    },
-  });
+      borderRadius: 15
+    }
+  })
 
   return (
     <Tabs
@@ -48,27 +44,27 @@ export default function TabLayout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           height: 65,
-          backgroundColor: "#FFF",
+          backgroundColor: '#FFF'
         },
         tabBarIconStyle: {
-          margin: 5,
+          margin: 5
         },
         tabBarItemStyle: {
-          borderRadius: 15,
+          borderRadius: 15
         },
-        tabBarHideOnKeyboard: true,
+        tabBarHideOnKeyboard: true
       }}
     >
       <Tabs.Screen
-        name="index"
+        name='index'
         listeners={{
           focus: async () => {
-            const data = await getProfile();
-            if (data && typeof data !== "string") setUser(data);
-          },
+            const data = await getProfile()
+            if (data && typeof data !== 'string') setUser(data)
+          }
         }}
         options={{
-          title: "Home",
+          title: 'Home',
           header: () => (
             <ShopHeader
               cartItemCount={3} // Replace with your actual cart count
@@ -76,148 +72,111 @@ export default function TabLayout() {
             />
           ),
           tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[
-                style.iconContainer,
-                focused && { backgroundColor: myTheme.lighter },
-              ]}
-            >
-              <Feather
-                size={width <= myDeviceWidth.sm ? 21 : 25}
-                name="home"
-                color={color}
-              />
+            <View style={[style.iconContainer, focused && { backgroundColor: myTheme.lighter }]}>
+              <Feather size={width <= myDeviceWidth.sm ? 21 : 25} name='home' color={color} />
             </View>
-          ),
+          )
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name='explore'
         options={{
           headerShown: false,
-          title: "Explore",
+          title: 'Explore',
           tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[
-                style.iconContainer,
-                focused && { backgroundColor: myTheme.lighter },
-              ]}
-            >
-              <Feather
-                size={width <= myDeviceWidth.sm ? 21 : 25}
-                name="search"
-                color={color}
-              />
+            <View style={[style.iconContainer, focused && { backgroundColor: myTheme.lighter }]}>
+              <Feather size={width <= myDeviceWidth.sm ? 21 : 25} name='search' color={color} />
             </View>
-          ),
+          )
         }}
       />
       <Tabs.Screen
-        name="live"
+        name='live'
         options={{
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[
-                style.iconContainer,
-                focused && { backgroundColor: myTheme.lighter },
-              ]}
-            >
-              <FontAwesome5
-                size={width <= myDeviceWidth.sm ? 21 : 25}
-                name="video"
-                color={color}
-                solid
-              />
+            <View style={[style.iconContainer, focused && { backgroundColor: myTheme.lighter }]}>
+              <FontAwesome5 size={width <= myDeviceWidth.sm ? 21 : 25} name='video' color={color} solid />
             </View>
-          ),
+          )
         }}
       />
       <Tabs.Screen
-        name="cart"
+        name='cart'
         options={{
           header: () => (
             <Header
-              title={t("cart.title")}
+              title={t('cart.title')}
               headerTitleStyle={{
                 color: myTheme.primary,
                 fontFamily: myFontWeight.bold,
-                fontWeight: "bold",
+                fontWeight: 'bold'
               }}
             />
           ),
           tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[
-                style.iconContainer,
-                focused && { backgroundColor: myTheme.lighter },
-              ]}
-            >
-              <Feather
-                size={width <= myDeviceWidth.sm ? 21 : 25}
-                name="shopping-cart"
-                color={color}
-              />
+            <View style={[style.iconContainer, focused && { backgroundColor: myTheme.lighter }]}>
+              <Feather size={width <= myDeviceWidth.sm ? 21 : 25} name='shopping-cart' color={color} />
             </View>
-          ),
+          )
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name='profile'
         listeners={{
           focus: async () => {
-            const data = await getProfile();
-            if (data && typeof data !== "string") setUser(data);
-          },
+            const data = await getProfile()
+            if (data && typeof data !== 'string') setUser(data)
+          }
         }}
         options={{
-          title: "Profile",
+          title: 'Profile',
           header: () => (
             <ImageBackground
-              source={require("@/assets/images/profile-background.jpg")}
-              resizeMode="cover"
+              source={require('@/assets/images/profile-background.jpg')}
+              resizeMode='cover'
               borderBottomLeftRadius={40}
               borderBottomRightRadius={40}
               style={{
-                flexDirection: "column",
+                flexDirection: 'column',
                 paddingBottom: 24,
-                marginTop: -35,
+                marginTop: -35
               }}
             >
               <Header
-                title="Trang cá nhân"
+                title='Trang cá nhân'
                 headerStyle={{
                   borderBottomLeftRadius: 40,
                   borderBottomRightRadius: 40,
-                  backgroundColor: "transparent",
-                  height: 100,
+                  backgroundColor: 'transparent',
+                  height: 100
                 }}
-                headerTitleAlign="left"
+                headerTitleAlign='left'
                 headerTitleStyle={{
                   fontFamily: myFontWeight.bold,
-                  color: "#FFF",
-                  paddingTop: 25,
+                  color: '#FFF',
+                  paddingTop: 25
                 }}
               />
               <Avatar
                 size={80}
                 containerStyle={{
-                  alignSelf: "center",
+                  alignSelf: 'center'
                 }}
                 source={
                   user.avatar
-                    ? { uri: user.avatar.replace("http://", "https://") }
-                    : require("@/assets/images/no_avatar.png")
+                    ? { uri: user.avatar.replace('http://', 'https://') }
+                    : require('@/assets/images/no_avatar.png')
                 }
               />
               <MyText
                 styleProps={{
-                  alignSelf: "center",
+                  alignSelf: 'center',
                   fontSize: 16,
                   fontFamily: myFontWeight.bold,
-                  color: "#FFF",
+                  color: '#FFF'
                 }}
-                text={user.email || ""}
+                text={user.email || ''}
               />
               {/* <MyText
                 styleProps={{
@@ -229,21 +188,12 @@ export default function TabLayout() {
             </ImageBackground>
           ),
           tabBarIcon: ({ color, focused }) => (
-            <View
-              style={[
-                style.iconContainer,
-                focused && { backgroundColor: myTheme.lighter },
-              ]}
-            >
-              <Feather
-                size={width <= myDeviceWidth.sm ? 21 : 25}
-                name="user"
-                color={color}
-              />
+            <View style={[style.iconContainer, focused && { backgroundColor: myTheme.lighter }]}>
+              <Feather size={width <= myDeviceWidth.sm ? 21 : 25} name='user' color={color} />
             </View>
-          ),
+          )
         }}
       />
     </Tabs>
-  );
+  )
 }
