@@ -1,319 +1,235 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useMutation, useQuery } from '@tanstack/react-query'
+import React, { useEffect, useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FlatList, StyleSheet } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { SafeAreaView } from "react-native-safe-area-context";
+import { myTheme } from '../../../constants/index'
 
-import { myTheme } from "../../../constants/index";
-import Empty from "@/components/empty";
-import { useTranslation } from "react-i18next";
-
-import { FlatList, StyleSheet } from "react-native";
-import CartHeader from "@/components/cart/CartHeader";
-import {
-  IBrandBestVoucher,
-  ICheckoutItem,
-  IPlatformBestVoucher,
-  TVoucher,
-} from "@/types/voucher";
-import { ICartByBrand } from "@/types/cart";
-import useCartStore from "@/store/cart";
+import CartFooter from '@/components/cart/CartFooter'
+import CartHeader from '@/components/cart/CartHeader'
+import CartItem from '@/components/cart/CartItem'
+import Empty from '@/components/empty'
+import LoadingContentLayer from '@/components/loading/LoadingContentLayer'
+import { getMyCartApi } from '@/hooks/api/cart'
+import { getBestPlatformVouchersApi, getBestShopVouchersApi } from '@/hooks/api/voucher'
+import useCartStore from '@/store/cart'
+import { ICartByBrand } from '@/types/cart'
+import { IBrandBestVoucher, ICheckoutItem, IPlatformBestVoucher, TVoucher } from '@/types/voucher'
+import { createCheckoutItem, createCheckoutItems } from '@/utils/cart'
 import {
   calculateCartTotals,
   calculatePlatformVoucherDiscount,
-  calculateTotalBrandVoucherDiscount,
-} from "@/utils/price";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createCheckoutItem, createCheckoutItems } from "@/utils/cart";
-import {
-  getBestPlatformVouchersApi,
-  getBestShopVouchersApi,
-} from "@/hooks/api/voucher";
-import { getMyCartApi } from "@/hooks/api/cart";
-import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
-import CartItem from "@/components/cart/CartItem";
-import CartFooter from "@/components/cart/CartFooter";
+  calculateTotalBrandVoucherDiscount
+} from '@/utils/price'
 
 const CartScreen = () => {
-  const { t } = useTranslation();
-  const [selectedCartItems, setSelectedCartItems] = useState<string[]>([]);
-  const [allCartItemIds, setAllCartItemIds] = useState<string[]>([]);
-  const [isAllSelected, setIsAllSelected] = useState<boolean>(false);
-  const [cartByBrand, setCartByBrand] = useState<ICartByBrand | undefined>(
-    undefined
-  );
-  const [bestBrandVouchers, setBestBrandVouchers] = useState<
-    IBrandBestVoucher[]
-  >([]);
-  const [totalPrice, setTotalPrice] = useState<number>(0);
-  const [isTriggerTotal, setIsTriggerTotal] = useState<boolean>(false);
-  const [totalOriginalPrice, setTotalOriginalPrice] = useState<number>(0);
-  const [totalDirectProductsDiscount, setTotalDirectProductsDiscount] =
-    useState<number>(0);
+  const { t } = useTranslation()
+  const [selectedCartItems, setSelectedCartItems] = useState<string[]>([])
+  const [allCartItemIds, setAllCartItemIds] = useState<string[]>([])
+  const [isAllSelected, setIsAllSelected] = useState<boolean>(false)
+  const [cartByBrand, setCartByBrand] = useState<ICartByBrand | undefined>(undefined)
+  const [bestBrandVouchers, setBestBrandVouchers] = useState<IBrandBestVoucher[]>([])
+  const [totalPrice, setTotalPrice] = useState<number>(0)
+  const [isTriggerTotal, setIsTriggerTotal] = useState<boolean>(false)
+  const [totalOriginalPrice, setTotalOriginalPrice] = useState<number>(0)
+  const [totalDirectProductsDiscount, setTotalDirectProductsDiscount] = useState<number>(0)
   const [chosenVouchersByBrand, setChosenVouchersByBrand] = useState<{
-    [brandId: string]: TVoucher | null;
-  }>({});
-  const [platformChosenVoucher, setPlatformChosenVoucher] =
-    useState<TVoucher | null>(null);
+    [brandId: string]: TVoucher | null
+  }>({})
+  const [platformChosenVoucher, setPlatformChosenVoucher] = useState<TVoucher | null>(null)
   const {
     cartItems,
     setChosenBrandVouchers,
     setChosenPlatformVoucher,
     setSelectedCartItem,
     resetSelectedCartItem,
-    setCartItems,
-  } = useCartStore();
-  const [bestPlatformVoucher, setBestPlatformVoucher] =
-    useState<IPlatformBestVoucher | null>(null);
+    setCartItems
+  } = useCartStore()
+  const [bestPlatformVoucher, setBestPlatformVoucher] = useState<IPlatformBestVoucher | null>(null)
 
   const voucherMap = bestBrandVouchers?.reduce<{
-    [key: string]: IBrandBestVoucher;
+    [key: string]: IBrandBestVoucher
   }>((acc, voucher) => {
-    acc[voucher?.brandId] = voucher;
-    return acc;
-  }, {});
+    acc[voucher?.brandId] = voucher
+    return acc
+  }, {})
 
   // Calculate total voucher discount
   const totalVoucherDiscount = useMemo(() => {
-    return calculateTotalBrandVoucherDiscount(
-      cartItems,
-      selectedCartItems,
-      chosenVouchersByBrand
-    );
+    return calculateTotalBrandVoucherDiscount(cartItems, selectedCartItems, chosenVouchersByBrand)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cartItems, chosenVouchersByBrand, selectedCartItems, isTriggerTotal]);
+  }, [cartItems, chosenVouchersByBrand, selectedCartItems, isTriggerTotal])
   // Calculate platform voucher discount
   const platformVoucherDiscount = useMemo(() => {
-    return calculatePlatformVoucherDiscount(
-      cartItems,
-      selectedCartItems,
-      platformChosenVoucher,
-      chosenVouchersByBrand
-    );
+    return calculatePlatformVoucherDiscount(cartItems, selectedCartItems, platformChosenVoucher, chosenVouchersByBrand)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    cartItems,
-    selectedCartItems,
-    isTriggerTotal,
-    platformChosenVoucher,
-    totalVoucherDiscount,
-    chosenVouchersByBrand,
-  ]);
+  }, [cartItems, selectedCartItems, isTriggerTotal, platformChosenVoucher, totalVoucherDiscount, chosenVouchersByBrand])
 
   // Total saved price (product discounts + brand vouchers + platform voucher)
-  const savedPrice =
-    totalDirectProductsDiscount +
-    totalVoucherDiscount +
-    platformVoucherDiscount;
-  const totalFinalPrice =
-    totalPrice - totalVoucherDiscount - platformVoucherDiscount;
+  const savedPrice = totalDirectProductsDiscount + totalVoucherDiscount + platformVoucherDiscount
+  const totalFinalPrice = totalPrice - totalVoucherDiscount - platformVoucherDiscount
 
   const { data: useMyCartData, isFetching } = useQuery({
     queryKey: [getMyCartApi.queryKey],
-    queryFn: getMyCartApi.fn,
-  });
+    queryFn: getMyCartApi.fn
+  })
 
   const { mutateAsync: callBestBrandVouchersFn } = useMutation({
     mutationKey: [getBestShopVouchersApi.mutationKey],
     mutationFn: getBestShopVouchersApi.fn,
     onSuccess: (data) => {
-      setBestBrandVouchers(data?.data);
-    },
-  });
+      setBestBrandVouchers(data?.data)
+    }
+  })
   const { mutateAsync: callBestPlatformVouchersFn } = useMutation({
     mutationKey: [getBestPlatformVouchersApi.mutationKey],
     mutationFn: getBestPlatformVouchersApi.fn,
     onSuccess: (data) => {
-      setBestPlatformVoucher(data?.data);
-    },
-  });
+      setBestPlatformVoucher(data?.data)
+    }
+  })
 
   // Handler for "Select All" checkbox
   const handleSelectAll = () => {
     if (isAllSelected) {
-      setSelectedCartItems([]); // Deselect all
+      setSelectedCartItems([]) // Deselect all
     } else {
-      setSelectedCartItems(allCartItemIds); // Select all
+      setSelectedCartItems(allCartItemIds) // Select all
     }
-  };
+  }
 
   // Update the state when brand-level selection changes
   const handleSelectBrand = (cartItemIds: string[], isSelected: boolean) => {
     setSelectedCartItems((prev) => {
       if (isSelected) {
         // Add all cartItems of the brand
-        return [...prev, ...cartItemIds.filter((id) => !prev.includes(id))];
+        return [...prev, ...cartItemIds.filter((id) => !prev.includes(id))]
       } else {
         // Remove all cartItems of the brand
-        return prev.filter((id) => !cartItemIds.includes(id));
+        return prev.filter((id) => !cartItemIds.includes(id))
       }
-    });
-  };
-  const handleVoucherSelection = (
-    brandId: string,
-    voucher: TVoucher | null
-  ) => {
+    })
+  }
+  const handleVoucherSelection = (brandId: string, voucher: TVoucher | null) => {
     setChosenVouchersByBrand((prev) => ({
       ...prev,
-      [brandId]: voucher,
-    }));
-    setChosenBrandVouchers({ ...chosenVouchersByBrand, [brandId]: voucher });
-  };
+      [brandId]: voucher
+    }))
+    setChosenBrandVouchers({ ...chosenVouchersByBrand, [brandId]: voucher })
+  }
 
   useEffect(() => {
+    // handle show best voucher for each brand
+    async function handleShowBestBrandVoucher() {
+      try {
+        if (cartItems) {
+          const checkoutItems = createCheckoutItems(cartItems, selectedCartItems)
+          await callBestBrandVouchersFn({
+            checkoutItems
+          })
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    async function handleShowBestPlatformVoucher() {
+      try {
+        let checkoutItems: ICheckoutItem[] = []
+        if (cartItems) {
+          checkoutItems = Object.entries(cartItems)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            .map(([_brandName, cartItems]) => createCheckoutItem(cartItems, selectedCartItems))
+            .flat()
+        }
+
+        await callBestPlatformVouchersFn({
+          checkoutItems
+        })
+      } catch (error) {
+        console.error(error)
+      }
+    }
     if (cartItems) {
-      setCartByBrand(cartItems);
+      setCartByBrand(cartItems)
 
-      const selectedCartItemsMap = Object.keys(cartItems).reduce(
-        (acc, brandName) => {
-          const brandCartItems = cartItems[brandName];
-          const selectedItems = brandCartItems.filter((cartItem) =>
-            selectedCartItems.includes(cartItem.id)
-          );
+      const selectedCartItemsMap = Object.keys(cartItems).reduce((acc, brandName) => {
+        const brandCartItems = cartItems[brandName]
+        const selectedItems = brandCartItems.filter((cartItem) => selectedCartItems.includes(cartItem.id))
 
-          if (selectedItems.length > 0) {
-            acc[brandName] = selectedItems;
-          }
+        if (selectedItems.length > 0) {
+          acc[brandName] = selectedItems
+        }
 
-          return acc;
-        },
-        {} as ICartByBrand
-      );
+        return acc
+      }, {} as ICartByBrand)
 
-      setSelectedCartItem(selectedCartItemsMap);
+      setSelectedCartItem(selectedCartItemsMap)
 
       // handle set selected checkbox cart items
       const tmpAllCartItemIds = Object.values(cartItems).flatMap((cartBrand) =>
         cartBrand.map((cartItem) => cartItem.id)
-      );
-      setAllCartItemIds(tmpAllCartItemIds);
-      setIsAllSelected(
-        tmpAllCartItemIds.every((id) => selectedCartItems.includes(id))
-      );
+      )
+      setAllCartItemIds(tmpAllCartItemIds)
+      setIsAllSelected(tmpAllCartItemIds.every((id) => selectedCartItems.includes(id)))
 
-      const validSelectedCartItems = selectedCartItems.filter((id) =>
-        tmpAllCartItemIds.includes(id)
-      );
+      const validSelectedCartItems = selectedCartItems.filter((id) => tmpAllCartItemIds.includes(id))
       if (validSelectedCartItems.length !== selectedCartItems.length) {
-        setSelectedCartItems(validSelectedCartItems);
+        setSelectedCartItems(validSelectedCartItems)
       }
 
-      // handle show best voucher for each brand
-      async function handleShowBestBrandVoucher() {
-        try {
-          if (cartItems) {
-            const checkoutItems = createCheckoutItems(
-              cartItems,
-              selectedCartItems
-            );
-            await callBestBrandVouchersFn({
-              checkoutItems: checkoutItems,
-            });
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }
-      async function handleShowBestPlatformVoucher() {
-        try {
-          let checkoutItems: ICheckoutItem[] = [];
-          if (cartItems) {
-            checkoutItems = Object.entries(cartItems)
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              .map(([_brandName, cartItems]) =>
-                createCheckoutItem(cartItems, selectedCartItems)
-              )
-              .flat();
-          }
-
-          await callBestPlatformVouchersFn({
-            checkoutItems: checkoutItems,
-          });
-        } catch (error) {
-          console.error(error);
-        }
-      }
-
-      handleShowBestBrandVoucher();
-      handleShowBestPlatformVoucher();
+      handleShowBestBrandVoucher()
+      handleShowBestPlatformVoucher()
     }
-  }, [
-    callBestBrandVouchersFn,
-    callBestPlatformVouchersFn,
-    cartItems,
-    selectedCartItems,
-    setSelectedCartItem,
-  ]);
+  }, [callBestBrandVouchersFn, callBestPlatformVouchersFn, cartItems, selectedCartItems, setSelectedCartItem])
 
   useEffect(() => {
     if (selectedCartItems?.length > 0) {
-      setTotalPrice(
-        calculateCartTotals(selectedCartItems, cartItems).totalPrice
-      );
-      setTotalOriginalPrice(
-        calculateCartTotals(selectedCartItems, cartItems).totalProductCost
-      );
-      setTotalDirectProductsDiscount(
-        calculateCartTotals(selectedCartItems, cartItems).totalProductDiscount
-      );
+      setTotalPrice(calculateCartTotals(selectedCartItems, cartItems).totalPrice)
+      setTotalOriginalPrice(calculateCartTotals(selectedCartItems, cartItems).totalProductCost)
+      setTotalDirectProductsDiscount(calculateCartTotals(selectedCartItems, cartItems).totalProductDiscount)
     } else {
-      setTotalPrice(0);
-      setTotalOriginalPrice(0);
-      setTotalDirectProductsDiscount(0);
-      setChosenVouchersByBrand({});
+      setTotalPrice(0)
+      setTotalOriginalPrice(0)
+      setTotalDirectProductsDiscount(0)
+      setChosenVouchersByBrand({})
 
-      setPlatformChosenVoucher(null);
-      setChosenPlatformVoucher(null);
-      resetSelectedCartItem();
+      setPlatformChosenVoucher(null)
+      setChosenPlatformVoucher(null)
+      resetSelectedCartItem()
     }
-  }, [
-    cartItems,
-    resetSelectedCartItem,
-    selectedCartItems,
-    setChosenPlatformVoucher,
-    isTriggerTotal,
-  ]);
+  }, [cartItems, resetSelectedCartItem, selectedCartItems, setChosenPlatformVoucher, isTriggerTotal])
   useEffect(() => {
-    setChosenPlatformVoucher(platformChosenVoucher);
-  }, [platformChosenVoucher, setChosenPlatformVoucher]);
+    setChosenPlatformVoucher(platformChosenVoucher)
+  }, [platformChosenVoucher, setChosenPlatformVoucher])
 
   useEffect(() => {
     if (totalVoucherDiscount === 0) {
-      setChosenVouchersByBrand({});
+      setChosenVouchersByBrand({})
     }
     if (platformVoucherDiscount === 0) {
-      setPlatformChosenVoucher(null);
+      setPlatformChosenVoucher(null)
     }
-  }, [
-    platformVoucherDiscount,
-    totalVoucherDiscount,
-    isTriggerTotal,
-    selectedCartItems,
-  ]);
+  }, [platformVoucherDiscount, totalVoucherDiscount, isTriggerTotal, selectedCartItems])
 
   useEffect(() => {
     if (useMyCartData && useMyCartData?.data) {
-      const filteredData: ICartByBrand = {};
+      const filteredData: ICartByBrand = {}
 
       Object.keys(useMyCartData.data).forEach((brandName) => {
-        const filteredItems = useMyCartData.data[brandName].filter(
-          (item) => item.groupBuying === null
-        );
+        const filteredItems = useMyCartData.data[brandName].filter((item) => item.groupBuying === null)
 
         if (filteredItems.length > 0) {
-          filteredData[brandName] = filteredItems;
+          filteredData[brandName] = filteredItems
         }
-      });
+      })
 
-      setCartItems(filteredData);
+      setCartItems(filteredData)
     }
-  }, [useMyCartData?.data]);
+  }, [useMyCartData?.data])
   return (
-    <SafeAreaView
-      style={
-        cartItems && Object.keys(cartItems)?.length > 0
-          ? styles.container
-          : styles.emptyContainer
-      }
-    >
+    <SafeAreaView style={cartItems && Object.keys(cartItems)?.length > 0 ? styles.container : styles.emptyContainer}>
       {isFetching && <LoadingContentLayer />}
       {!isFetching && cartItems && Object.keys(cartItems)?.length > 0 && (
         <>
@@ -333,29 +249,26 @@ const CartScreen = () => {
             showsHorizontalScrollIndicator={false}
             data={Object.keys(cartItems).map((brandName, index) => {
               const brand =
-                cartItems[brandName]?.[0]?.productClassification
-                  ?.productDiscount?.product?.brand ??
-                cartItems[brandName]?.[0]?.productClassification
-                  ?.preOrderProduct?.product?.brand ??
-                cartItems[brandName]?.[0]?.productClassification?.product
-                  ?.brand;
-              const brandId = brand?.id ?? "";
-              const bestVoucherForBrand = voucherMap[brandId] || null;
-              const cartBrandItem = cartItems[brandName];
+                cartItems[brandName]?.[0]?.productClassification?.productDiscount?.product?.brand ??
+                cartItems[brandName]?.[0]?.productClassification?.preOrderProduct?.product?.brand ??
+                cartItems[brandName]?.[0]?.productClassification?.product?.brand
+              const brandId = brand?.id ?? ''
+              const bestVoucherForBrand = voucherMap[brandId] || null
+              const cartBrandItem = cartItems[brandName]
               const checkoutItems: ICheckoutItem[] = cartBrandItem
                 ?.map((cartItem) => ({
-                  classificationId: cartItem.productClassification?.id ?? "",
-                  quantity: cartItem.quantity ?? 0,
+                  classificationId: cartItem.productClassification?.id ?? '',
+                  quantity: cartItem.quantity ?? 0
                 }))
-                ?.filter((item) => item.classificationId !== null);
+                ?.filter((item) => item.classificationId !== null)
 
               const selectedCheckoutItems: ICheckoutItem[] = cartBrandItem
                 ?.filter((cart) => selectedCartItems?.includes(cart?.id))
                 ?.map((cartItem) => ({
-                  classificationId: cartItem.productClassification?.id ?? "",
-                  quantity: cartItem.quantity ?? 0,
+                  classificationId: cartItem.productClassification?.id ?? '',
+                  quantity: cartItem.quantity ?? 0
                 }))
-                ?.filter((item) => item.classificationId !== null);
+                ?.filter((item) => item.classificationId !== null)
 
               return {
                 key: `${brandName}_${index}`,
@@ -364,8 +277,8 @@ const CartScreen = () => {
                 brand,
                 bestVoucherForBrand,
                 checkoutItems,
-                selectedCheckoutItems,
-              };
+                selectedCheckoutItems
+              }
             })}
             renderItem={({ item }) => (
               <CartItem
@@ -413,47 +326,47 @@ const CartScreen = () => {
       /> */}
       {!isFetching && cartItems && Object.keys(cartItems)?.length === 0 && (
         <Empty
-          title={t("empty.cart.title")}
-          description={t("empty.cart.description")}
-          link={"/"}
-          linkText={t("empty.cart.button")}
+          title={t('empty.cart.title')}
+          description={t('empty.cart.description')}
+          link='/'
+          linkText={t('empty.cart.button')}
         />
       )}
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default CartScreen;
+export default CartScreen
 const styles = StyleSheet.create({
   cartContainer: {
     flex: 1,
-    flexDirection: "column",
-    alignContent: "center",
-    justifyContent: "flex-start",
+    flexDirection: 'column',
+    alignContent: 'center',
+    justifyContent: 'flex-start',
     paddingHorizontal: 4,
     paddingVertical: 10,
-    backgroundColor: myTheme.white,
+    backgroundColor: myTheme.white
   },
   container: {
     flex: 1,
     // position: "relative",
-    flexDirection: "column",
-    alignContent: "center",
-    justifyContent: "flex-start",
-    backgroundColor: myTheme.background,
+    flexDirection: 'column',
+    alignContent: 'center',
+    justifyContent: 'flex-start',
+    backgroundColor: myTheme.background
   },
   cartItemsContainer: {
     marginBottom: 143,
     gap: 10,
-    flexDirection: "column",
+    flexDirection: 'column'
   },
   emptyContainer: {
     flex: 1,
-    flexDirection: "column",
-    alignContent: "center",
-    justifyContent: "center",
+    flexDirection: 'column',
+    alignContent: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 20,
     paddingVertical: 40,
-    backgroundColor: myTheme.white,
-  },
-});
+    backgroundColor: myTheme.white
+  }
+})

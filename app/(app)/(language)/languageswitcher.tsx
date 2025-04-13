@@ -1,17 +1,18 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import { useTranslation } from "react-i18next";
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { View } from 'react-native'
+
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 const LanguageSwitcherScreen = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <View>
-      <Stack.Screen options={{ title: t("language.title") }} />
+      <Stack.Screen options={{ title: t('language.title') }} />
       <LanguageSwitcher />
     </View>
-  );
-};
+  )
+}
 
-export default LanguageSwitcherScreen;
+export default LanguageSwitcherScreen

@@ -1,12 +1,13 @@
+import { useQuery } from '@tanstack/react-query'
+import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { View, StyleSheet } from 'react-native'
-import { useQuery } from '@tanstack/react-query'
+
 import SearchPage from '@/components/product/SearchPage'
-import { ProductTagEnum } from '@/types/enum'
-import { useRouter } from 'expo-router'
+import { MAX_PRICE } from '@/constants/infor'
 import { getAllCategoryApi } from '@/hooks/api/category'
 import { getProductFilterApi } from '@/hooks/api/product'
-import { MAX_PRICE } from '@/constants/infor'
+import { ProductTagEnum } from '@/types/enum'
 
 const SearchScreen = () => {
   const router = useRouter()
@@ -42,7 +43,7 @@ const SearchScreen = () => {
   const buildQueryParams = () => {
     const params: any = {
       page: currentPage,
-      limit: limit
+      limit
     }
     params.search = query.trim()
 

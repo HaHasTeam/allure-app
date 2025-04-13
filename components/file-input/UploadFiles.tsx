@@ -285,7 +285,7 @@ const UploadFiles = ({ dropZoneConfigOptions, field, triggerRef }: UploadFilesPr
                 data={files}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item: file, index }) =>
-                  file.status !== FileStatusEnum.INACTIVE && (
+                  file.status !== FileStatusEnum.INACTIVE ? (
                     <FileUploaderItem key={index} index={index} style={styles.fileItem}>
                       <View style={styles.fileContent}>
                         <TouchableOpacity
@@ -315,7 +315,7 @@ const UploadFiles = ({ dropZoneConfigOptions, field, triggerRef }: UploadFilesPr
                         </View>
                       </View>
                     </FileUploaderItem>
-                  )
+                  ) : null
                 }
                 style={styles.fileList}
               />

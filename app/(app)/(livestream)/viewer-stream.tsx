@@ -1,6 +1,11 @@
-"use client";
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+'use client'
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { Feather, MaterialIcons } from '@expo/vector-icons'
+import { useMutation } from '@tanstack/react-query'
+import { useRouter, useLocalSearchParams } from 'expo-router'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   View,
   StyleSheet,
@@ -14,77 +19,64 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
-  Image,
-} from "react-native";
-import type { FlatList as FlatListType } from "react-native";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
-import { RtcSurfaceView, ClientRoleType } from "react-native-agora";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-} from "react-native-reanimated";
+  Image
+} from 'react-native'
+import type { FlatList as FlatListType } from 'react-native'
+import { RtcSurfaceView, ClientRoleType } from 'react-native-agora'
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated'
 
-import { myTheme } from "@/constants/index";
-import { useViewerStreamAttachment } from "@/hooks/useViewerStreamAttachment";
-import { log } from "@/utils/logger";
-import useUser from "@/hooks/api/useUser";
-import { useFirebaseChat } from "@/hooks/useFirebaseChat";
-import ProductsBottomSheet from "@/components/livestream/product-bottom-sheet";
-import type { IResponseProduct } from "@/types/product";
-import { useMutation } from "@tanstack/react-query";
-import {
-  getCustomTokenLivestreamApi,
-  getLiveStreamByIdMutation,
-  LiveSteamDetail,
-} from "@/hooks/api/livestream";
-const { width, height } = Dimensions.get("window");
+import ProductsBottomSheet from '@/components/livestream/product-bottom-sheet'
+import { myTheme } from '@/constants/index'
+import { getCustomTokenLivestreamApi, getLiveStreamByIdMutation, LiveSteamDetail } from '@/hooks/api/livestream'
+import useUser from '@/hooks/api/useUser'
+import { useFirebaseChat } from '@/hooks/useFirebaseChat'
+import { useViewerStreamAttachment } from '@/hooks/useViewerStreamAttachment'
+import type { IResponseProduct } from '@/types/product'
+import { log } from '@/utils/logger'
+
+const { width, height } = Dimensions.get('window')
 
 export default function LivestreamViewerScreen() {
-  const router = useRouter();
-  const params = useLocalSearchParams();
-  const [isChatVisible, setIsChatVisible] = useState(false);
-  const [newMessage, setNewMessage] = useState("");
-  const [streamDuration, setStreamDuration] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentToken, setCurrentToken] = useState<string | null>(null);
-  const [isRefreshingToken, setIsRefreshingToken] = useState(false);
-  const [listProduct, setListProduct] = useState<LiveSteamDetail[]>([]);
+  const router = useRouter()
+  const params = useLocalSearchParams()
+  const [isChatVisible, setIsChatVisible] = useState(false)
+  const [newMessage, setNewMessage] = useState('')
+  const [streamDuration, setStreamDuration] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const [currentToken, setCurrentToken] = useState<string | null>(null)
+  const [isRefreshingToken, setIsRefreshingToken] = useState(false)
+  const [listProduct, setListProduct] = useState<LiveSteamDetail[]>([])
   // const { firebaseError, firebaseUser } = useSession();
-  const [tokenError, setTokenError] = useState(false);
+  const [tokenError, setTokenError] = useState(false)
   const [streamInfo, setStreamInfo] = useState<{
-    title: string;
-    hostName: string;
-    hostAvatar?: string;
+    title: string
+    hostName: string
+    hostAvatar?: string
   }>({
-    title: (params.title as string) || "Live Stream",
-    hostName: "Host",
-    hostAvatar: undefined,
-  });
+    title: (params.title as string) || 'Live Stream',
+    hostName: 'Host',
+    hostAvatar: undefined
+  })
 
-  const [account, setAccount] = useState<{ id: string; name: string } | null>(
-    null
-  );
-  const [cartItems, setCartItems] = useState<IResponseProduct[]>([]);
+  const [account, setAccount] = useState<{ id: string; name: string } | null>(null)
+  const [cartItems, setCartItems] = useState<IResponseProduct[]>([])
 
   // Products modal visibility state
-  const [isProductsModalVisible, setProductsModalVisible] = useState(false);
+  const [isProductsModalVisible, setProductsModalVisible] = useState(false)
   // Replace these two hooks
   const { mutateAsync: getLivestreamById } = useMutation({
     mutationKey: [getLiveStreamByIdMutation.mutationKey],
-    mutationFn: getLiveStreamByIdMutation.fn,
-  });
+    mutationFn: getLiveStreamByIdMutation.fn
+  })
 
   const { mutateAsync: getLivestreamToken } = useMutation({
     mutationKey: [getCustomTokenLivestreamApi.mutationKey],
-    mutationFn: getCustomTokenLivestreamApi.fn,
-  });
+    mutationFn: getCustomTokenLivestreamApi.fn
+  })
   // Get params
-  const livestreamId = params.id as string;
+  const livestreamId = params.id as string
 
-  const { getProfile } = useUser();
+  const { getProfile } = useUser()
 
   // Use Firebase chat hook
   const {
@@ -98,101 +90,96 @@ export default function LivestreamViewerScreen() {
     sendMessage: sendChatMessage,
     loadMoreMessages,
     clearError: clearChatError,
-    reconnect: reconnectChat,
-  } = useFirebaseChat(livestreamId);
+    reconnect: reconnectChat
+  } = useFirebaseChat(livestreamId)
 
   const chatListRef = useRef<
     FlatListType<{
-      id: string;
-      user: string;
-      message: string;
-      avatar: string;
-      timestamp: number;
+      id: string
+      user: string
+      message: string
+      avatar: string
+      timestamp: number
     }>
-  >(null);
+  >(null)
 
   // Animation values
-  const chatWidth = useSharedValue(width * 0.85);
-  const chatOpacity = useSharedValue(1);
-  const controlsOpacity = useSharedValue(1);
-  const fabScale = useSharedValue(1);
+  const chatWidth = useSharedValue(width * 0.85)
+  const chatOpacity = useSharedValue(1)
+  const controlsOpacity = useSharedValue(1)
+  const fabScale = useSharedValue(1)
 
   // Function to refresh the token
   const handleTokenRefresh = useCallback(() => {
-    Alert.alert(
-      "Token Expired",
-      "Your viewing session has expired. Please exit and rejoin the stream.",
-      [{ text: "OK" }]
-    );
-    setTokenError(true);
-    setIsRefreshingToken(false);
-  }, []);
+    Alert.alert('Token Expired', 'Your viewing session has expired. Please exit and rejoin the stream.', [
+      { text: 'OK' }
+    ])
+    setTokenError(true)
+    setIsRefreshingToken(false)
+  }, [])
 
   // Fetch user profile
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const data = await getProfile();
+        const data = await getProfile()
         if (data && data.id) {
           setAccount({
             id: data.id,
-            name: data.email || "Viewer",
-          });
+            name: data.email || 'Viewer'
+          })
         }
       } catch (error) {
-        console.error("Error fetching profile:", error);
+        console.error('Error fetching profile:', error)
       }
     }
 
-    fetchProfile();
-  }, [getProfile]);
+    fetchProfile()
+  }, [getProfile])
 
   // Fetch livestream info and token
   useEffect(() => {
     async function fetchLivestreamData() {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
         // Fetch livestream details
-        const { data: livestreamData } = await getLivestreamById(livestreamId);
+        const { data: livestreamData } = await getLivestreamById(livestreamId)
 
         if (livestreamData) {
           setStreamInfo({
-            title: livestreamData.title || "Live Stream",
-            hostName: "Host", // You might want to fetch host info from your API
-            hostAvatar: undefined,
-          });
-          setListProduct(livestreamData.livestreamProducts);
+            title: livestreamData.title || 'Live Stream',
+            hostName: 'Host', // You might want to fetch host info from your API
+            hostAvatar: undefined
+          })
+          setListProduct(livestreamData.livestreamProducts)
         }
-        const privilegeExpiredTs = Math.floor(Date.now() / 1000) + 3600;
+        const privilegeExpiredTs = Math.floor(Date.now() / 1000) + 3600
 
         // Fetch token
         const { data: tokenResult } = await getLivestreamToken({
           channelName: livestreamId,
           privilegeExpirationInSecond: privilegeExpiredTs,
-          role: ClientRoleType.ClientRoleAudience,
-        });
-        console.log("token", tokenResult);
+          role: ClientRoleType.ClientRoleAudience
+        })
+        console.log('token', tokenResult)
 
         if (tokenResult) {
           // Fallback in case the structure is different
-          setCurrentToken(tokenResult);
+          setCurrentToken(tokenResult)
         } else {
-          setTokenError(true);
-          Alert.alert(
-            "Error",
-            "Failed to get streaming token. Please try again."
-          );
+          setTokenError(true)
+          Alert.alert('Error', 'Failed to get streaming token. Please try again.')
         }
       } catch (error) {
-        console.error("Error fetching livestream data:", error);
-        Alert.alert("Error", "Failed to load livestream. Please try again.");
+        console.error('Error fetching livestream data:', error)
+        Alert.alert('Error', 'Failed to load livestream. Please try again.')
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
 
-    fetchLivestreamData();
-  }, [livestreamId, getLivestreamById, getLivestreamToken]);
+    fetchLivestreamData()
+  }, [livestreamId, getLivestreamById, getLivestreamToken])
 
   // Initialize the viewer stream hook with attachment for viewer count
   const {
@@ -204,60 +191,58 @@ export default function LivestreamViewerScreen() {
     isHostAudioEnabled,
     joinChannel,
     leaveChannel,
-    viewerCount,
+    viewerCount
   } = useViewerStreamAttachment({
-    appId: "00f5d43335cb4a19969ef78bb8955d2c", // Replace with your Agora App ID
+    appId: '00f5d43335cb4a19969ef78bb8955d2c', // Replace with your Agora App ID
     channel: livestreamId,
     token: currentToken,
-    userId: account?.id || "viewer",
-  });
+    userId: account?.id || 'viewer'
+  })
 
   // Handle token errors from Agora
   useEffect(() => {
     if (isInitialized && engine) {
       const handleError = (errorCode: number, msg: string) => {
-        log.error(`Agora error: ${errorCode}, ${msg}`);
+        log.error(`Agora error: ${errorCode}, ${msg}`)
 
         // Error codes related to token expiration
         // 109: token expired
         // 110: token invalid
         if (errorCode === 109 || errorCode === 110) {
-          log.warn("Token expired or invalid");
-          Alert.alert(
-            "Connection Error",
-            "Your viewing session has expired. Please exit and rejoin the stream.",
-            [{ text: "OK" }]
-          );
-          setTokenError(true);
+          log.warn('Token expired or invalid')
+          Alert.alert('Connection Error', 'Your viewing session has expired. Please exit and rejoin the stream.', [
+            { text: 'OK' }
+          ])
+          setTokenError(true)
         }
-      };
+      }
 
       //   Add error listener
-      engine.addListener("onError", handleError);
+      engine.addListener('onError', handleError)
 
       return () => {
-        engine.removeListener("onError", handleError);
-      };
+        engine.removeListener('onError', handleError)
+      }
     }
-  }, [isInitialized, engine]);
+  }, [isInitialized, engine])
 
   // Timer for stream duration
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Auto-hide controls after inactivity
-  const controlsTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const resetControlsTimer = () => {
     if (controlsTimerRef.current) {
-      clearTimeout(controlsTimerRef.current);
+      clearTimeout(controlsTimerRef.current)
     }
 
-    controlsOpacity.value = withTiming(1, { duration: 200 });
+    controlsOpacity.value = withTiming(1, { duration: 200 })
 
     controlsTimerRef.current = setTimeout(() => {
-      controlsOpacity.value = withTiming(0, { duration: 500 });
-    }, 5000);
-  };
+      controlsOpacity.value = withTiming(0, { duration: 500 })
+    }, 5000)
+  }
 
   // Refresh viewer count periodically
   useEffect(() => {
@@ -272,205 +257,194 @@ export default function LivestreamViewerScreen() {
       //   clearInterval(intervalId)
       // }
     }
-  }, [joinChannelSuccess]);
+  }, [joinChannelSuccess])
 
   useEffect(() => {
     // Start timer for stream duration
     timerRef.current = setInterval(() => {
-      setStreamDuration((prev) => prev + 1);
-    }, 1000);
+      setStreamDuration((prev) => prev + 1)
+    }, 1000)
 
     // Handle back button press
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      () => {
-        // Prevent going back with hardware button
-        confirmLeaveStream();
-        return true;
-      }
-    );
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Prevent going back with hardware button
+      confirmLeaveStream()
+      return true
+    })
 
     // Initialize controls timer
-    resetControlsTimer();
+    resetControlsTimer()
 
     return () => {
       if (timerRef.current) {
-        clearInterval(timerRef.current);
+        clearInterval(timerRef.current)
       }
       if (controlsTimerRef.current) {
-        clearTimeout(controlsTimerRef.current);
+        clearTimeout(controlsTimerRef.current)
       }
 
-      backHandler.remove();
-    };
-  }, []);
+      backHandler.remove()
+    }
+  }, [])
 
   // Toggle chat visibility
   const toggleChat = () => {
     if (isChatVisible) {
       // Hide chat
-      chatWidth.value = withTiming(0, { duration: 300 });
-      chatOpacity.value = withTiming(0, { duration: 200 });
-      setTimeout(() => setIsChatVisible(false), 300);
+      chatWidth.value = withTiming(0, { duration: 300 })
+      chatOpacity.value = withTiming(0, { duration: 200 })
+      setTimeout(() => setIsChatVisible(false), 300)
     } else {
       // Show chat
-      setIsChatVisible(true);
-      chatWidth.value = withTiming(width * 0.85, { duration: 300 });
-      chatOpacity.value = withTiming(1, { duration: 300 });
+      setIsChatVisible(true)
+      chatWidth.value = withTiming(width * 0.85, { duration: 300 })
+      chatOpacity.value = withTiming(1, { duration: 300 })
     }
-    resetControlsTimer();
-  };
+    resetControlsTimer()
+  }
 
   // Format duration as MM:SS
   const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
-  };
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
 
   // Format timestamp
   const formatTimestamp = (timestamp: number) => {
-    const now = Date.now();
-    const diff = now - timestamp;
+    const now = Date.now()
+    const diff = now - timestamp
 
     if (diff < 60000) {
-      return "just now";
+      return 'just now'
     } else if (diff < 3600000) {
-      return `${Math.floor(diff / 60000)}m ago`;
+      return `${Math.floor(diff / 60000)}m ago`
     } else {
-      return `${Math.floor(diff / 3600000)}h ago`;
+      return `${Math.floor(diff / 3600000)}h ago`
     }
-  };
+  }
 
   // Send a chat message
   const sendMessage = async () => {
     if (!newMessage.trim() || !isChatLoggedIn) {
       if (!isChatLoggedIn) {
-        Alert.alert("Not Logged In", "You need to be logged in to chat.");
+        Alert.alert('Not Logged In', 'You need to be logged in to chat.')
       }
-      return;
+      return
     }
 
     try {
-      await sendChatMessage(newMessage.trim());
-      setNewMessage("");
+      await sendChatMessage(newMessage.trim())
+      setNewMessage('')
 
       // Scroll to bottom
       if (chatListRef.current) {
-        chatListRef.current?.scrollToEnd({ animated: true });
+        chatListRef.current?.scrollToEnd({ animated: true })
       }
 
-      resetControlsTimer();
+      resetControlsTimer()
     } catch (error) {
-      console.error("Error sending message:", error);
-      Alert.alert("Error", "Failed to send message. Please try again.");
+      console.error('Error sending message:', error)
+      Alert.alert('Error', 'Failed to send message. Please try again.')
     }
-  };
+  }
 
   // Confirm leaving the stream
   const confirmLeaveStream = () => {
-    Alert.alert(
-      "Leave Stream",
-      "Are you sure you want to leave this livestream?",
-      [
-        { text: "Cancel", style: "cancel" },
-        { text: "Leave", style: "destructive", onPress: leaveStream },
-      ]
-    );
-  };
+    Alert.alert('Leave Stream', 'Are you sure you want to leave this livestream?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Leave', style: 'destructive', onPress: leaveStream }
+    ])
+  }
 
   // Leave the livestream
   const leaveStream = () => {
     if (isInitialized) {
-      leaveChannel();
+      leaveChannel()
     }
-    router.back();
-  };
+    router.back()
+  }
 
   // Animated styles
   const chatContainerStyle = useAnimatedStyle(() => {
     return {
       width: chatWidth.value,
-      opacity: chatOpacity.value,
-    };
-  });
+      opacity: chatOpacity.value
+    }
+  })
 
   const controlsStyle = useAnimatedStyle(() => {
     return {
-      opacity: controlsOpacity.value,
-    };
-  });
+      opacity: controlsOpacity.value
+    }
+  })
 
   const chatButtonStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: fabScale.value }],
-    };
-  });
+      transform: [{ scale: fabScale.value }]
+    }
+  })
 
   // Handle chat button press animation
   const onChatButtonPressIn = () => {
-    fabScale.value = withSpring(0.9);
-  };
+    fabScale.value = withSpring(0.9)
+  }
 
   const onChatButtonPressOut = () => {
-    fabScale.value = withSpring(1);
-  };
+    fabScale.value = withSpring(1)
+  }
 
   // Manual token refresh button handler
   const onManualTokenRefresh = () => {
-    Alert.alert(
-      "Session Expired",
-      "Your viewing session has expired. Please exit and rejoin the stream.",
-      [{ text: "OK", onPress: () => router.back() }]
-    );
-  };
+    Alert.alert('Session Expired', 'Your viewing session has expired. Please exit and rejoin the stream.', [
+      { text: 'OK', onPress: () => router.back() }
+    ])
+  }
 
   // Handle chat reconnection
   const handleReconnectChat = () => {
     if (reconnectChat()) {
-      Alert.alert("Success", "Reconnected to chat successfully");
+      Alert.alert('Success', 'Reconnected to chat successfully')
     }
-  };
+  }
 
   // Open products modal
   const openProductsModal = useCallback(() => {
-    console.log("Opening products modal");
-    setProductsModalVisible(true);
-  }, []);
+    console.log('Opening products modal')
+    setProductsModalVisible(true)
+  }, [])
 
   // Close products modal
   const closeProductsModal = useCallback(() => {
-    console.log("Closing products modal");
-    setProductsModalVisible(false);
-  }, []);
+    console.log('Closing products modal')
+    setProductsModalVisible(false)
+  }, [])
 
   // Handle cart button press
   const handleCartButtonPress = () => {
-    console.log("Cart button pressed");
-    openProductsModal();
-  };
+    console.log('Cart button pressed')
+    openProductsModal()
+  }
 
   // Handle adding product to cart
   const handleAddToCart = (product: IResponseProduct) => {
-    setCartItems((prev) => [...prev, product]);
-    Alert.alert("Success", `${product.name} added to cart!`);
-  };
+    setCartItems((prev) => [...prev, product])
+    Alert.alert('Success', `${product.name} added to cart!`)
+  }
 
   // Handle buying product now
   const handleBuyNow = (product: IResponseProduct) => {
-    Alert.alert("Buy Now", `Proceed to checkout for ${product.name}?`, [
-      { text: "Cancel", style: "cancel" },
+    Alert.alert('Buy Now', `Proceed to checkout for ${product.name}?`, [
+      { text: 'Cancel', style: 'cancel' },
       {
-        text: "Checkout",
+        text: 'Checkout',
         onPress: () => {
-          Alert.alert("Success", `Order placed for ${product.name}!`);
-        },
-      },
-    ]);
-  };
-  console.log("isHostVideoEnabled", isHostVideoEnabled, hostUid);
+          Alert.alert('Success', `Order placed for ${product.name}!`)
+        }
+      }
+    ])
+  }
+  console.log('isHostVideoEnabled', isHostVideoEnabled, hostUid)
 
   return (
     <View style={styles.container} onTouchStart={resetControlsTimer}>
@@ -480,27 +454,22 @@ export default function LivestreamViewerScreen() {
       <View style={styles.videoContainer}>
         {isLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={myTheme.primary} />
+            <ActivityIndicator size='large' color={myTheme.primary} />
             <Text style={styles.loadingText}>Loading stream...</Text>
           </View>
         ) : isInitialized ? (
           isHostVideoEnabled ? (
-            <RtcSurfaceView
-              style={styles.videoView}
-              canvas={{ uid: hostUid || 0 }}
-            />
+            <RtcSurfaceView style={styles.videoView} canvas={{ uid: hostUid || 0 }} />
           ) : (
             <View style={styles.hostOfflineContainer}>
-              <MaterialIcons name="videocam-off" size={48} color="#94a3b8" />
+              <MaterialIcons name='videocam-off' size={48} color='#94a3b8' />
               <Text style={styles.hostOfflineText}>Host camera is off</Text>
             </View>
           )
         ) : (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>
-              {tokenError
-                ? "Session expired. Please exit and rejoin."
-                : "Waiting for host..."}
+              {tokenError ? 'Session expired. Please exit and rejoin.' : 'Waiting for host...'}
             </Text>
             {tokenError && (
               <TouchableOpacity
@@ -549,24 +518,19 @@ export default function LivestreamViewerScreen() {
       <Animated.View style={[styles.overlayControls, controlsStyle]}>
         {/* Top Row: Header with info */}
         <View style={styles.header}>
-          <TouchableOpacity
-            onPress={confirmLeaveStream}
-            style={styles.backButton}
-          >
-            <Feather name="arrow-left" size={24} color="#fff" />
+          <TouchableOpacity onPress={confirmLeaveStream} style={styles.backButton}>
+            <Feather name='arrow-left' size={24} color='#fff' />
           </TouchableOpacity>
 
           <View style={styles.headerInfo}>
             <View style={styles.liveIndicator}>
               <Text style={styles.liveText}>LIVE</Text>
             </View>
-            <Text style={styles.durationText}>
-              {formatDuration(streamDuration)}
-            </Text>
+            <Text style={styles.durationText}>{formatDuration(streamDuration)}</Text>
           </View>
 
           <View style={styles.viewerContainer}>
-            <Feather name="eye" size={14} color="#fff" />
+            <Feather name='eye' size={14} color='#fff' />
             <Text style={styles.viewerCount}>{viewerCount}</Text>
           </View>
         </View>
@@ -575,14 +539,9 @@ export default function LivestreamViewerScreen() {
         <View style={styles.hostInfoContainer}>
           <View style={styles.hostAvatarContainer}>
             {streamInfo.hostAvatar ? (
-              <Image
-                source={{ uri: streamInfo.hostAvatar }}
-                style={styles.hostAvatar}
-              />
+              <Image source={{ uri: streamInfo.hostAvatar }} style={styles.hostAvatar} />
             ) : (
-              <Text style={styles.hostAvatarText}>
-                {streamInfo.hostName.charAt(0)}
-              </Text>
+              <Text style={styles.hostAvatarText}>{streamInfo.hostName.charAt(0)}</Text>
             )}
           </View>
           <View style={styles.hostTextContainer}>
@@ -596,23 +555,17 @@ export default function LivestreamViewerScreen() {
         {/* Bottom Controls */}
         <View style={styles.bottomControls}>
           <TouchableOpacity
-            style={[
-              styles.controlButton,
-              !isChatVisible && styles.controlButtonActive,
-            ]}
+            style={[styles.controlButton, !isChatVisible && styles.controlButtonActive]}
             onPressIn={onChatButtonPressIn}
             onPressOut={onChatButtonPressOut}
             onPress={toggleChat}
           >
-            <Feather name="message-circle" size={22} color="#fff" />
+            <Feather name='message-circle' size={22} color='#fff' />
             <Text style={styles.controlButtonText}>Chat</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.controlButton}
-            onPress={handleCartButtonPress}
-          >
-            <Feather name="shopping-cart" size={22} color="#fff" />
+          <TouchableOpacity style={styles.controlButton} onPress={handleCartButtonPress}>
+            <Feather name='shopping-cart' size={22} color='#fff' />
             <Text style={styles.controlButtonText}>Shop</Text>
           </TouchableOpacity>
         </View>
@@ -628,19 +581,14 @@ export default function LivestreamViewerScreen() {
                 isChatLoggedIn ? (
                   <Text style={styles.chatStatusText}>Connected</Text>
                 ) : (
-                  <Text style={[styles.chatStatusText, styles.chatStatusError]}>
-                    Not logged in
-                  </Text>
+                  <Text style={[styles.chatStatusText, styles.chatStatusError]}>Not logged in</Text>
                 )
               ) : (
                 <Text style={styles.chatStatusText}>Initializing...</Text>
               )}
             </View>
-            <TouchableOpacity
-              onPress={toggleChat}
-              style={styles.chatCloseButton}
-            >
-              <Feather name="x" size={24} color="#fff" />
+            <TouchableOpacity onPress={toggleChat} style={styles.chatCloseButton}>
+              <Feather name='x' size={24} color='#fff' />
             </TouchableOpacity>
           </View>
 
@@ -648,16 +596,10 @@ export default function LivestreamViewerScreen() {
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>{chatError}</Text>
               <View style={styles.errorButtonsContainer}>
-                <TouchableOpacity
-                  style={styles.errorButton}
-                  onPress={handleReconnectChat}
-                >
+                <TouchableOpacity style={styles.errorButton} onPress={handleReconnectChat}>
                   <Text style={styles.errorButtonText}>Reconnect</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.errorButton}
-                  onPress={clearChatError}
-                >
+                <TouchableOpacity style={styles.errorButton} onPress={clearChatError}>
                   <Text style={styles.errorButtonText}>Dismiss</Text>
                 </TouchableOpacity>
               </View>
@@ -675,10 +617,8 @@ export default function LivestreamViewerScreen() {
             ListHeaderComponent={
               isLoadingMore ? (
                 <View style={styles.loadingMoreContainer}>
-                  <ActivityIndicator size="small" color="#ffffff" />
-                  <Text style={styles.loadingMoreText}>
-                    Loading more messages...
-                  </Text>
+                  <ActivityIndicator size='small' color='#ffffff' />
+                  <Text style={styles.loadingMoreText}>Loading more messages...</Text>
                 </View>
               ) : null
             }
@@ -690,22 +630,16 @@ export default function LivestreamViewerScreen() {
                 <View style={styles.messageContent}>
                   <View style={styles.messageHeader}>
                     <Text style={styles.messageUser}>{item.user}</Text>
-                    <Text style={styles.messageTime}>
-                      {formatTimestamp(item.timestamp)}
-                    </Text>
+                    <Text style={styles.messageTime}>{formatTimestamp(item.timestamp)}</Text>
                   </View>
                   <Text style={styles.messageText}>{item.message}</Text>
                 </View>
               </View>
             )}
-            onContentSizeChange={() =>
-              chatListRef.current?.scrollToEnd({ animated: true })
-            }
+            onContentSizeChange={() => chatListRef.current?.scrollToEnd({ animated: true })}
             ListEmptyComponent={
               <View style={styles.emptyChat}>
-                <Text style={styles.emptyChatText}>
-                  No messages yet. Be the first to say something!
-                </Text>
+                <Text style={styles.emptyChatText}>No messages yet. Be the first to say something!</Text>
               </View>
             }
           />
@@ -715,22 +649,21 @@ export default function LivestreamViewerScreen() {
               style={styles.chatInput}
               value={newMessage}
               onChangeText={setNewMessage}
-              placeholder="Type a message..."
-              placeholderTextColor="#94a3b8"
-              returnKeyType="send"
+              placeholder='Type a message...'
+              placeholderTextColor='#94a3b8'
+              returnKeyType='send'
               onSubmitEditing={sendMessage}
               editable={isChatLoggedIn}
             />
             <TouchableOpacity
               style={[
                 styles.sendButton,
-                (!newMessage.trim() || !isChatLoggedIn || isChatSending) &&
-                  styles.sendButtonDisabled,
+                (!newMessage.trim() || !isChatLoggedIn || isChatSending) && styles.sendButtonDisabled
               ]}
               onPress={sendMessage}
               disabled={!newMessage.trim() || !isChatLoggedIn || isChatSending}
             >
-              <Feather name="send" size={18} color="#fff" />
+              <Feather name='send' size={18} color='#fff' />
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -744,416 +677,416 @@ export default function LivestreamViewerScreen() {
         livestreamId={livestreamId}
       />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: '#000'
   },
   videoContainer: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "#0f172a",
+    backgroundColor: '#0f172a'
   },
   videoView: {
-    flex: 1,
+    flex: 1
   },
   hostOfflineContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#1e293b",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1e293b'
   },
   hostOfflineText: {
-    color: "#94a3b8",
+    color: '#94a3b8',
     marginTop: 12,
-    fontSize: 16,
+    fontSize: 16
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#1e293b",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1e293b'
   },
   loadingText: {
-    color: "#94a3b8",
+    color: '#94a3b8',
     fontSize: 16,
     marginTop: 16,
-    marginBottom: 16,
+    marginBottom: 16
   },
   refreshButton: {
     backgroundColor: myTheme.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    marginTop: 16,
+    marginTop: 16
   },
   refreshButtonText: {
-    color: "#ffffff",
-    fontWeight: "600",
+    color: '#ffffff',
+    fontWeight: '600'
   },
   overlayControls: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: "space-between",
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)'
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   backButton: {
     padding: 8,
     borderRadius: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   headerInfo: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   liveIndicator: {
-    backgroundColor: "#ef4444",
+    backgroundColor: '#ef4444',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    marginRight: 8,
+    marginRight: 8
   },
   liveText: {
-    color: "#ffffff",
-    fontWeight: "700",
-    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: 12
   },
   durationText: {
-    color: "#ffffff",
-    fontSize: 14,
+    color: '#ffffff',
+    fontSize: 14
   },
   viewerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 16,
+    borderRadius: 16
   },
   viewerCount: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 12,
-    marginLeft: 4,
+    marginLeft: 4
   },
   hostInfoContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 70,
     left: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     borderRadius: 24,
     padding: 8,
-    maxWidth: "80%",
+    maxWidth: '80%'
   },
   hostAvatarContainer: {
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: myTheme.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8
   },
   hostAvatar: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 20
   },
   hostAvatarText: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600'
   },
   hostTextContainer: {
-    flex: 1,
+    flex: 1
   },
   hostName: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600'
   },
   streamTitle: {
-    color: "#e2e8f0",
-    fontSize: 12,
+    color: '#e2e8f0',
+    fontSize: 12
   },
   bottomControls: {
-    flexDirection: "row",
-    justifyContent: "space-around",
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     padding: 16,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
   controlButton: {
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 8
   },
   controlButtonActive: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 8
   },
   controlButtonText: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 4
   },
   chatButton: {
-    position: "absolute",
+    position: 'absolute',
     right: 16,
     bottom: 80,
-    zIndex: 10,
+    zIndex: 10
   },
   chatButtonInner: {
     width: 56,
     height: 56,
     borderRadius: 28,
     backgroundColor: myTheme.primary,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
-        shadowRadius: 4,
+        shadowRadius: 4
       },
       android: {
-        elevation: 5,
-      },
-    }),
+        elevation: 5
+      }
+    })
   },
   chatBadge: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: "#ef4444",
+    backgroundColor: '#ef4444',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4
   },
   chatBadgeText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 10,
-    fontWeight: "bold",
+    fontWeight: 'bold'
   },
   chatContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(15, 23, 42, 0.95)",
-    display: "flex",
-    flexDirection: "column",
+    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+    display: 'flex',
+    flexDirection: 'column',
     borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16,
+    borderBottomLeftRadius: 16
   },
   chatHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)'
   },
   chatStatusContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 8
   },
   chatStatusText: {
-    color: "#4ade80",
-    fontSize: 12,
+    color: '#4ade80',
+    fontSize: 12
   },
   chatStatusError: {
-    color: "#ef4444",
+    color: '#ef4444'
   },
   chatList: {
     flex: 1,
-    padding: 16,
+    padding: 16
   },
   chatMessage: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 16,
-    maxWidth: "100%",
+    maxWidth: '100%'
   },
   avatarContainer: {
     width: 32,
     height: 32,
     borderRadius: 16,
     backgroundColor: myTheme.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8
   },
   avatarText: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600'
   },
   messageContent: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
     padding: 8,
-    borderTopLeftRadius: 4,
+    borderTopLeftRadius: 4
   },
   messageHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 2,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 2
   },
   messageUser: {
-    color: "#e2e8f0",
+    color: '#e2e8f0',
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: '600'
   },
   messageTime: {
-    color: "rgba(255, 255, 255, 0.5)",
-    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.5)',
+    fontSize: 10
   },
   messageText: {
-    color: "#f8fafc",
-    fontSize: 14,
+    color: '#f8fafc',
+    fontSize: 14
   },
   chatInputContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     padding: 12,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.1)",
+    borderTopColor: 'rgba(255, 255, 255, 0.1)'
   },
   chatInput: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    color: "#ffffff",
+    color: '#ffffff'
   },
   sendButton: {
     width: 36,
     height: 36,
     borderRadius: 18,
     backgroundColor: myTheme.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8
   },
   sendButtonDisabled: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: 'rgba(255, 255, 255, 0.2)'
   },
   chatCloseButton: {
     padding: 8,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     borderRadius: 20,
     width: 36,
     height: 36,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   chatTitle: {
-    color: "#ffffff",
+    color: '#ffffff',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600'
   },
   errorContainer: {
-    backgroundColor: "rgba(239, 68, 68, 0.2)",
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
     padding: 12,
     margin: 12,
     borderRadius: 8,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   errorText: {
-    color: "#ffffff",
-    flex: 1,
+    color: '#ffffff',
+    flex: 1
   },
   errorButtonsContainer: {
-    flexDirection: "row",
+    flexDirection: 'row'
   },
   errorButton: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 4,
-    marginLeft: 8,
+    marginLeft: 8
   },
   errorButtonText: {
-    color: "#ffffff",
-    fontSize: 12,
+    color: '#ffffff',
+    fontSize: 12
   },
   emptyChat: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
   },
   emptyChatText: {
-    color: "rgba(255, 255, 255, 0.5)",
-    textAlign: "center",
+    color: 'rgba(255, 255, 255, 0.5)',
+    textAlign: 'center'
   },
   loadingMoreContainer: {
     padding: 10,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   loadingMoreText: {
-    color: "#ffffff",
+    color: '#ffffff',
     marginLeft: 8,
-    fontSize: 12,
+    fontSize: 12
   },
   cartButton: {
-    position: "absolute",
+    position: 'absolute',
     left: 16,
     top: 80,
     width: 56,
     height: 56,
     borderRadius: 28,
     backgroundColor: myTheme.primary,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     zIndex: 10,
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
-        shadowRadius: 4,
+        shadowRadius: 4
       },
       android: {
-        elevation: 5,
-      },
-    }),
+        elevation: 5
+      }
+    })
   },
   cartBadge: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: "#ef4444",
+    backgroundColor: '#ef4444',
     borderRadius: 10,
     minWidth: 20,
     height: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4
   },
   cartBadgeText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 10,
-    fontWeight: "bold",
-  },
-});
+    fontWeight: 'bold'
+  }
+})

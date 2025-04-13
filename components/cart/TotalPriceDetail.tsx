@@ -1,32 +1,27 @@
-import React, {
-  Dispatch,
-  ReactElement,
-  SetStateAction,
-  useCallback,
-  useMemo,
-} from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useTranslation } from "react-i18next";
-// import { Popover } from 'react-native-popover-view';
-import { myTheme } from "@/constants";
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetView,
-  TouchableWithoutFeedback,
-} from "@gorhom/bottom-sheet";
+  TouchableWithoutFeedback
+} from '@gorhom/bottom-sheet'
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { View, Text, StyleSheet } from 'react-native'
+
+// import { Popover } from 'react-native-popover-view';
+import { myTheme } from '@/constants'
 
 interface TotalPriceDetailProps {
-  totalProductDiscount: number;
-  totalBrandDiscount: number;
-  totalPlatformDiscount: number;
-  totalPayment: number;
-  totalSavings: number;
-  totalProductCost: number;
-  setIsModalVisible: Dispatch<SetStateAction<boolean>>;
-  toggleModalVisibility: () => void;
-  bottomSheetModalRef: React.RefObject<BottomSheetModal>;
+  totalProductDiscount: number
+  totalBrandDiscount: number
+  totalPlatformDiscount: number
+  totalPayment: number
+  totalSavings: number
+  totalProductCost: number
+  setIsModalVisible: Dispatch<SetStateAction<boolean>>
+  toggleModalVisibility: () => void
+  bottomSheetModalRef: React.RefObject<BottomSheetModal>
 }
 
 const TotalPriceDetail = ({
@@ -38,11 +33,11 @@ const TotalPriceDetail = ({
   totalProductCost,
   setIsModalVisible,
   toggleModalVisibility,
-  bottomSheetModalRef,
+  bottomSheetModalRef
 }: TotalPriceDetailProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const snapPoints = useMemo(() => ["30%", "50%", "60%", "100%"], []);
+  const snapPoints = useMemo(() => ['30%', '50%', '60%', '100%'], [])
   const renderBackdrop = React.useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -54,16 +49,16 @@ const TotalPriceDetail = ({
       />
     ),
     []
-  );
+  )
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+    console.log('handleSheetChanges', index)
+  }, [])
   const handleModalDismiss = () => {
-    bottomSheetModalRef.current?.close();
-    setIsModalVisible(false);
-  };
+    bottomSheetModalRef.current?.close()
+    setIsModalVisible(false)
+  }
 
   return (
     <BottomSheetModal
@@ -79,126 +74,114 @@ const TotalPriceDetail = ({
       </TouchableWithoutFeedback>
       <BottomSheetView style={styles.contentContainer}>
         <View style={styles.container}>
-          <Text style={styles.title}>{t("cart.discountDetails")}</Text>
+          <Text style={styles.title}>{t('cart.discountDetails')}</Text>
           <View style={styles.detailsContainer}>
             <View style={styles.row}>
-              <Text style={styles.label}>{t("cart.totalCost")}</Text>
-              <Text style={styles.value}>
-                {t("productCard.price", { price: totalProductCost })}
-              </Text>
+              <Text style={styles.label}>{t('cart.totalCost')}</Text>
+              <Text style={styles.value}>{t('productCard.price', { price: totalProductCost })}</Text>
             </View>
 
             {totalProductDiscount && totalProductDiscount > 0 ? (
               <View style={styles.row}>
-                <Text style={styles.label}>{t("cart.directDiscount")}</Text>
-                <Text style={styles.discountValue}>
-                  -{t("productCard.price", { price: totalProductDiscount })}
-                </Text>
+                <Text style={styles.label}>{t('cart.directDiscount')}</Text>
+                <Text style={styles.discountValue}>-{t('productCard.price', { price: totalProductDiscount })}</Text>
               </View>
             ) : null}
 
             {totalBrandDiscount && totalBrandDiscount > 0 ? (
               <View style={styles.row}>
-                <Text style={styles.label}>{t("cart.discountBrand")}</Text>
-                <Text style={styles.discountValue}>
-                  -{t("productCard.price", { price: totalBrandDiscount })}
-                </Text>
+                <Text style={styles.label}>{t('cart.discountBrand')}</Text>
+                <Text style={styles.discountValue}>-{t('productCard.price', { price: totalBrandDiscount })}</Text>
               </View>
             ) : null}
 
             {totalPlatformDiscount && totalPlatformDiscount > 0 ? (
               <View style={styles.row}>
-                <Text style={styles.label}>{t("cart.discountPlatform")}</Text>
-                <Text style={styles.discountValue}>
-                  -{t("productCard.price", { price: totalPlatformDiscount })}
-                </Text>
+                <Text style={styles.label}>{t('cart.discountPlatform')}</Text>
+                <Text style={styles.discountValue}>-{t('productCard.price', { price: totalPlatformDiscount })}</Text>
               </View>
             ) : null}
 
             <View style={styles.divider} />
 
             <View style={styles.row}>
-              <Text style={styles.totalLabel}>{t("cart.totalPayment")}</Text>
-              <Text style={styles.totalValue}>
-                {t("productCard.price", { price: totalPayment })}
-              </Text>
+              <Text style={styles.totalLabel}>{t('cart.totalPayment')}</Text>
+              <Text style={styles.totalValue}>{t('productCard.price', { price: totalPayment })}</Text>
             </View>
 
             {totalSavings && totalSavings > 0 ? (
               <View style={styles.row}>
-                <Text style={styles.label}>{t("cart.savings")}</Text>
-                <Text style={styles.discountValue}>
-                  -{t("productCard.price", { price: totalSavings })}
-                </Text>
+                <Text style={styles.label}>{t('cart.savings')}</Text>
+                <Text style={styles.discountValue}>-{t('productCard.price', { price: totalSavings })}</Text>
               </View>
             ) : null}
           </View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   contentContainer: {
-    flex: 1,
+    flex: 1
   },
   overlay: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
-    zIndex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    zIndex: 1
   },
   popover: {
     width: 300,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 8,
-    padding: 0,
+    padding: 0
   },
   container: {
-    padding: 16,
+    padding: 16
   },
   title: {
     fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 12,
+    fontWeight: '600',
+    marginBottom: 12
   },
   detailsContainer: {
-    gap: 8,
+    gap: 8
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   label: {
-    fontSize: 14,
+    fontSize: 14
   },
   value: {
-    fontWeight: "500",
+    fontWeight: '500'
   },
   discountValue: {
     fontSize: 14,
-    fontWeight: "500",
-    color: myTheme.green[700],
+    fontWeight: '500',
+    color: myTheme.green[700]
   },
   divider: {
-    width: "100%",
+    width: '100%',
     height: 1,
-    backgroundColor: myTheme.gray[200],
+    backgroundColor: myTheme.gray[200]
   },
   totalLabel: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: '500'
   },
   totalValue: {
     fontSize: 18,
-    fontWeight: "500",
-    color: myTheme.red[500],
-  },
-});
+    fontWeight: '500',
+    color: myTheme.red[500]
+  }
+})
 
-export default TotalPriceDetail;
+export default TotalPriceDetail
