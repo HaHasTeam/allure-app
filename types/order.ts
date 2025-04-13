@@ -1,7 +1,15 @@
 import { IClassification } from "./classification";
-import { PaymentMethod, RequestStatusEnum, ShippingStatusEnum } from "./enum";
+import {
+  OrderEnum,
+  OrderRequestTypeEnum,
+  PaymentMethod,
+  RequestStatusEnum,
+  ShippingStatusEnum,
+} from "./enum";
 import { IResponseFeedback } from "./feedback";
 import { TFile, TServerFile } from "./file";
+import { PaymentMethodEnum } from "./payment";
+import { BaseParams } from "./request";
 import { TUser } from "./user";
 import { TVoucher } from "./voucher";
 
@@ -63,6 +71,7 @@ export type IOrder = {
   subTotal: number;
   totalPrice: number;
   shippingAddress: string;
+  recipientName: string;
   phone: string;
   paymentMethod: string;
   notes: string;
@@ -77,11 +86,25 @@ export type IOrderFilter = {
   search?: string;
   statusList?: string[];
 };
+
+export type IOrderFilterFilter = BaseParams<{
+  search?: string;
+  statuses?: ShippingStatusEnum[] | undefined | ShippingStatusEnum;
+  types?: OrderEnum[];
+  paymentMethods?: PaymentMethodEnum[];
+  productIds?: string[];
+}>;
+
 export type IRequestFilter = {
   search?: string;
   types?: string[];
   statusList?: string[];
 };
+
+export type IRequestFilterFilter = BaseParams<{
+  statuses?: RequestStatusEnum[] | undefined | RequestStatusEnum;
+  types?: OrderRequestTypeEnum[];
+}>;
 
 export type IOrderCheckoutItem = {
   productClassificationId: string;

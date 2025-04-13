@@ -71,6 +71,7 @@ export enum OrderEnum {
   NORMAL = "NORMAL",
   GROUP_BUYING = "GROUP_BUYING",
   FLASH_SALE = "FLASH_SALE",
+  LIVE_STREAM = "LIVE_STREAM",
 }
 
 export enum ProjectInformationEnum {

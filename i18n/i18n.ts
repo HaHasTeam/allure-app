@@ -44,6 +44,8 @@ i18n.use(initReactI18next).init({
         return new Intl.NumberFormat("vi", {
           style: "currency",
           currency,
+          maximumFractionDigits: 0,
+          currencyDisplay: 'symbol',
         }).format(value);
       }
       return value;

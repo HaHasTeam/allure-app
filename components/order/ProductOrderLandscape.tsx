@@ -15,7 +15,7 @@ interface ProductOrderLandscapeProps {
   product: IProduct;
   productClassification: IClassification;
   orderDetail: IOrderDetail;
-  productType: string;
+  productType: string | null;
 }
 const ProductOrderLandscape = ({
   product,

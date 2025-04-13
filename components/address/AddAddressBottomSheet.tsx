@@ -74,7 +74,7 @@ const AddAddressBottomSheet = ({
 
   const defaultValues = {
     fullName: "",
-    phoneNumber: "",
+    phone: "",
     detailAddress: "",
     ward: "",
     district: "",

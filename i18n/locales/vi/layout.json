@@ -103,6 +103,7 @@
   "loginRcm": "Đăng nhập để cập nhật kỹ năng của bạn!",
   "facebook": "Facebook",
   "button": {
+    "payment": "Thanh toán",
     "collect": "Thu thập",
     "received": "Đã nhận",
     "notReceived": "Chưa nhận",
@@ -1436,5 +1437,25 @@
   "picker": {
     "filters": "Bộ lọc",
     "reasons": "Lý do"
+  },
+  "backendError": {
+    "invalidEmail": "Email is invalid"
+  },
+  "payment": {
+    "methods": {
+      "wallet": "Ví điện tử",
+      "credit_card": "Thẻ tín dụng",
+      "bank_transfer": "Chuyển khoản",
+      "cash": "Tiền mặt",
+      "momo": "MoMo",
+      "zalopay": "ZaloPay",
+      "vnpay": "VNPay",
+      "paypal": "PayPal",
+      "stripe": "Stripe",
+      "visa_card": "Visa/Mastercard",
+      "none": "Không có"
+    },
+    "notifyPayment": "Đơn hàng của bạn chưa được thanh toán. Vui lòng hoàn tất thanh toán bằng {{method}} trong {{val}}.",
+    "changePaymentMethod": "Đổi phương thức thanh toán"
   }
 }

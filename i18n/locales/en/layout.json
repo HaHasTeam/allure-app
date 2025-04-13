@@ -103,6 +103,7 @@
   "loginRcm": "Log in to update your skills!",
   "facebook": "Facebook",
   "button": {
+    "payment": "Payment",
     "collect": "Collect",
     "received": "Received",
     "notReceived": "Haven't received",
@@ -665,7 +666,7 @@
   },
   "order": {
     "paymentTitle": "Payment Incomplete",
-    "paymentMessage": "It looks like your order hasn’t been paid yet. Please complete the payment soon to avoid any delays in processing.",
+    "paymentMessage": "Your order hasn’t been paid yet. Please complete the payment via {{method}} by {{val}}.",
     "payment": "Payment",
     "myOrder": "My Orders",
     "requestManagement": "Request Management",
@@ -1440,5 +1441,25 @@
   "picker": {
     "filters": "Filters",
     "reasons": "Reasons"
+  },
+  "payment": {
+    "methods": {
+      "wallet": "E-Wallet",
+      "credit_card": "Credit Card",
+      "bank_transfer": "Bank Transfer",
+      "cash": "Cash",
+      "momo": "MoMo",
+      "zalopay": "ZaloPay",
+      "vnpay": "VNPay",
+      "paypal": "PayPal",
+      "stripe": "Stripe",
+      "visa_card": "Visa/Mastercard",
+      "none": "None"
+    },
+    "notifyPayment": "Your order hasn’t been paid yet. Please complete the payment via {{method}} by {{val}}.",
+    "changePaymentMethod": "Change payment method"
+  },
+  "backendError": {
+    "invalidEmail": "Email is invalid"
   }
 }

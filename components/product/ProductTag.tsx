@@ -101,7 +101,7 @@ export default function ProductTag({
       textStyle = styles.flashSaleText;
       tagText = t("productTag.flashSale");
       break;
-    case "LiveStream":
+    case OrderEnum.LIVE_STREAM:
       tagStyle = styles.liveStream;
       textStyle = styles.liveStreamText;
       tagText = t("productTag.liveStream");
@@ -220,14 +220,14 @@ const styles = StyleSheet.create({
     color: myTheme.red[500],
   },
   flashSale: {
-    backgroundColor: myTheme.orange[200],
-    color: myTheme.orange[800],
+    backgroundColor: myTheme.rose[200],
+    color: myTheme.white,
   },
   liveStream: {
-    backgroundColor: myTheme.white,
-    color: myTheme.red[500],
+    backgroundColor: myTheme.purple[500],
+    color: myTheme.white,
     borderWidth: 1,
-    borderColor: myTheme.red[500],
+    borderColor: myTheme.purple[500],
   },
   orderGroupBuying: {
     backgroundColor: myTheme.white,
@@ -236,8 +236,8 @@ const styles = StyleSheet.create({
     borderColor: myTheme.orange[500],
   },
   orderPreOrder: {
-    backgroundColor: myTheme.white,
-    color: myTheme.yellow[500],
+    backgroundColor: myTheme.yellow[500],
+    color: myTheme.white,
     borderWidth: 1,
     borderColor: myTheme.yellow[500],
   },
@@ -352,16 +352,16 @@ const styles = StyleSheet.create({
     color: myTheme.red[500],
   },
   flashSaleText: {
-    color: myTheme.orange[800],
+    color: myTheme.white,
   },
   liveStreamText: {
-    color: myTheme.red[500],
+    color: myTheme.white,
   },
   orderGroupBuyingText: {
     color: myTheme.orange[500],
   },
   orderPreOrderText: {
-    color: myTheme.yellow[500],
+    color: myTheme.white,
   },
   preOrderWaitingText: {
     color: myTheme.yellow[800],

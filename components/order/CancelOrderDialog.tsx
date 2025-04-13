@@ -18,7 +18,9 @@ import AlertMessage from "../alert/AlertMessage";
 import { getCancelOrderSchema } from "@/schema/order.schema";
 import {
   cancelOrderApi,
+  cancelParentOrderApi,
   getCancelAndReturnRequestApi,
+  getParentOrderByIdApi,
 } from "@/hooks/api/order";
 import {
   StyleSheet,
@@ -46,6 +48,7 @@ interface CancelOrderDialogProps {
   toggleModalVisibility: () => void;
   bottomSheetModalRef: React.RefObject<BottomSheetModal>;
   setIsTrigger: Dispatch<SetStateAction<boolean>>;
+  isParent?: boolean;
 }
 
 export default function CancelOrderDialog({
@@ -55,6 +58,7 @@ export default function CancelOrderDialog({
   toggleModalVisibility,
   bottomSheetModalRef,
   setIsTrigger,
+  isParent = false,
 }: CancelOrderDialogProps) {
   const { t } = useTranslation();
   const { showToast } = useToast();
@@ -112,13 +116,33 @@ export default function CancelOrderDialog({
       handleReset();
     },
   });
+  const { mutateAsync: cancelParentOrderFn } = useMutation({
+    mutationKey: [cancelParentOrderApi.mutationKey],
+    mutationFn: cancelParentOrderApi.fn,
+    onSuccess: () => {
+      showToast(t("order.cancelSuccess"), "success", 4000);
+      setIsTrigger((prev) => !prev);
+      queryClient.invalidateQueries({
+        queryKey: [getCancelAndReturnRequestApi.queryKey],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [getParentOrderByIdApi.queryKey],
+      });
+      handleReset();
+    },
+  });
+
   async function onSubmit(values: z.infer<typeof CancelOrderSchema>) {
     try {
       setIsLoading(true);
       const payload = isOtherReason
         ? { reason: values.otherReason }
         : { reason: values.reason };
-      await cancelOrderFn({ orderId, ...payload });
+      if (isParent) {
+        await cancelParentOrderFn({ orderId, ...payload });
+      } else {
+        await cancelOrderFn({ orderId, ...payload });
+      }
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
