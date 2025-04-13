@@ -149,6 +149,13 @@ export const useViewerStream = ({
   const onUserJoined = useCallback(
     (connection: RtcConnection, remoteUid: number, elapsed: number) => {
       log.debug("Host joined:", remoteUid);
+      console.log(
+        "checked 177",
+        connection.channelId === channel && remoteUid === hostUid,
+        remoteUid,
+        hostUid,
+        connection.channelId
+      );
       if (connection.channelId === channel) {
         // Assuming the first broadcaster is the host
         setHostUid(remoteUid);
@@ -173,6 +180,14 @@ export const useViewerStream = ({
 
   const onRemoteVideoStateChanged = useCallback(
     (connection: RtcConnection, remoteUid: number, state: number) => {
+      console.log(
+        "checked 177",
+        connection.channelId === channel && remoteUid === hostUid,
+        remoteUid,
+        hostUid,
+        connection.channelId
+      );
+
       if (connection.channelId === channel && remoteUid === hostUid) {
         // State 2 means the remote video is playing
         setIsHostVideoEnabled(state === 2);

@@ -1,5 +1,3 @@
-"use client";
-
 import { StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +12,7 @@ import {
   myTheme,
 } from "../../../constants/index";
 import {
+  getActiveLiveStreamApi,
   getListLiveStreamApi,
   type LivestreamResponse,
 } from "@/hooks/api/livestream";
@@ -121,7 +120,7 @@ const LiveStreamItem = ({ item }: { item: LivestreamResponse }) => {
         imageSource={
           item.thumbnail
             ? { uri: item.thumbnail }
-            : require("../../../assets/images/placeholder.png")
+            : require("@/assets/images/fallBackImage.jpg")
         }
         imageStyle={styles.cardImage}
         imageProps={{ resizeMode: "cover" }}
@@ -195,8 +194,8 @@ const LiveStreamItem = ({ item }: { item: LivestreamResponse }) => {
 
 const LiveStreamList = () => {
   const { data, isLoading, error } = useQuery({
-    queryKey: [getListLiveStreamApi.queryKey],
-    queryFn: getListLiveStreamApi.fn,
+    queryKey: [getActiveLiveStreamApi.queryKey],
+    queryFn: getActiveLiveStreamApi.fn,
   });
 
   const livestreams = data?.data || [];
