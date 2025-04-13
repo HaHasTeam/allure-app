@@ -6,7 +6,7 @@ export enum ActionResponseErrorCodeEnum {
   NOT_FOUND = 404,
   BAD_REQUEST = 400,
   UNAUTHORIZED = 401,
-  FORBIDDEN = 403,
+  FORBIDDEN = 403
 }
 
 export interface ActionResponseError {

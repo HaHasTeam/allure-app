@@ -1,27 +1,27 @@
 export type TAuth = {
-  accessToken: string;
-  refreshToken: string;
-};
+  accessToken: string
+  refreshToken: string
+}
 
 export type TEmailDecoded = {
-  accountId: string;
-};
+  accountId: string
+}
 
 export type TInviteSignupDecoded = {
-  email: string;
-  brand: string;
-  role: string;
-};
+  email: string
+  brand: string
+  role: string
+}
 
 export interface IRegisterPayload {
-  email: string;
-  username: string;
-  role: string;
-  password: string;
+  email: string
+  username: string
+  role: string
+  password: string
 }
 export interface IResendOtpPayload {
-  email: string;
+  email: string
 }
-export interface IRegisterFormPayload extends Omit<IRegisterPayload, "role"> {
-  passwordConfirmation: string;
+export interface IRegisterFormPayload extends Omit<IRegisterPayload, 'role'> {
+  passwordConfirmation: string
 }

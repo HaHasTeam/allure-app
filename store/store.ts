@@ -11,13 +11,13 @@ export const useStore = create<Store>()(
     persist(
       subscribeWithSelector(
         immer((...a) => ({
-          ...createAuthSlice(...a),
+          ...createAuthSlice(...a)
           // ...createCartSlice(...a),
-        })),
+        }))
       ),
       {
-        name: 'local-storage',
-      },
-    ),
-  ),
+        name: 'local-storage'
+      }
+    )
+  )
 )

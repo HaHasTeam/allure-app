@@ -1,11 +1,7 @@
-import { ICartByBrand, ICartItem } from "@/types/cart";
-import {
-  DiscountTypeEnum,
-  ProductDiscountEnum,
-  VoucherApplyTypeEnum,
-} from "@/types/enum";
-import { DiscountType } from "@/types/product-discount";
-import { TVoucher } from "@/types/voucher";
+import { ICartByBrand, ICartItem } from '@/types/cart'
+import { DiscountTypeEnum, ProductDiscountEnum, VoucherApplyTypeEnum } from '@/types/enum'
+import { DiscountType } from '@/types/product-discount'
+import { TVoucher } from '@/types/voucher'
 
 /**
  * Calculates the price after applying a discount.
@@ -22,20 +18,20 @@ export const calculateDiscountPrice = (
   discountType?: DiscountType | null
 ): number => {
   if (!discount || !discountType || discount === 0) {
-    return price;
+    return price
   }
 
-  let discountedPrice = price;
+  let discountedPrice = price
 
   if (discountType === DiscountTypeEnum.PERCENTAGE) {
-    discountedPrice -= price * discount;
+    discountedPrice -= price * discount
   } else if (discountType === DiscountTypeEnum.AMOUNT) {
-    discountedPrice -= discount;
+    discountedPrice -= discount
   }
 
   // Ensure the price is not negative
-  return Math.max(discountedPrice, 0);
-};
+  return Math.max(discountedPrice, 0)
+}
 /**
  * Calculates the discount amount based on the given price and discount percentage.
  *
@@ -50,20 +46,20 @@ export const calculateDiscountAmount = (
   discountType?: DiscountType | null
 ): number => {
   if (!discount || !discountType) {
-    return price;
+    return price
   }
 
-  let discountedPrice = 0;
+  let discountedPrice = 0
 
   if (discountType === DiscountTypeEnum.PERCENTAGE) {
-    discountedPrice = price * discount;
+    discountedPrice = price * discount
   } else if (discountType === DiscountTypeEnum.AMOUNT) {
-    discountedPrice = discount;
+    discountedPrice = discount
   }
 
   // Ensure the price is not negative
-  return Math.max(discountedPrice, 0);
-};
+  return Math.max(discountedPrice, 0)
+}
 
 /**
  * Calculates the total price of a product based on discount type and quantity.
@@ -79,9 +75,9 @@ export const calculateTotalPrice = (
   discount?: number | null,
   discountType?: DiscountType | null
 ): number => {
-  const discountedPrice = calculateDiscountPrice(price, discount, discountType);
-  return discountedPrice * quantity;
-};
+  const discountedPrice = calculateDiscountPrice(price, discount, discountType)
+  return discountedPrice * quantity
+}
 
 /**
  * Calculates the total price for all selected cart items.
@@ -89,64 +85,52 @@ export const calculateTotalPrice = (
  * @param cartByBrand - Cart data grouped by brand.
  * @returns The total price for selected items.
  */
-export const getTotalPrice = (
-  selectedCartItems: string[],
-  cartByBrand?: ICartByBrand
-): number => {
-  if (!cartByBrand) return 0;
+export const getTotalPrice = (selectedCartItems: string[], cartByBrand?: ICartByBrand): number => {
+  if (!cartByBrand) return 0
 
-  let total = 0;
+  let total = 0
 
   selectedCartItems?.forEach((itemId) => {
     Object?.values(cartByBrand)?.forEach((cartBrand) => {
-      const cartItem = cartBrand?.find((item) => item?.id === itemId);
+      const cartItem = cartBrand?.find((item) => item?.id === itemId)
       if (cartItem) {
-        const productPrice = cartItem?.productClassification?.price ?? 0;
-        const discount =
-          cartItem?.productClassification?.productDiscount?.discount ?? 0;
-        const discountType = DiscountTypeEnum.PERCENTAGE;
-        const cartItemQuantity = cartItem?.quantity ?? 0;
+        const productPrice = cartItem?.productClassification?.price ?? 0
+        const discount = cartItem?.productClassification?.productDiscount?.discount ?? 0
+        const discountType = DiscountTypeEnum.PERCENTAGE
+        const cartItemQuantity = cartItem?.quantity ?? 0
 
-        total += calculateTotalPrice(
-          productPrice,
-          cartItemQuantity,
-          discount,
-          discountType
-        );
+        total += calculateTotalPrice(productPrice, cartItemQuantity, discount, discountType)
       }
-    });
-  });
+    })
+  })
 
-  return total;
-};
+  return total
+}
 /**
  * Calculates the original total price for all selected cart items.
  * @param selectedCartItems - Array of selected cart item IDs.
  * @param cartByBrand - Cart data grouped by brand.
  * @returns The total price for selected items.
  */
-export const getOriginalTotalPrice = (
-  selectedCartItems: string[],
-  cartByBrand?: ICartByBrand
-): number => {
-  if (!cartByBrand) return 0;
+export const getOriginalTotalPrice = (selectedCartItems: string[], cartByBrand?: ICartByBrand): number => {
+  if (!cartByBrand) return 0
 
-  let total = 0;
+  let total = 0
 
   selectedCartItems?.forEach((itemId) => {
     Object?.values(cartByBrand)?.forEach((cartBrand) => {
-      const cartItem = cartBrand?.find((item) => item?.id === itemId);
+      const cartItem = cartBrand?.find((item) => item?.id === itemId)
       if (cartItem) {
-        const productPrice = cartItem?.productClassification?.price ?? 0;
-        const cartItemQuantity = cartItem?.quantity ?? 0;
+        const productPrice = cartItem?.productClassification?.price ?? 0
+        const cartItemQuantity = cartItem?.quantity ?? 0
 
-        total += calculateTotalPrice(productPrice, cartItemQuantity);
+        total += calculateTotalPrice(productPrice, cartItemQuantity)
       }
-    });
-  });
+    })
+  })
 
-  return total;
-};
+  return total
+}
 
 /**
  * Calculates the total price that direct discounted from products for all selected cart items.
@@ -154,34 +138,28 @@ export const getOriginalTotalPrice = (
  * @param cartByBrand - Cart data grouped by brand.
  * @returns The total price for selected items.
  */
-export const calculateTotalProductDiscount = (
-  selectedCartItems: string[],
-  cartByBrand?: ICartByBrand
-): number => {
-  if (!cartByBrand) return 0;
+export const calculateTotalProductDiscount = (selectedCartItems: string[], cartByBrand?: ICartByBrand): number => {
+  if (!cartByBrand) return 0
 
-  let totalDiscount = 0;
+  let totalDiscount = 0
 
   selectedCartItems?.forEach((itemId) => {
     Object?.values(cartByBrand)?.forEach((cartBrand) => {
-      const cartItem = cartBrand?.find((item) => item?.id === itemId);
+      const cartItem = cartBrand?.find((item) => item?.id === itemId)
       if (cartItem) {
-        const productPrice = cartItem?.productClassification?.price ?? 0;
-        const cartItemQuantity = cartItem?.quantity ?? 0;
-        const discount =
-          cartItem?.productClassification?.productDiscount?.discount ?? 0;
-        const discountType = DiscountTypeEnum.PERCENTAGE;
+        const productPrice = cartItem?.productClassification?.price ?? 0
+        const cartItemQuantity = cartItem?.quantity ?? 0
+        const discount = cartItem?.productClassification?.productDiscount?.discount ?? 0
+        const discountType = DiscountTypeEnum.PERCENTAGE
         if (discount && discount > 0) {
-          totalDiscount +=
-            calculateDiscountAmount(productPrice, discount, discountType) *
-            cartItemQuantity;
+          totalDiscount += calculateDiscountAmount(productPrice, discount, discountType) * cartItemQuantity
         }
       }
-    });
-  });
+    })
+  })
 
-  return totalDiscount;
-};
+  return totalDiscount
+}
 
 /**
  * Calculates total product cost, total product discount, and total price after discount for all selected cart items.
@@ -194,98 +172,81 @@ export const calculateCartTotals = (
   selectedCartItems: string[],
   cartByBrand?: ICartByBrand | null
 ): {
-  totalProductCost: number;
-  totalProductDiscount: number;
-  totalLivestreamDiscount: number;
-  totalPrice: number;
+  totalProductCost: number
+  totalProductDiscount: number
+  totalLivestreamDiscount: number
+  totalPrice: number
 } => {
   if (!cartByBrand)
     return {
       totalProductCost: 0,
       totalProductDiscount: 0,
       totalLivestreamDiscount: 0,
-      totalPrice: 0,
-    };
+      totalPrice: 0
+    }
 
-  let totalProductCost = 0;
-  let totalProductDiscount = 0;
-  let totalLivestreamDiscount = 0;
-  let totalPrice = 0;
+  let totalProductCost = 0
+  let totalProductDiscount = 0
+  let totalLivestreamDiscount = 0
+  let totalPrice = 0
 
   selectedCartItems?.forEach((itemId) => {
     Object?.values(cartByBrand)?.forEach((cartBrand) => {
-      const cartItem = cartBrand?.find((item) => item?.id === itemId);
+      const cartItem = cartBrand?.find((item) => item?.id === itemId)
       if (cartItem) {
-        const productPrice = cartItem?.productClassification?.price ?? 0;
-        const cartItemQuantity = cartItem?.quantity ?? 0;
+        const productPrice = cartItem?.productClassification?.price ?? 0
+        const cartItemQuantity = cartItem?.quantity ?? 0
         const discount =
           cartItem?.productClassification?.productDiscount &&
-          cartItem?.productClassification?.productDiscount?.status ===
-            ProductDiscountEnum.ACTIVE
+          cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.ACTIVE
             ? cartItem?.productClassification?.productDiscount?.discount
-            : 0;
-        const discountType = DiscountTypeEnum.PERCENTAGE;
+            : 0
+        const discountType = DiscountTypeEnum.PERCENTAGE
 
         // Check if livestream discount exists
-        const hasLivestreamDiscount =
-          cartItem.livestreamDiscount !== undefined &&
-          cartItem.livestreamDiscount > 0;
+        const hasLivestreamDiscount = cartItem.livestreamDiscount !== undefined && cartItem.livestreamDiscount > 0
 
         // Calculate total product cost (price without discount)
-        const itemTotalCost = productPrice * cartItemQuantity;
-        totalProductCost += itemTotalCost;
+        const itemTotalCost = productPrice * cartItemQuantity
+        totalProductCost += itemTotalCost
 
         // Calculate total discount amount for the product
         if (discount && discount > 0) {
-          const discountAmount = calculateDiscountAmount(
-            productPrice,
-            discount,
-            discountType
-          );
-          const itemTotalDiscount = discountAmount * cartItemQuantity;
-          totalProductDiscount += itemTotalDiscount;
+          const discountAmount = calculateDiscountAmount(productPrice, discount, discountType)
+          const itemTotalDiscount = discountAmount * cartItemQuantity
+          totalProductDiscount += itemTotalDiscount
         }
 
         // Calculate livestream discount if it exists
-        let livestreamDiscountAmount = 0;
+        let livestreamDiscountAmount = 0
         if (hasLivestreamDiscount) {
           // Apply livestream discount on top of any existing discount
-          const priceAfterDiscount = calculateDiscountPrice(
-            productPrice,
-            discount,
-            discountType
-          );
-          livestreamDiscountAmount =
-            priceAfterDiscount * (cartItem.livestreamDiscount ?? 0);
-          totalLivestreamDiscount +=
-            livestreamDiscountAmount * cartItemQuantity;
+          const priceAfterDiscount = calculateDiscountPrice(productPrice, discount, discountType)
+          livestreamDiscountAmount = priceAfterDiscount * (cartItem.livestreamDiscount ?? 0)
+          totalLivestreamDiscount += livestreamDiscountAmount * cartItemQuantity
         }
 
         // Calculate total price after applying all discounts
-        let finalPrice = calculateDiscountPrice(
-          productPrice,
-          discount,
-          discountType
-        );
+        let finalPrice = calculateDiscountPrice(productPrice, discount, discountType)
 
         // Apply livestream discount if it exists
         if (hasLivestreamDiscount) {
-          finalPrice -= livestreamDiscountAmount;
+          finalPrice -= livestreamDiscountAmount
         }
 
-        const itemTotalPrice = finalPrice * cartItemQuantity;
-        totalPrice += itemTotalPrice;
+        const itemTotalPrice = finalPrice * cartItemQuantity
+        totalPrice += itemTotalPrice
       }
-    });
-  });
+    })
+  })
 
   return {
     totalProductCost,
     totalProductDiscount,
     totalLivestreamDiscount,
-    totalPrice,
-  };
-};
+    totalPrice
+  }
+}
 
 /**
  * Calculates total voucher discount by brand.
@@ -378,32 +339,24 @@ export const calculateCartTotals = (
  * @param cartByBrand - Cart data grouped by brand.
  * @returns The total price for selected items.
  */
-export const getTotalBrandProductsPrice = (
-  cartBrandItem?: ICartItem[]
-): number => {
-  if (!cartBrandItem || cartBrandItem?.length === 0) return 0;
+export const getTotalBrandProductsPrice = (cartBrandItem?: ICartItem[]): number => {
+  if (!cartBrandItem || cartBrandItem?.length === 0) return 0
 
-  let total = 0;
+  let total = 0
 
   cartBrandItem?.forEach((cartBrand) => {
     if (cartBrand) {
-      const productPrice = cartBrand?.productClassification?.price ?? 0;
-      const discount =
-        cartBrand?.productClassification?.productDiscount?.discount ?? 0;
-      const discountType = DiscountTypeEnum.PERCENTAGE;
-      const cartItemQuantity = cartBrand?.quantity ?? 0;
+      const productPrice = cartBrand?.productClassification?.price ?? 0
+      const discount = cartBrand?.productClassification?.productDiscount?.discount ?? 0
+      const discountType = DiscountTypeEnum.PERCENTAGE
+      const cartItemQuantity = cartBrand?.quantity ?? 0
 
-      total += calculateTotalPrice(
-        productPrice,
-        cartItemQuantity,
-        discount,
-        discountType
-      );
+      total += calculateTotalPrice(productPrice, cartItemQuantity, discount, discountType)
     }
-  });
+  })
 
-  return total;
-};
+  return total
+}
 
 /**
  * Calculate the discounted price based on the current price and discount percentage.
@@ -412,22 +365,19 @@ export const getTotalBrandProductsPrice = (
  * @param discountPercent - The discount percentage to apply (0-100).
  * @returns The discounted price, rounded to two decimal places.
  */
-export function calculateDiscountedPrice(
-  currentPrice: number,
-  discountPercent: number
-): number {
+export function calculateDiscountedPrice(currentPrice: number, discountPercent: number): number {
   if (currentPrice < 0) {
-    throw new Error("Current price must be a non-negative number.");
+    throw new Error('Current price must be a non-negative number.')
   }
 
   if (discountPercent < 0 || discountPercent > 100) {
-    throw new Error("Discount percentage must be between 0 and 100.");
+    throw new Error('Discount percentage must be between 0 and 100.')
   }
 
-  const discountAmount = (currentPrice * discountPercent) / 100;
-  const discountedPrice = currentPrice - discountAmount;
+  const discountAmount = (currentPrice * discountPercent) / 100
+  const discountedPrice = currentPrice - discountAmount
 
-  return parseFloat(discountedPrice.toFixed(2));
+  return parseFloat(discountedPrice.toFixed(2))
 }
 
 /**
@@ -443,62 +393,42 @@ export const calculateBrandVoucherDiscount = (
   selectedCartItems: string[],
   voucher: TVoucher | null
 ): number => {
-  if (!voucher || selectedCartItems.length === 0) return 0;
+  if (!voucher || selectedCartItems.length === 0) return 0
 
-  const {
-    applyType,
-    applyProducts,
-    discountType,
-    discountValue,
-    minOrderValue,
-    maxDiscount,
-  } = voucher;
-  const applyProductIds = applyProducts ? applyProducts.map((p) => p.id) : [];
+  const { applyType, applyProducts, discountType, discountValue, minOrderValue, maxDiscount } = voucher
+  const applyProductIds = applyProducts ? applyProducts.map((p) => p.id) : []
 
   // Calculate total price of products in brand that available apply discount
   const totalProductPrice = cartBrandItem.reduce((total, cartItem) => {
     const product =
       cartItem?.productClassification?.productDiscount?.product ??
       cartItem?.productClassification?.preOrderProduct?.product ??
-      cartItem?.productClassification?.product;
+      cartItem?.productClassification?.product
 
     if (
       applyType === VoucherApplyTypeEnum.SPECIFIC &&
       applyProductIds.length > 0 &&
       !applyProductIds.includes(product.id)
     ) {
-      return total;
+      return total
     }
 
-    if (!selectedCartItems.includes(cartItem.id)) return total;
+    if (!selectedCartItems.includes(cartItem.id)) return total
 
-    const productClassification = cartItem.productClassification;
-    const discount = productClassification?.productDiscount?.discount ?? 0;
-    const productDiscountType =
-      discount > 0 ? DiscountTypeEnum.PERCENTAGE : null;
+    const productClassification = cartItem.productClassification
+    const discount = productClassification?.productDiscount?.discount ?? 0
+    const productDiscountType = discount > 0 ? DiscountTypeEnum.PERCENTAGE : null
 
-    return (
-      total +
-      calculateTotalPrice(
-        productClassification.price,
-        cartItem.quantity,
-        discount,
-        productDiscountType
-      )
-    );
-  }, 0);
+    return total + calculateTotalPrice(productClassification.price, cartItem.quantity, discount, productDiscountType)
+  }, 0)
 
-  if (totalProductPrice < minOrderValue) return 0;
+  if (totalProductPrice < minOrderValue) return 0
 
   const discountVoucherValue =
-    discountType === DiscountTypeEnum.PERCENTAGE
-      ? discountValue * totalProductPrice
-      : discountValue;
+    discountType === DiscountTypeEnum.PERCENTAGE ? discountValue * totalProductPrice : discountValue
 
-  return maxDiscount
-    ? Math.min(discountVoucherValue, maxDiscount)
-    : discountVoucherValue;
-};
+  return maxDiscount ? Math.min(discountVoucherValue, maxDiscount) : discountVoucherValue
+}
 /**
  * Calculate the discounted voucher price of products in one brand that user selected.
  *
@@ -510,60 +440,40 @@ export const calculateCheckoutBrandVoucherDiscount = (
   checkoutBrandItem: ICartItem[],
   voucher: TVoucher | null
 ): number => {
-  if (!voucher || checkoutBrandItem.length === 0) return 0;
+  if (!voucher || checkoutBrandItem.length === 0) return 0
 
-  const {
-    applyType,
-    applyProducts,
-    discountType,
-    discountValue,
-    minOrderValue,
-    maxDiscount,
-  } = voucher;
-  const applyProductIds = applyProducts ? applyProducts.map((p) => p.id) : [];
+  const { applyType, applyProducts, discountType, discountValue, minOrderValue, maxDiscount } = voucher
+  const applyProductIds = applyProducts ? applyProducts.map((p) => p.id) : []
 
   // Calculate total price of products in brand that available apply discount
   const totalProductPrice = checkoutBrandItem.reduce((total, cartItem) => {
     const product =
       cartItem?.productClassification?.productDiscount?.product ??
       cartItem?.productClassification?.preOrderProduct?.product ??
-      cartItem?.productClassification?.product;
+      cartItem?.productClassification?.product
 
     if (
       applyType === VoucherApplyTypeEnum.SPECIFIC &&
       applyProductIds.length > 0 &&
       !applyProductIds.includes(product.id)
     ) {
-      return total;
+      return total
     }
 
-    const productClassification = cartItem.productClassification;
-    const discount = productClassification?.productDiscount?.discount ?? 0;
-    const productDiscountType =
-      discount > 0 ? DiscountTypeEnum.PERCENTAGE : null;
+    const productClassification = cartItem.productClassification
+    const discount = productClassification?.productDiscount?.discount ?? 0
+    const productDiscountType = discount > 0 ? DiscountTypeEnum.PERCENTAGE : null
 
-    return (
-      total +
-      calculateTotalPrice(
-        productClassification.price,
-        cartItem.quantity,
-        discount,
-        productDiscountType
-      )
-    );
-  }, 0);
+    return total + calculateTotalPrice(productClassification.price, cartItem.quantity, discount, productDiscountType)
+  }, 0)
 
-  if (totalProductPrice < minOrderValue) return 0;
+  if (totalProductPrice < minOrderValue) return 0
 
   const discountVoucherValue =
-    discountType === DiscountTypeEnum.PERCENTAGE
-      ? discountValue * totalProductPrice
-      : discountValue;
+    discountType === DiscountTypeEnum.PERCENTAGE ? discountValue * totalProductPrice : discountValue
 
-  return maxDiscount
-    ? Math.min(discountVoucherValue, maxDiscount)
-    : discountVoucherValue;
-};
+  return maxDiscount ? Math.min(discountVoucherValue, maxDiscount) : discountVoucherValue
+}
 
 /**
  * Calculate the total discounted voucher price of products in one brand that user selected.
@@ -578,35 +488,33 @@ export const calculateTotalBrandVoucherDiscount = (
   selectedCartItems: string[],
   chosenVouchersByBrand: { [brandId: string]: TVoucher | null }
 ): number => {
-  if (!cartItems) return 0;
+  if (!cartItems) return 0
   return Object.keys(cartItems).reduce((totalDiscount, brandName) => {
-    const brandItems = cartItems[brandName];
+    const brandItems = cartItems[brandName]
     const brandId =
       (
         brandItems[0]?.productClassification?.preOrderProduct ??
         brandItems[0]?.productClassification?.productDiscount ??
         brandItems[0]?.productClassification
-      )?.product?.brand?.id ?? "";
-    const brandVoucher = chosenVouchersByBrand[brandId] || null;
+      )?.product?.brand?.id ?? ''
+    const brandVoucher = chosenVouchersByBrand[brandId] || null
 
-    return (
-      totalDiscount +
-      calculateBrandVoucherDiscount(brandItems, selectedCartItems, brandVoucher)
-    );
-  }, 0);
-};
+    return totalDiscount + calculateBrandVoucherDiscount(brandItems, selectedCartItems, brandVoucher)
+  }, 0)
+}
 /**
  * Calculate the total discounted voucher price of products in one brand that user selected.
  *
  * @param voucher - The voucher selected.
  * @returns The discounted voucher price.
  */
-export const calculateTotalCheckoutBrandVoucherDiscount =
-  (chosenVouchersByBrand: { [brandId: string]: TVoucher | null }): number => {
-    return Object.values(chosenVouchersByBrand).reduce((total, voucher) => {
-      return total + (voucher?.discount ?? 0);
-    }, 0);
-  };
+export const calculateTotalCheckoutBrandVoucherDiscount = (chosenVouchersByBrand: {
+  [brandId: string]: TVoucher | null
+}): number => {
+  return Object.values(chosenVouchersByBrand).reduce((total, voucher) => {
+    return total + (voucher?.discount ?? 0)
+  }, 0)
+}
 
 // /**
 //  * Calculate the total discounted voucher price of products in one brand that user selected.
@@ -805,58 +713,47 @@ export const calculatePlatformVoucherDiscount = (
   voucher: TVoucher | null,
   chosenVouchersByBrand: { [brandId: string]: TVoucher | null }
 ): number => {
-  if (!voucher || !cartItems || selectedCartItems.length === 0) return 0;
+  if (!voucher || !cartItems || selectedCartItems.length === 0) return 0
 
-  const {
-    applyType,
-    applyProducts,
-    discountType,
-    discountValue,
-    minOrderValue,
-    maxDiscount,
-  } = voucher;
-  const applyProductIds = applyProducts ? applyProducts.map((p) => p.id) : [];
+  const { applyType, applyProducts, discountType, discountValue, minOrderValue, maxDiscount } = voucher
+  const applyProductIds = applyProducts ? applyProducts.map((p) => p.id) : []
 
   // Calculate the price after brand voucher discounts for each selected item
-  let totalOrderPriceAfterBrandDiscounts = 0;
+  let totalOrderPriceAfterBrandDiscounts = 0
 
   // Iterate through each brand's items
   for (const brandName of Object.keys(cartItems)) {
-    const brandItems = cartItems[brandName];
+    const brandItems = cartItems[brandName]
 
     // Extract brandId from the first item in this brand
     const brand =
       brandItems?.[0]?.productClassification?.productDiscount?.product?.brand ??
       brandItems?.[0]?.productClassification?.preOrderProduct?.product?.brand ??
-      brandItems?.[0]?.productClassification?.product?.brand;
+      brandItems?.[0]?.productClassification?.product?.brand
 
-    const brandId = brand?.id ?? "";
+    const brandId = brand?.id ?? ''
 
     // Skip if we couldn't extract a brandId
-    if (!brandId) continue;
+    if (!brandId) continue
 
-    const brandVoucher = chosenVouchersByBrand[brandId] || null;
+    const brandVoucher = chosenVouchersByBrand[brandId] || null
 
     // Calculate brand voucher discount for this brand's selected items
     const brandVoucherDiscount = calculateBrandVoucherDiscount(
       brandItems,
-      selectedCartItems.filter((id) =>
-        brandItems.some((item) => item.id === id)
-      ),
+      selectedCartItems.filter((id) => brandItems.some((item) => item.id === id)),
       brandVoucher
-    );
+    )
 
     // Calculate the total price of selected items in this brand before brand discount
-    let brandTotalPrice = 0;
-    const brandSelectedItems = brandItems.filter((item) =>
-      selectedCartItems.includes(item.id)
-    );
+    let brandTotalPrice = 0
+    const brandSelectedItems = brandItems.filter((item) => selectedCartItems.includes(item.id))
 
     for (const cartItem of brandSelectedItems) {
       const product =
         cartItem?.productClassification?.productDiscount?.product ??
         cartItem?.productClassification?.preOrderProduct?.product ??
-        cartItem?.productClassification?.product;
+        cartItem?.productClassification?.product
 
       // Skip if this product is not eligible for the platform voucher
       if (
@@ -864,13 +761,12 @@ export const calculatePlatformVoucherDiscount = (
         applyProductIds.length > 0 &&
         !applyProductIds.includes(product.id)
       ) {
-        continue;
+        continue
       }
 
-      const productClassification = cartItem.productClassification;
-      const discount = productClassification?.productDiscount?.discount ?? 0;
-      const productDiscountType =
-        discount > 0 ? DiscountTypeEnum.PERCENTAGE : null;
+      const productClassification = cartItem.productClassification
+      const discount = productClassification?.productDiscount?.discount ?? 0
+      const productDiscountType = discount > 0 ? DiscountTypeEnum.PERCENTAGE : null
 
       // Calculate the price of this product before brand discount
       const itemPrice = calculateTotalPrice(
@@ -878,22 +774,21 @@ export const calculatePlatformVoucherDiscount = (
         cartItem.quantity,
         discount,
         productDiscountType
-      );
+      )
 
-      brandTotalPrice += itemPrice;
+      brandTotalPrice += itemPrice
     }
 
     // Calculate price after brand voucher discount (proportionally distribute the discount)
     if (brandTotalPrice > 0) {
       // Apply the brand voucher discount proportionally to the eligible items
-      const discountRatio =
-        brandVoucherDiscount > 0 ? brandVoucherDiscount / brandTotalPrice : 0;
+      const discountRatio = brandVoucherDiscount > 0 ? brandVoucherDiscount / brandTotalPrice : 0
 
       for (const cartItem of brandSelectedItems) {
         const product =
           cartItem?.productClassification?.productDiscount?.product ??
           cartItem?.productClassification?.preOrderProduct?.product ??
-          cartItem?.productClassification?.product;
+          cartItem?.productClassification?.product
 
         // Skip if this product is not eligible for the platform voucher
         if (
@@ -901,13 +796,12 @@ export const calculatePlatformVoucherDiscount = (
           applyProductIds.length > 0 &&
           !applyProductIds.includes(product.id)
         ) {
-          continue;
+          continue
         }
 
-        const productClassification = cartItem.productClassification;
-        const discount = productClassification?.productDiscount?.discount ?? 0;
-        const productDiscountType =
-          discount > 0 ? DiscountTypeEnum.PERCENTAGE : null;
+        const productClassification = cartItem.productClassification
+        const discount = productClassification?.productDiscount?.discount ?? 0
+        const productDiscountType = discount > 0 ? DiscountTypeEnum.PERCENTAGE : null
 
         // Calculate item price before brand discount
         const itemPrice = calculateTotalPrice(
@@ -915,34 +809,30 @@ export const calculatePlatformVoucherDiscount = (
           cartItem.quantity,
           discount,
           productDiscountType
-        );
+        )
 
         // Apply proportional brand discount to this item
-        const itemBrandDiscount = itemPrice * discountRatio;
-        const itemPriceAfterBrandDiscount = itemPrice - itemBrandDiscount;
+        const itemBrandDiscount = itemPrice * discountRatio
+        const itemPriceAfterBrandDiscount = itemPrice - itemBrandDiscount
 
         // Add to total order price after brand discounts
-        totalOrderPriceAfterBrandDiscounts += itemPriceAfterBrandDiscount;
+        totalOrderPriceAfterBrandDiscounts += itemPriceAfterBrandDiscount
       }
     } else {
       // If no eligible items in this brand, continue to next brand
-      continue;
+      continue
     }
   }
 
   // Check if the order meets the minimum value requirement
-  if (totalOrderPriceAfterBrandDiscounts < minOrderValue) return 0;
+  if (totalOrderPriceAfterBrandDiscounts < minOrderValue) return 0
 
   // Calculate the platform voucher discount amount
   const discountVoucherValue =
-    discountType === DiscountTypeEnum.PERCENTAGE
-      ? totalOrderPriceAfterBrandDiscounts * discountValue
-      : discountValue;
+    discountType === DiscountTypeEnum.PERCENTAGE ? totalOrderPriceAfterBrandDiscounts * discountValue : discountValue
 
-  return maxDiscount
-    ? Math.min(discountVoucherValue, maxDiscount)
-    : discountVoucherValue;
-};
+  return maxDiscount ? Math.min(discountVoucherValue, maxDiscount) : discountVoucherValue
+}
 /**
  * Calculate the total livestream discount for a collection of cart items
  * @param cartItems Array of cart items
@@ -951,11 +841,11 @@ export const calculatePlatformVoucherDiscount = (
 export function calculateLivestreamDiscount(cartItems: ICartItem[]): number {
   return cartItems.reduce((total, item) => {
     if (item.livestreamDiscount !== undefined && item.livestreamDiscount > 0) {
-      const price = item.productClassification?.price || 0;
-      const quantity = item.quantity || 0;
-      const discountAmount = (price * item.livestreamDiscount) / 100;
-      return total + discountAmount * quantity;
+      const price = item.productClassification?.price || 0
+      const quantity = item.quantity || 0
+      const discountAmount = (price * item.livestreamDiscount) / 100
+      return total + discountAmount * quantity
     }
-    return total;
-  }, 0);
+    return total
+  }, 0)
 }

@@ -1,10 +1,11 @@
-import { myTheme } from "@/constants";
-import React from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import React from 'react'
+import { FlatList, StyleSheet, View } from 'react-native'
+
+import { myTheme } from '@/constants'
 
 interface TriggerListProps {
-  simplifiedTriggers: any[];
-  renderItem: any;
+  simplifiedTriggers: any[]
+  renderItem: any
 }
 const TriggerList = ({ simplifiedTriggers, renderItem }: TriggerListProps) => {
   //   const renderItem = ({ item }) => (
@@ -37,36 +38,36 @@ const TriggerList = ({ simplifiedTriggers, renderItem }: TriggerListProps) => {
         contentContainerStyle={styles.flatListContent}
       />
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    backgroundColor: "transparent",
+    width: '100%',
+    backgroundColor: 'transparent'
   },
   flatListContent: {
-    paddingHorizontal: 0,
+    paddingHorizontal: 0
   },
   triggerButton: {
     paddingHorizontal: 2,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderBottomWidth: 2,
-    borderBottomColor: "transparent",
-    marginRight: 16,
+    borderBottomColor: 'transparent',
+    marginRight: 16
   },
   activeTrigger: {
-    borderBottomColor: myTheme.primary,
+    borderBottomColor: myTheme.primary
   },
   triggerText: {
     fontSize: 16,
-    color: myTheme.gray[500],
+    color: myTheme.gray[500]
   },
   activeText: {
     color: myTheme.primary,
-    fontWeight: "600",
-  },
-});
+    fontWeight: '600'
+  }
+})
 
-export default TriggerList;
+export default TriggerList

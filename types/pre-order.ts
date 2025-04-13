@@ -25,5 +25,5 @@ export enum PreOrderProductEnum {
   SOLD_OUT = 'SOLD_OUT',
   WAITING = 'WAITING',
   INACTIVE = 'INACTIVE',
-  CANCELLED = 'CANCELLED',
+  CANCELLED = 'CANCELLED'
 }

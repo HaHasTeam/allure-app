@@ -1,9 +1,9 @@
+import { TCreateWalletRequestParams } from './type'
+
 import { TServerResponse } from '@/types/request'
 import { TWallet } from '@/types/wallet'
 import { toMutationFetcher, toQueryFetcher } from '@/utils/query'
 import { privateRequest } from '@/utils/request'
-
-import { TCreateWalletRequestParams } from './type'
 
 export const depositToWallet = toMutationFetcher<
   {
@@ -13,7 +13,7 @@ export const depositToWallet = toMutationFetcher<
 >('depositToWallet', async (data) => {
   return privateRequest('wallets/deposit', {
     method: 'POST',
-    data: data,
+    data
   })
 })
 
@@ -26,7 +26,7 @@ export const createWalletApi = toMutationFetcher<TCreateWalletRequestParams, TSe
   async (data) => {
     return privateRequest('/wallets', {
       method: 'POST',
-      data: data,
+      data
     })
-  },
+  }
 )

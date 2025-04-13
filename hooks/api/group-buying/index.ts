@@ -8,14 +8,14 @@ export const getGroupBuyingByIdApi = toQueryFetcher<string, TServerResponse<TGro
   'getGroupBuyingByIdApi',
   async (id) => {
     return privateRequest('/group-buyings/get-by-id/' + id)
-  },
+  }
 )
 
 export const getOrderByGroupBuyingIdApi = toQueryFetcher<string, TServerResponse<IOrder>>(
   'getOrderByGroupBuyingIdApi',
   async (id) => {
     return privateRequest('/group-buyings/get-order/' + id)
-  },
+  }
 )
 
 export const updateOrderGroupBuyingApi = toMutationFetcher<IUpdateGroupOrder, TServerResponse<IOrder>>(
@@ -23,15 +23,15 @@ export const updateOrderGroupBuyingApi = toMutationFetcher<IUpdateGroupOrder, TS
   async (data) => {
     return privateRequest('/group-buyings/update-order/' + data?.orderId, {
       method: 'POST',
-      data,
+      data
     })
-  },
+  }
 )
 export const ownerCoolDownEndTimeApi = toMutationFetcher<string, TServerResponse<string>>(
   'ownerCoolDownEndTimeApi',
   async (id) => {
     return privateRequest('/group-buyings/start-to-end/' + id, {
-      method: 'POST',
+      method: 'POST'
     })
-  },
+  }
 )

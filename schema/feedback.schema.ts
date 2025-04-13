@@ -10,16 +10,16 @@ export const getFeedbackSchema = () => {
       .string()
       .min(
         MIN_FEEDBACK_LENGTH,
-        i18next.t('validation.contentFeedback', { minLength: MIN_FEEDBACK_LENGTH, maxLength: MAX_FEEDBACK_LENGTH }),
+        i18next.t('validation.contentFeedback', { minLength: MIN_FEEDBACK_LENGTH, maxLength: MAX_FEEDBACK_LENGTH })
       )
       .max(
         MAX_FEEDBACK_LENGTH,
-        i18next.t('validation.contentFeedback', { minLength: MIN_FEEDBACK_LENGTH, maxLength: MAX_FEEDBACK_LENGTH }),
+        i18next.t('validation.contentFeedback', { minLength: MIN_FEEDBACK_LENGTH, maxLength: MAX_FEEDBACK_LENGTH })
       ),
     orderDetailId: z.string().uuid(), // uuid
     mediaFiles: z.array(z.instanceof(File)).optional(),
     videos: z.array(z.instanceof(File)).optional(),
-    images: z.array(z.instanceof(File)).optional(),
+    images: z.array(z.instanceof(File)).optional()
   })
 }
 
@@ -33,16 +33,16 @@ export const getReplyFeedbackSchema = () => {
         MIN_FEEDBACK_LENGTH,
         i18next.t('validation.contentReplyFeedback', {
           minLength: MIN_FEEDBACK_LENGTH,
-          maxLength: MAX_FEEDBACK_LENGTH,
-        }),
+          maxLength: MAX_FEEDBACK_LENGTH
+        })
       )
       .max(
         MAX_FEEDBACK_LENGTH,
         i18next.t('validation.contentReplyFeedback', {
           minLength: MIN_FEEDBACK_LENGTH,
-          maxLength: MAX_FEEDBACK_LENGTH,
-        }),
-      ),
+          maxLength: MAX_FEEDBACK_LENGTH
+        })
+      )
   })
 }
 

@@ -17,14 +17,14 @@ export enum BrandStatusEnum {
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
-  DENIED = 'DENIED',
+  DENIED = 'DENIED'
 }
 export enum StatusEnum {
   PENDING = 'PENDING',
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
-  DENIED = 'DENIED',
+  DENIED = 'DENIED'
 }
 export type IBrand = {
   id: string

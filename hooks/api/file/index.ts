@@ -8,7 +8,7 @@ export const uploadFilesApi = toMutationFetcher<FormData, TServerResponse<string
     return publicRequest('/files/upload', {
       method: 'POST',
       headers: { 'Content-Type': 'multipart/form-data' },
-      data: formData,
+      data: formData
     })
-  },
+  }
 )

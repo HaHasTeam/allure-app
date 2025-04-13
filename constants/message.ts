@@ -22,13 +22,13 @@ export const productFormMessage = {
   successUpdateInactiveMessage:
     'Product updated successfully! It is currently inactive and will not be visible until activated.',
   successStatusMessage: 'Update product status successfully!',
-  categoryLastLevel: 'Please select the last-level category.',
+  categoryLastLevel: 'Please select the last-level category.'
 }
 
 export const productPageMessage = {
   emptyProductTitle: 'Product Not Found',
   emptyProductMessage:
-    'The product you are looking for does not exist. It may have been removed from the website or is currently unavailable.',
+    'The product you are looking for does not exist. It may have been removed from the website or is currently unavailable.'
 }
 export const normalOrderFormMessage = {
   success: '',
@@ -37,5 +37,5 @@ export const normalOrderFormMessage = {
   required: 'Required',
   min: 'Must be at least {min}',
   max: 'Must be at most {max}',
-  pattern: 'Must match the pattern {pattern}',
+  pattern: 'Must match the pattern {pattern}'
 }

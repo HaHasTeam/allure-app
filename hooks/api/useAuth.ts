@@ -1,40 +1,41 @@
-import { useCallback } from "react";
-import { useApi } from "./useApi";
-import { POST } from "@/utils/api.caller";
-import type { ApiError } from "@/utils/api.caller";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Alert } from "react-native";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "@/utils/api.caller";
-import { IRegisterFormPayload, IRegisterPayload } from "@/types/auth";
-import { ILoginPayload } from "@/app/login";
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useCallback } from 'react'
+import { Alert } from 'react-native'
+
+import { useApi } from './useApi'
+
+import { ILoginPayload } from '@/app/login'
+import { IRegisterPayload } from '@/types/auth'
+import type { ApiError } from '@/utils/api.caller'
+import { POST, ACCESS_TOKEN, REFRESH_TOKEN } from '@/utils/api.caller'
 
 // Define types for auth payloads
 
 export interface IResendOtpPayload {
-  email: string;
+  email: string
 }
 
 export interface IVerifyOtpPayload {
-  email: string;
-  otp: string;
+  email: string
+  otp: string
 }
 
 export interface IForgotPasswordPayload {
-  email: string;
+  email: string
 }
 
 export interface IResetPasswordPayload {
-  token: string;
-  password: string;
-  confirmPassword: string;
+  token: string
+  password: string
+  confirmPassword: string
 }
 
 /**
  * Hook for authentication-related API operations
  */
 const useAuth = () => {
-  const { execute } = useApi();
-  const rootEndpoint = "/";
+  const { execute } = useApi()
+  const rootEndpoint = '/'
 
   /**
    * Register a new user
@@ -44,22 +45,22 @@ const useAuth = () => {
   const register = useCallback(
     async (data: IRegisterPayload) => {
       try {
-        await execute(() => POST(rootEndpoint + "accounts", data), {
+        await execute(() => POST(rootEndpoint + 'accounts', data), {
           onSuccess: () => {
-            console.log("Registration successful");
+            console.log('Registration successful')
           },
           onError: (error: ApiError) => {
-            console.error("Registration failed:", error.message);
-          },
-        });
-        return true;
+            console.error('Registration failed:', error.message)
+          }
+        })
+        return true
       } catch (error) {
-        console.error("Error in register:", error);
-        return false;
+        console.error('Error in register:', error)
+        return false
       }
     },
     [execute]
-  );
+  )
 
   /**
    * Login a user
@@ -70,27 +71,27 @@ const useAuth = () => {
     async (data: ILoginPayload) => {
       try {
         const result = await execute<{
-          data: { accessToken: string; refreshToken: string };
-        }>(() => POST(rootEndpoint + "auth/login", data), {
+          data: { accessToken: string; refreshToken: string }
+        }>(() => POST(rootEndpoint + 'auth/login', data), {
           onSuccess: (response) => {
-            const { accessToken, refreshToken } = response.data;
+            const { accessToken, refreshToken } = response.data
 
             // Store tokens
-            AsyncStorage.setItem(ACCESS_TOKEN, accessToken);
-            AsyncStorage.setItem(REFRESH_TOKEN, refreshToken);
+            AsyncStorage.setItem(ACCESS_TOKEN, accessToken)
+            AsyncStorage.setItem(REFRESH_TOKEN, refreshToken)
 
-            console.log("Login successful");
-          },
-        });
+            console.log('Login successful')
+          }
+        })
 
-        return !!result;
+        return !!result
       } catch (error) {
-        console.error("Error in login:", error);
-        return false;
+        console.error('Error in login:', error)
+        return false
       }
     },
     [execute]
-  );
+  )
 
   /**
    * Logout the current user
@@ -99,23 +100,23 @@ const useAuth = () => {
   const logout = useCallback(async () => {
     try {
       // Call logout endpoint if your API has one
-      await execute(() => POST(rootEndpoint + "auth/logout"), {
-        showError: false,
-      });
+      await execute(() => POST(rootEndpoint + 'auth/logout'), {
+        showError: false
+      })
 
       // Clear tokens regardless of API response
-      await AsyncStorage.multiRemove([ACCESS_TOKEN, REFRESH_TOKEN]);
+      await AsyncStorage.multiRemove([ACCESS_TOKEN, REFRESH_TOKEN])
 
-      return true;
+      return true
     } catch (error) {
-      console.error("Error in logout:", error);
+      console.error('Error in logout:', error)
 
       // Still clear tokens even if API call fails
-      await AsyncStorage.multiRemove([ACCESS_TOKEN, REFRESH_TOKEN]);
+      await AsyncStorage.multiRemove([ACCESS_TOKEN, REFRESH_TOKEN])
 
-      return true; // Return true anyway since we've cleared tokens
+      return true // Return true anyway since we've cleared tokens
     }
-  }, [execute]);
+  }, [execute])
 
   /**
    * Resend OTP verification code
@@ -125,19 +126,19 @@ const useAuth = () => {
   const resendOtp = useCallback(
     async (data: IResendOtpPayload) => {
       try {
-        await execute(() => POST(rootEndpoint + "auth/resend-otp", data), {
+        await execute(() => POST(rootEndpoint + 'auth/resend-otp', data), {
           onSuccess: () => {
-            Alert.alert("Success", "Verification code sent to your email");
-          },
-        });
-        return true;
+            Alert.alert('Success', 'Verification code sent to your email')
+          }
+        })
+        return true
       } catch (error) {
-        console.error("Error in resendOtp:", error);
-        return false;
+        console.error('Error in resendOtp:', error)
+        return false
       }
     },
     [execute]
-  );
+  )
 
   /**
    * Verify OTP code
@@ -147,19 +148,19 @@ const useAuth = () => {
   const verifyOtp = useCallback(
     async (data: IVerifyOtpPayload) => {
       try {
-        await execute(() => POST(rootEndpoint + "auth/verify-otp", data), {
+        await execute(() => POST(rootEndpoint + 'auth/verify-otp', data), {
           onSuccess: () => {
-            Alert.alert("Success", "Email verified successfully");
-          },
-        });
-        return true;
+            Alert.alert('Success', 'Email verified successfully')
+          }
+        })
+        return true
       } catch (error) {
-        console.error("Error in verifyOtp:", error);
-        return false;
+        console.error('Error in verifyOtp:', error)
+        return false
       }
     },
     [execute]
-  );
+  )
 
   /**
    * Request password reset
@@ -169,22 +170,19 @@ const useAuth = () => {
   const forgotPassword = useCallback(
     async (data: IForgotPasswordPayload) => {
       try {
-        await execute(() => POST(rootEndpoint + "auth/forgot-password", data), {
+        await execute(() => POST(rootEndpoint + 'auth/forgot-password', data), {
           onSuccess: () => {
-            Alert.alert(
-              "Success",
-              "Password reset instructions sent to your email"
-            );
-          },
-        });
-        return true;
+            Alert.alert('Success', 'Password reset instructions sent to your email')
+          }
+        })
+        return true
       } catch (error) {
-        console.error("Error in forgotPassword:", error);
-        return false;
+        console.error('Error in forgotPassword:', error)
+        return false
       }
     },
     [execute]
-  );
+  )
 
   /**
    * Reset password with token
@@ -195,23 +193,23 @@ const useAuth = () => {
     async (data: IResetPasswordPayload) => {
       try {
         if (data.password !== data.confirmPassword) {
-          Alert.alert("Error", "Passwords don't match");
-          return false;
+          Alert.alert('Error', "Passwords don't match")
+          return false
         }
 
-        await execute(() => POST(rootEndpoint + "auth/reset-password", data), {
+        await execute(() => POST(rootEndpoint + 'auth/reset-password', data), {
           onSuccess: () => {
-            Alert.alert("Success", "Password reset successfully");
-          },
-        });
-        return true;
+            Alert.alert('Success', 'Password reset successfully')
+          }
+        })
+        return true
       } catch (error) {
-        console.error("Error in resetPassword:", error);
-        return false;
+        console.error('Error in resetPassword:', error)
+        return false
       }
     },
     [execute]
-  );
+  )
 
   /**
    * Check if user is authenticated
@@ -219,13 +217,13 @@ const useAuth = () => {
    */
   const isAuthenticated = useCallback(async () => {
     try {
-      const token = await AsyncStorage.getItem(ACCESS_TOKEN);
-      return !!token;
+      const token = await AsyncStorage.getItem(ACCESS_TOKEN)
+      return !!token
     } catch (error) {
-      console.error("Error checking authentication status:", error);
-      return false;
+      console.error('Error checking authentication status:', error)
+      return false
     }
-  }, []);
+  }, [])
 
   return {
     register,
@@ -235,8 +233,8 @@ const useAuth = () => {
     verifyOtp,
     forgotPassword,
     resetPassword,
-    isAuthenticated,
-  };
-};
+    isAuthenticated
+  }
+}
 
-export default useAuth;
+export default useAuth

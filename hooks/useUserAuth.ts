@@ -1,48 +1,50 @@
-import { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import { useEffect, useState } from "react";
+import { FirebaseAuthTypes } from '@react-native-firebase/auth'
+import { useMutation } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 
-import { useSession } from "@/contexts/AuthContext";
-import { errorMessage } from "@/constants";
-import { firebaseAuth } from "@/utils/firebase";
-import { useMutation } from "@tanstack/react-query";
-import { createFirebaseTokenApi } from "./api/firebase";
+import { createFirebaseTokenApi } from './api/firebase'
+
+import { errorMessage } from '@/constants'
+import { useSession } from '@/contexts/AuthContext'
+import { firebaseAuth } from '@/utils/firebase'
 
 const useUserAuth = () => {
-  const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
-  const [error, setError] = useState<string | null>(null);
-  const { firebaseToken, saveFirebaseToken } = useSession();
+  const [user, setUser] = useState<FirebaseAuthTypes.User | null>()
+  const [error, setError] = useState<string | null>(null)
+  const { firebaseToken, saveFirebaseToken } = useSession()
   const { mutateAsync: createCustomToken } = useMutation({
     mutationFn: createFirebaseTokenApi.fn,
-    mutationKey: [createFirebaseTokenApi.mutationKey],
-  });
+    mutationKey: [createFirebaseTokenApi.mutationKey]
+  })
 
   if (firebaseToken && !user && firebaseToken.length > 0) {
-    console.log("====================================");
-    console.log("firebaseToken 21", firebaseToken);
-    console.log("====================================");
+    console.log('====================================')
+    console.log('firebaseToken 21', firebaseToken)
+    console.log('====================================')
     firebaseAuth
       .signInWithCustomToken(firebaseToken)
       .then((result) => {
-        setUser(result.user);
+        setUser(result.user)
       })
       .catch((err) => {
-        setError(errorMessage.ERM033);
-        console.log(err);
-      });
+        setError(errorMessage.ERM033)
+        console.log(err)
+      })
   }
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       if (!(firebaseToken && firebaseToken.length > 0)) {
-        const result = await createCustomToken();
-        if (typeof result === "string" || !result) {
-          setError(result || errorMessage.ERM033);
+        const result = await createCustomToken()
+        if (typeof result === 'string' || !result) {
+          setError(result || errorMessage.ERM033)
         } else {
-          saveFirebaseToken(result.data.token);
+          saveFirebaseToken(result.data.token)
         }
       }
-    })();
-  }, []);
+    })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // useEffect(() => {
   //   if (firebaseToken) {
@@ -56,7 +58,7 @@ const useUserAuth = () => {
   //   } // unsubscribe on unmount
   // }, [firebaseToken, removeFirebaseToken])
 
-  return { user, error };
-};
+  return { user, error }
+}
 
-export default useUserAuth;
+export default useUserAuth

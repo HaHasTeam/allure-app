@@ -1,22 +1,17 @@
-import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { myTheme } from "@/constants";
+import { Feather } from '@expo/vector-icons'
+import React from 'react'
+import { TouchableOpacity, View, StyleSheet } from 'react-native'
+
+import { myTheme } from '@/constants'
 
 interface RadioProps {
-  value: string;
-  id: string;
-  checked: boolean;
-  disabled: boolean;
-  onSelect: (value: string) => void;
+  value: string
+  id: string
+  checked: boolean
+  disabled: boolean
+  onSelect: (value: string) => void
 }
-const RadioButton = ({
-  value,
-  id,
-  checked,
-  disabled,
-  onSelect,
-}: RadioProps) => {
+const RadioButton = ({ value, id, checked, disabled, onSelect }: RadioProps) => {
   return (
     <TouchableOpacity
       id={id}
@@ -25,17 +20,17 @@ const RadioButton = ({
       disabled={disabled}
     >
       <View style={[styles.radioCircle, checked && styles.checkedCircle]}>
-        {checked && <Feather name="check" size={14} color="white" />}
+        {checked && <Feather name='check' size={14} color='white' />}
       </View>
     </TouchableOpacity>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   radioContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10
   },
   radioCircle: {
     width: 20,
@@ -43,23 +38,23 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: myTheme.primary,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   checkedCircle: {
-    backgroundColor: myTheme.primary,
+    backgroundColor: myTheme.primary
   },
   text: {
     marginLeft: 10,
     fontSize: 16,
-    color: "#333",
+    color: '#333'
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.5
   },
   disabledText: {
-    color: myTheme.gray[200],
-  },
-});
+    color: myTheme.gray[200]
+  }
+})
 
-export default RadioButton;
+export default RadioButton
