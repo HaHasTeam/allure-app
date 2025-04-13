@@ -1,3 +1,4 @@
+import { Feather, MaterialIcons } from '@expo/vector-icons'
 import { useState, useEffect, useRef } from 'react'
 import {
   View,
@@ -11,17 +12,18 @@ import {
   ScrollView,
   Modal
 } from 'react-native'
-import { Feather, MaterialIcons } from '@expo/vector-icons'
+import { Slider } from 'react-native-ui-lib'
+
+import ProductCard from './ProductCard'
+
 import { height, myTheme } from '@/constants/index'
-import type { IResponseProduct } from '@/types/product'
+import { PRICE_STEP, MAX_PRICE } from '@/constants/infor'
 import useDebounce from '@/hooks/useDebounce'
 import type { ICategory } from '@/types/category'
-import { Slider } from 'react-native-ui-lib'
-import ProductCard from './ProductCard'
-import { PRICE_STEP, MAX_PRICE } from '@/constants/infor'
 import { DiscountTypeEnum, OrderEnum, ProductEnum, StatusEnum } from '@/types/enum'
-import { getCheapestClassification } from '@/utils/product'
+import type { IResponseProduct } from '@/types/product'
 import { calculateDiscountPrice } from '@/utils/price'
+import { getCheapestClassification } from '@/utils/product'
 
 interface FilterOptions {
   categories?: string[]
@@ -252,15 +254,6 @@ const SearchPage = ({
     return price.toLocaleString('vi-VN') + 'đ'
   }
 
-  const renderFooter = () => {
-    if (!isLoading) return null
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size='small' color={myTheme.primary} />
-      </View>
-    )
-  }
-
   const handleEndReached = () => {
     if (!isLoading && hasMore && onLoadMore) {
       onLoadMore()
@@ -334,12 +327,7 @@ const SearchPage = ({
 
   const renderFilters = () => {
     return (
-      <Modal
-        visible={showFilters}
-        animationType='slide'
-        transparent={true}
-        onRequestClose={() => setShowFilters(false)}
-      >
+      <Modal visible={showFilters} animationType='slide' transparent onRequestClose={() => setShowFilters(false)}>
         <View style={styles.filterModalContainer}>
           <View style={styles.filterModalContent}>
             <View style={styles.filterHeader}>
@@ -415,7 +403,7 @@ const SearchPage = ({
                     thumbStyle={styles.sliderThumb}
                     initialMinimumValue={priceRange.min}
                     initialMaximumValue={priceRange.max}
-                    useRange={true}
+                    useRange
                     onSeekStart={handleSliderTouchStart}
                     onSeekEnd={handleSliderTouchEnd}
                   />

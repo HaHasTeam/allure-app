@@ -1,92 +1,80 @@
-import { myTheme } from "@/constants";
-import { hexToRgba } from "@/utils/color";
-import { Feather } from "@expo/vector-icons";
-import { cloneElement, useEffect, useRef, useState } from "react";
-import {
-  LayoutChangeEvent,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Feather } from '@expo/vector-icons'
+import { cloneElement, useRef, useState } from 'react'
+import { LayoutChangeEvent, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+
+import { myTheme } from '@/constants'
+import { hexToRgba } from '@/utils/color'
 
 interface OrderGeneralProps {
-  title: string;
-  icon: React.ReactElement;
-  content: React.ReactElement;
-  status?: "normal" | "success" | "warning" | "danger";
+  title: string
+  icon: React.ReactElement
+  content: React.ReactElement
+  status?: 'normal' | 'success' | 'warning' | 'danger'
 }
 
-const MAX_HEIGHT = 176;
-const OrderGeneral = ({
-  title,
-  icon,
-  content,
-  status = "normal",
-}: OrderGeneralProps) => {
-  const [expanded, setExpanded] = useState(false);
-  const [isOverflowing, setIsOverflowing] = useState(false);
-  const [contentHeight, setContentHeight] = useState(0);
-  const contentRef = useRef(null);
+const MAX_HEIGHT = 176
+const OrderGeneral = ({ title, icon, content, status = 'normal' }: OrderGeneralProps) => {
+  const [expanded, setExpanded] = useState(false)
+  const [isOverflowing, setIsOverflowing] = useState(false)
+  const [contentHeight, setContentHeight] = useState(0)
+  const contentRef = useRef(null)
 
   const handleContentLayout = (event: LayoutChangeEvent) => {
-    const { height } = event.nativeEvent.layout;
-    console.log("height", height);
-    setContentHeight(height);
-    setIsOverflowing(height > MAX_HEIGHT);
-  };
+    const { height } = event.nativeEvent.layout
+    console.log('height', height)
+    setContentHeight(height)
+    setIsOverflowing(height > MAX_HEIGHT)
+  }
 
-  let color, borderColor;
+  let color, borderColor
   switch (status) {
-    case "normal":
-      color = myTheme.primary;
-      borderColor = hexToRgba(myTheme.primary, 0.4);
-      break;
-    case "danger":
-      color = myTheme.red[500];
-      borderColor = myTheme.red[300];
-      break;
-    case "success":
-      color = myTheme.green[500];
-      borderColor = myTheme.green[300];
-      break;
-    case "warning":
-      color = myTheme.yellow[500];
-      borderColor = myTheme.yellow[300];
-      break;
+    case 'normal':
+      color = myTheme.primary
+      borderColor = hexToRgba(myTheme.primary, 0.4)
+      break
+    case 'danger':
+      color = myTheme.red[500]
+      borderColor = myTheme.red[300]
+      break
+    case 'success':
+      color = myTheme.green[500]
+      borderColor = myTheme.green[300]
+      break
+    case 'warning':
+      color = myTheme.yellow[500]
+      borderColor = myTheme.yellow[300]
+      break
     default:
-      color = myTheme.gray[500];
-      borderColor = myTheme.gray[300];
-      break;
+      color = myTheme.gray[500]
+      borderColor = myTheme.gray[300]
+      break
   }
 
   const handleExpand = () => {
-    setExpanded(!expanded);
-  };
-  console.log("overflow", isOverflowing);
+    setExpanded(!expanded)
+  }
+  console.log('overflow', isOverflowing)
   return (
     <View
       style={[
         styles.container,
         {
           backgroundColor: myTheme.white,
-          borderColor: borderColor,
-        },
+          borderColor
+        }
       ]}
     >
-      <View style={[styles.header, { flexDirection: "row" }]}>
-        {cloneElement(icon, { color: color, size: 24 })}
-        <Text style={[styles.title, { color: color }]}>{title}</Text>
+      <View style={[styles.header, { flexDirection: 'row' }]}>
+        {cloneElement(icon, { color, size: 24 })}
+        <Text style={[styles.title, { color }]}>{title}</Text>
       </View>
 
       <View style={styles.contentContainer}>
         <View
           ref={contentRef}
           // onLayout={handleContentLayout}
-          style={[
-            styles.content,
-            expanded ? styles.contentExpanded : styles.contentCollapsed,
-          ]}
+          style={[styles.content, expanded ? styles.contentExpanded : styles.contentCollapsed]}
         >
           <Text style={{ color: myTheme.gray[500] }}>{content}</Text>
         </View>
@@ -94,85 +82,76 @@ const OrderGeneral = ({
         {isOverflowing && !expanded && <View style={styles.gradientOverlay} />}
       </View>
       {isOverflowing && (
-        <View
-          style={[
-            styles.buttonContainer,
-            expanded ? styles.relative : styles.absolute,
-          ]}
-        >
+        <View style={[styles.buttonContainer, expanded ? styles.relative : styles.absolute]}>
           <TouchableOpacity onPress={handleExpand} style={styles.button}>
-            <Feather
-              name={expanded ? "chevron-up" : "chevron-down"}
-              size={18}
-              color={myTheme.primary}
-            />
+            <Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={myTheme.primary} />
           </TouchableOpacity>
         </View>
       )}
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
     borderWidth: 1,
     borderRadius: 8,
     padding: 16,
     marginVertical: 8,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 1,
     elevation: 2,
-    position: "relative",
+    position: 'relative'
   },
   header: {
     gap: 8,
-    alignItems: "center",
+    alignItems: 'center'
   },
   title: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: '500'
   },
   contentContainer: {
-    position: "relative",
-    marginTop: 8,
+    position: 'relative',
+    marginTop: 8
   },
   content: {
-    overflow: "hidden",
-    marginBottom: 10,
+    overflow: 'hidden',
+    marginBottom: 10
   },
   contentCollapsed: {
-    maxHeight: 176, // Approximately equivalent to max-h-44 (11rem)
+    maxHeight: 176 // Approximately equivalent to max-h-44 (11rem)
   },
   contentExpanded: {
     // maxHeight: null,
   },
   gradientOverlay: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     height: 48,
-    backgroundColor: "transparent", // You'll need to implement gradient separately
+    backgroundColor: 'transparent' // You'll need to implement gradient separately
   },
   buttonContainer: {
-    width: "100%",
-    alignItems: "center",
+    width: '100%',
+    alignItems: 'center',
     bottom: 0,
-    position: "absolute",
+    position: 'absolute'
   },
   relative: {
-    position: "relative",
+    position: 'relative'
   },
   absolute: {
-    position: "absolute",
+    position: 'absolute'
   },
   button: {
     marginTop: 8,
-    padding: 8,
-  },
-});
+    padding: 8
+  }
+})
 
-export default OrderGeneral;
+export default OrderGeneral

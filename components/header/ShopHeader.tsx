@@ -1,27 +1,27 @@
-import { View, StyleSheet, TouchableOpacity, Platform } from "react-native";
-import { Badge } from "react-native-ui-lib";
-import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { myTheme } from "@/constants/index";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
-import { useState, useEffect, useCallback } from "react";
-import SearchModal from "../search/SearchModal";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getProductFilterMutationApi } from "@/hooks/api/product";
-import { ProductTagEnum } from "@/types/enum";
-import { IResponseProduct } from "@/types/product";
+/* eslint-disable radix */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Feather } from '@expo/vector-icons'
+import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'expo-router'
+import { useState, useCallback } from 'react'
+import { View, StyleSheet, TouchableOpacity, Platform } from 'react-native'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import { Badge } from 'react-native-ui-lib'
+
+import SearchModal from '../search/SearchModal'
+
+import { myTheme } from '@/constants/index'
+import { getProductFilterMutationApi } from '@/hooks/api/product'
+import { ProductTagEnum } from '@/types/enum'
+import { IResponseProduct } from '@/types/product'
 
 // Update the ShopHeaderProps interface to include search-related props
 interface ShopHeaderProps {
-  cartItemCount?: number;
-  notificationCount?: number;
-  onProductsLoaded?: (products: IResponseProduct[]) => void;
-  defaultTag?: ProductTagEnum;
-  defaultLimit?: number;
+  cartItemCount?: number
+  notificationCount?: number
+  onProductsLoaded?: (products: IResponseProduct[]) => void
+  defaultTag?: ProductTagEnum
+  defaultLimit?: number
 }
 
 const ShopHeader = ({
@@ -29,162 +29,145 @@ const ShopHeader = ({
   notificationCount = 10,
   onProductsLoaded,
   defaultTag = ProductTagEnum.BEST_SELLER,
-  defaultLimit = 10,
+  defaultLimit = 10
 }: ShopHeaderProps) => {
   const { mutateAsync: searchMutate } = useMutation({
     mutationKey: [getProductFilterMutationApi.mutationKey],
-    mutationFn: getProductFilterMutationApi.fn,
-  });
+    mutationFn: getProductFilterMutationApi.fn
+  })
 
-  const router = useRouter();
-  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const router = useRouter()
+  const [searchModalVisible, setSearchModalVisible] = useState(false)
 
   // Add state for search and pagination
-  const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState<IResponseProduct[]>([]);
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [totalItems, setTotalItems] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('')
+  const [products, setProducts] = useState<IResponseProduct[]>([])
+  const [page, setPage] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [totalItems, setTotalItems] = useState(0)
 
-  const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+  const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
   // Animation hooks
-  const cartScale = useSharedValue(1);
-  const notifScale = useSharedValue(1);
+  const cartScale = useSharedValue(1)
+  const notifScale = useSharedValue(1)
 
   const pressCartStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: withSpring(cartScale.value) }],
-    };
-  });
+      transform: [{ scale: withSpring(cartScale.value) }]
+    }
+  })
 
   const pressNotifStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ scale: withSpring(notifScale.value) }],
-    };
-  });
+      transform: [{ scale: withSpring(notifScale.value) }]
+    }
+  })
 
   // Animation handlers
   const handleCartPressIn = () => {
-    cartScale.value = 0.9;
-  };
+    cartScale.value = 0.9
+  }
 
   const handleCartPressOut = () => {
-    cartScale.value = 1;
-  };
+    cartScale.value = 1
+  }
 
   const handleNotifPressIn = () => {
-    notifScale.value = 0.9;
-  };
+    notifScale.value = 0.9
+  }
 
   const handleNotifPressOut = () => {
-    notifScale.value = 1;
-  };
+    notifScale.value = 1
+  }
 
   const handleSearchPress = () => {
-    setSearchModalVisible(true);
-  };
+    setSearchModalVisible(true)
+  }
 
   const handleSearchClose = () => {
-    setSearchModalVisible(false);
-  };
+    setSearchModalVisible(false)
+  }
 
   // Implement search function with pagination
   const fetchProducts = useCallback(
     async (reset = false) => {
-      if (isLoading || (!hasMore && !reset)) return;
+      if (isLoading || (!hasMore && !reset)) return
 
       try {
-        setIsLoading(true);
-        const currentPage = reset ? 1 : page;
+        setIsLoading(true)
+        const currentPage = reset ? 1 : page
 
         const response = await searchMutate({
           search: searchQuery,
-          tag: defaultTag,
           page: currentPage,
-          limit: defaultLimit,
-        });
+          limit: defaultLimit
+        })
 
         if (response && response.data) {
-          const newProducts = response.data.items;
-          const total = Number.parseInt(response.data.total || "0");
+          const newProducts = response.data.items
+          const total = Number.parseInt(response.data.total || '0')
 
-          setTotalItems(total);
+          setTotalItems(total)
 
           if (reset) {
-            setProducts(newProducts);
+            setProducts(newProducts)
           } else {
-            setProducts((prev) => [...prev, ...newProducts]);
+            setProducts((prev) => [...prev, ...newProducts])
           }
 
-          setHasMore(products.length + newProducts.length < total);
+          setHasMore(products.length + newProducts.length < total)
 
           if (!reset) {
-            setPage(currentPage + 1);
+            setPage(currentPage + 1)
           } else {
-            setPage(2);
+            setPage(2)
           }
 
           // Notify parent component if needed
           if (onProductsLoaded) {
-            onProductsLoaded(
-              reset ? newProducts : [...products, ...newProducts]
-            );
+            onProductsLoaded(reset ? newProducts : [...products, ...newProducts])
           }
         }
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error('Error fetching products:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     },
-    [
-      searchQuery,
-      page,
-      hasMore,
-      isLoading,
-      products,
-      defaultTag,
-      defaultLimit,
-      searchMutate,
-      onProductsLoaded,
-    ]
-  );
+    [searchQuery, page, hasMore, isLoading, products, defaultLimit, searchMutate, onProductsLoaded]
+  )
 
   // Handle search input change
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setHasMore(true);
+    setSearchQuery(query)
+    setHasMore(true)
 
     // Reset and fetch new results
-    fetchProducts(true);
-  };
+    fetchProducts(true)
+  }
 
   // Handle infinite scroll
   const handleLoadMore = () => {
     if (!isLoading && hasMore) {
-      fetchProducts();
+      fetchProducts()
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         {/* Search Bar */}
-        <TouchableOpacity
-          style={styles.searchContainer}
-          activeOpacity={0.7}
-          onPress={handleSearchPress}
-        >
+        <TouchableOpacity style={styles.searchContainer} activeOpacity={0.7} onPress={handleSearchPress}>
           <View style={styles.textFieldContainer}>
             <View style={styles.searchInputButton}>
               <View style={styles.searchIcon}>
-                <Feather name="search" size={16} color={myTheme.primary} />
+                <Feather name='search' size={16} color={myTheme.primary} />
               </View>
               <View style={styles.searchPlaceholder}>
                 <Animated.Text style={styles.placeholderText}>
-                  {searchQuery ? searchQuery : "Tìm kiếm sản phẩm..."}
+                  {searchQuery ? searchQuery : 'Tìm kiếm sản phẩm...'}
                 </Animated.Text>
               </View>
             </View>
@@ -199,14 +182,14 @@ const ShopHeader = ({
             activeOpacity={0.7}
             onPressIn={handleCartPressIn}
             onPressOut={handleCartPressOut}
-            onPress={() => router.push({ pathname: "/cart" })}
+            onPress={() => router.push({ pathname: '/cart' })}
           >
             <Animated.View style={[styles.iconBackground, pressCartStyle]}>
-              <Feather name="shopping-cart" size={18} color={myTheme.primary} />
+              <Feather name='shopping-cart' size={18} color={myTheme.primary} />
             </Animated.View>
             {cartItemCount > 0 && (
               <Badge
-                label={cartItemCount > 99 ? "99+" : cartItemCount.toString()}
+                label={cartItemCount > 99 ? '99+' : cartItemCount.toString()}
                 size={14}
                 backgroundColor={myTheme.primary}
                 containerStyle={styles.badge}
@@ -220,18 +203,14 @@ const ShopHeader = ({
             activeOpacity={0.7}
             onPressIn={handleNotifPressIn}
             onPressOut={handleNotifPressOut}
-            onPress={() =>
-              router.push({ pathname: "/(app)/(home)/notifications" })
-            }
+            onPress={() => router.push({ pathname: '/(app)/(home)/notifications' })}
           >
             <Animated.View style={[styles.iconBackground, pressNotifStyle]}>
-              <Feather name="bell" size={18} color={myTheme.primary} />
+              <Feather name='bell' size={18} color={myTheme.primary} />
             </Animated.View>
             {notificationCount > 0 && (
               <Badge
-                label={
-                  notificationCount > 99 ? "99+" : notificationCount.toString()
-                }
+                label={notificationCount > 99 ? '99+' : notificationCount.toString()}
                 size={14}
                 backgroundColor={myTheme.primary}
                 containerStyle={styles.badge}
@@ -253,107 +232,107 @@ const ShopHeader = ({
         hasMore={hasMore}
       />
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 22,
     paddingVertical: 20,
-    backgroundColor: "white",
-    width: "100%",
+    backgroundColor: 'white',
+    width: '100%',
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowRadius: 3
       },
       android: {
-        elevation: 3,
-      },
+        elevation: 3
+      }
     }),
     borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
+    borderBottomRightRadius: 12
   },
   headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%'
   },
   searchContainer: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 10
   },
   textFieldContainer: {
     borderRadius: 20,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
-        shadowRadius: 1,
+        shadowRadius: 1
       },
       android: {
-        elevation: 1,
-      },
-    }),
+        elevation: 1
+      }
+    })
   },
   searchInputButton: {
     height: 36,
     borderRadius: 20,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
     paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: 8
   },
   searchPlaceholder: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   placeholderText: {
-    color: "#999",
-    fontSize: 13,
+    color: '#999',
+    fontSize: 13
   },
   iconsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   iconWrapper: {
-    position: "relative",
+    position: 'relative',
     marginLeft: 8,
-    padding: 2,
+    padding: 2
   },
   iconBackground: {
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
     borderRadius: 16,
     width: 32,
     height: 32,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
-        shadowRadius: 1,
+        shadowRadius: 1
       },
       android: {
-        elevation: 1,
-      },
-    }),
+        elevation: 1
+      }
+    })
   },
   badge: {
-    position: "absolute",
+    position: 'absolute',
     top: -4,
-    right: -4,
-  },
-});
+    right: -4
+  }
+})
 
-export default ShopHeader;
+export default ShopHeader
