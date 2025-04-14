@@ -16,11 +16,11 @@ export const getCreateAddressSchema = () => {
     fullAddress: z.string().optional(),
     notes: z.string().optional(),
     type: z.enum([AddressEnum?.HOME, AddressEnum?.OFFICE, AddressEnum.OTHER]).optional(),
-    isDefault: z.boolean().optional(),
+    isDefault: z.boolean().optional()
   })
 }
 export const UpdateDefaultAddressSchema = z.object({
-  isDefault: z.boolean().optional(),
+  isDefault: z.boolean().optional()
 })
 
 export const CreateAddressSchema = getCreateAddressSchema()

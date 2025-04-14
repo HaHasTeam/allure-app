@@ -1,36 +1,30 @@
-import React, { useCallback, useMemo } from "react";
-import {
-  Alert,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from "react-native";
-
-import MyText from "@/components/common/MyText";
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetView,
-  TouchableWithoutFeedback,
-} from "@gorhom/bottom-sheet";
-import { View } from "react-native";
-import { myTheme } from "@/constants";
+  TouchableWithoutFeedback
+} from '@gorhom/bottom-sheet'
+import React, { useCallback, useMemo } from 'react'
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native'
+
+import MyText from '@/components/common/MyText'
+import { myTheme } from '@/constants'
 
 interface ProductDetailScreenProps {
-  initProductId?: string;
-  isInGroupBuying?: boolean;
-  bottomSheetModalRef?: React.RefObject<any>;
-  setIsModalVisible?: (visible: boolean) => void;
+  initProductId?: string
+  isInGroupBuying?: boolean
+  bottomSheetModalRef?: React.RefObject<any>
+  setIsModalVisible?: (visible: boolean) => void
 }
 const ProductDetailScreen = ({
   initProductId,
   isInGroupBuying = false,
   bottomSheetModalRef,
-  setIsModalVisible,
+  setIsModalVisible
 }: ProductDetailScreenProps) => {
-  const snapPoints = useMemo(() => ["50%", "60%", "100%"], []);
+  const snapPoints = useMemo(() => ['50%', '60%', '100%'], [])
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -42,16 +36,16 @@ const ProductDetailScreen = ({
       />
     ),
     []
-  );
+  )
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+    console.log('handleSheetChanges', index)
+  }, [])
   const handleModalDismiss = () => {
-    bottomSheetModalRef?.current?.close();
-    setIsModalVisible?.(false);
-  };
+    bottomSheetModalRef?.current?.close()
+    setIsModalVisible?.(false)
+  }
   return (
     <BottomSheetModal
       ref={bottomSheetModalRef}
@@ -66,71 +60,71 @@ const ProductDetailScreen = ({
       </TouchableWithoutFeedback>
       <BottomSheetView style={styles.contentContainer}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1, backgroundColor: "#FFF" }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1, backgroundColor: '#FFF' }}
           keyboardVerticalOffset={100}
         >
-          <MyText text="Update"></MyText>
+          <MyText text='Update' />
         </KeyboardAvoidingView>
       </BottomSheetView>
     </BottomSheetModal>
-  );
-};
+  )
+}
 
-export default ProductDetailScreen;
+export default ProductDetailScreen
 
 const styles = StyleSheet.create({
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold'
   },
   contentContainer: {
     flex: 1,
     paddingVertical: 20,
-    paddingHorizontal: 25,
+    paddingHorizontal: 25
   },
   overlay: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
-    zIndex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    zIndex: 1
   },
   listContainer: {
     flex: 1,
-    marginVertical: 10,
+    marginVertical: 10
   },
   flatListContent: {
-    paddingBottom: 20,
+    paddingBottom: 20
   },
   addressItemContainer: {
-    width: "100%",
-    marginBottom: 10,
+    width: '100%',
+    marginBottom: 10
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    gap: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 10
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
     borderWidth: 1,
-    backgroundColor: myTheme.primary,
+    backgroundColor: myTheme.primary
   },
   outlineButton: {
-    backgroundColor: "transparent",
-    borderColor: myTheme.primary,
+    backgroundColor: 'transparent',
+    borderColor: myTheme.primary
   },
   buttonText: {
     color: myTheme.white,
-    fontWeight: "bold",
-  },
-});
+    fontWeight: 'bold'
+  }
+})

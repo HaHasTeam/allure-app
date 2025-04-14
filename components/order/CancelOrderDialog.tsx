@@ -34,12 +34,25 @@ import {
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetView,
-  TouchableWithoutFeedback,
-} from "@gorhom/bottom-sheet";
-import { useToast } from "@/contexts/ToastContext";
-import { Picker, PickerValue } from "react-native-ui-lib";
-import { myTheme } from "@/constants";
-import LoadingIcon from "../loading/LoadingIcon";
+  TouchableWithoutFeedback
+} from '@gorhom/bottom-sheet'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Picker, PickerValue } from 'react-native-ui-lib'
+import { z } from 'zod'
+
+import AlertMessage from '../alert/AlertMessage'
+import LoadingIcon from '../loading/LoadingIcon'
+
+import { myTheme } from '@/constants'
+import { useToast } from '@/contexts/ToastContext'
+import { cancelOrderApi, getCancelAndReturnRequestApi } from '@/hooks/api/order'
+import useHandleServerError from '@/hooks/useHandleServerError'
+import { getCancelOrderSchema } from '@/schema/order.schema'
 
 interface CancelOrderDialogProps {
   orderId: string;
@@ -60,56 +73,53 @@ export default function CancelOrderDialog({
   setIsTrigger,
   isParent = false,
 }: CancelOrderDialogProps) {
-  const { t } = useTranslation();
-  const { showToast } = useToast();
-  const formId = useId();
-  const handleServerError = useHandleServerError();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isOtherReason, setIsOtherReason] = useState<boolean>(false);
-  const queryClient = useQueryClient();
-  const CancelOrderSchema = getCancelOrderSchema();
+  const { t } = useTranslation()
+  const { showToast } = useToast()
+  const handleServerError = useHandleServerError()
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isOtherReason, setIsOtherReason] = useState<boolean>(false)
+  const queryClient = useQueryClient()
+  const CancelOrderSchema = getCancelOrderSchema()
 
   const reasons: { value: string }[] = useMemo(
     () => [
-      { value: t("order.cancelOrderReason.changeOfMind") },
-      { value: t("order.cancelOrderReason.foundCheaper") },
-      { value: t("order.cancelOrderReason.voucherChange") },
-      { value: t("order.cancelOrderReason.productChange") },
-      { value: t("order.cancelOrderReason.paymentDifficulty") },
-      { value: t("order.cancelOrderReason.addressChange") },
-      { value: t("order.cancelOrderReason.deliveryIssue") },
-      { value: t("order.cancelOrderReason.productIssue") },
-      { value: t("order.cancelOrderReason.other") },
+      { value: t('order.cancelOrderReason.changeOfMind') },
+      { value: t('order.cancelOrderReason.foundCheaper') },
+      { value: t('order.cancelOrderReason.voucherChange') },
+      { value: t('order.cancelOrderReason.productChange') },
+      { value: t('order.cancelOrderReason.paymentDifficulty') },
+      { value: t('order.cancelOrderReason.addressChange') },
+      { value: t('order.cancelOrderReason.deliveryIssue') },
+      { value: t('order.cancelOrderReason.productIssue') },
+      { value: t('order.cancelOrderReason.other') }
     ],
     [t]
-  );
+  )
   const defaultOrderValues = {
-    reason: "",
-    otherReason: "",
-  };
+    reason: '',
+    otherReason: ''
+  }
   const {
     control,
     handleSubmit,
-    resetField,
     reset,
-    watch,
-    formState: { errors },
+    formState: { errors }
   } = useForm<z.infer<typeof CancelOrderSchema>>({
     resolver: zodResolver(CancelOrderSchema),
-    defaultValues: defaultOrderValues,
-  });
+    defaultValues: defaultOrderValues
+  })
   const handleReset = () => {
-    reset();
-    handleModalDismiss();
-    setIsOtherReason(false);
-  };
+    reset()
+    handleModalDismiss()
+    setIsOtherReason(false)
+  }
 
   const { mutateAsync: cancelOrderFn } = useMutation({
     mutationKey: [cancelOrderApi.mutationKey],
     mutationFn: cancelOrderApi.fn,
     onSuccess: () => {
-      showToast(t("order.cancelSuccess"), "success", 4000);
-      setIsTrigger((prev) => !prev);
+      showToast(t('order.cancelSuccess'), 'success', 4000)
+      setIsTrigger((prev) => !prev)
       queryClient.invalidateQueries({
         queryKey: [getCancelAndReturnRequestApi.queryKey],
       });
@@ -145,15 +155,15 @@ export default function CancelOrderDialog({
       }
       setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      setIsLoading(false)
       handleServerError({
-        error,
-      });
+        error
+      })
     }
   }
 
   // bottom sheet for classification
-  const snapPoints = useMemo(() => ["60%", "100%"], []);
+  const snapPoints = useMemo(() => ['60%', '100%'], [])
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -164,25 +174,22 @@ export default function CancelOrderDialog({
         disappearsOnIndex={-1}
       />
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
-  );
+  )
 
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+    console.log('handleSheetChanges', index)
+  }, [])
   const handleModalDismiss = () => {
-    bottomSheetModalRef.current?.close();
-    setIsModalVisible(false);
-  };
+    bottomSheetModalRef.current?.close()
+    setIsModalVisible(false)
+  }
 
   const renderPickerValue = (value: PickerValue) => {
-    return (
-      <Text style={styles.pickerText}>
-        {value ? value : t("order.cancelOrderReason.selectAReason")}
-      </Text>
-    );
-  };
+    return <Text style={styles.pickerText}>{value ? value : t('order.cancelOrderReason.selectAReason')}</Text>
+  }
 
   return (
     <BottomSheetModal
@@ -201,47 +208,37 @@ export default function CancelOrderDialog({
 
         <AlertMessage
           style={styles.textJustify}
-          message={t("order.cancelOrderDescription", { brand: "" })}
-          textSize="medium"
+          message={t('order.cancelOrderDescription', { brand: '' })}
+          textSize='medium'
         />
 
         <View style={styles.formField}>
           <Controller
             control={control}
-            name="reason"
+            name='reason'
             render={({ field: { onChange, value } }) => (
               <View style={styles.selectContainer}>
                 <View style={styles.labelContainer}>
                   <Text style={styles.textRed}>* </Text>
-                  <Text style={styles.label}>
-                    {t("order.cancelOrderReason.reason")}
-                  </Text>
+                  <Text style={styles.label}>{t('order.cancelOrderReason.reason')}</Text>
                 </View>
                 <Picker
                   value={value}
-                  placeholder={t("order.cancelOrderReason.selectAReason")}
+                  placeholder={t('order.cancelOrderReason.selectAReason')}
                   onChange={(newValue) => {
-                    onChange(newValue);
-                    setIsOtherReason(
-                      newValue === t("order.cancelOrderReason.other")
-                    );
+                    onChange(newValue)
+                    setIsOtherReason(newValue === t('order.cancelOrderReason.other'))
                   }}
                   style={styles.picker}
                   containerStyle={styles.pickerContainer}
-                  topBarProps={{ title: t("picker.reasons") }}
+                  topBarProps={{ title: t('picker.reasons') }}
                   renderInput={() => renderPickerValue(value)}
                 >
                   {reasons.map((reason, index) => (
-                    <Picker.Item
-                      key={index}
-                      value={reason.value}
-                      label={reason.value}
-                    />
+                    <Picker.Item key={index} value={reason.value} label={reason.value} />
                   ))}
                 </Picker>
-                {errors.reason && (
-                  <Text style={styles.error}>{errors.reason.message}</Text>
-                )}
+                {errors.reason && <Text style={styles.error}>{errors.reason.message}</Text>}
               </View>
             )}
           />
@@ -250,29 +247,23 @@ export default function CancelOrderDialog({
           <View style={styles.formField}>
             <Controller
               control={control}
-              name="otherReason"
+              name='otherReason'
               render={({ field: { onChange, value } }) => (
                 <View style={styles.textAreaContainer}>
                   <View style={styles.labelContainer}>
                     <Text style={styles.textRed}>* </Text>
-                    <Text style={styles.label}>
-                      {t("order.cancelOrderReason.otherReason")}
-                    </Text>
+                    <Text style={styles.label}>{t('order.cancelOrderReason.otherReason')}</Text>
                   </View>
                   <TextInput
                     style={styles.textArea}
                     onChangeText={onChange}
                     value={value}
-                    placeholder={t("order.cancelOrderReason.enterReason")}
-                    placeholderTextColor="grey"
+                    placeholder={t('order.cancelOrderReason.enterReason')}
+                    placeholderTextColor='grey'
                     multiline
                     numberOfLines={4}
                   />
-                  {errors.otherReason && (
-                    <Text style={styles.error}>
-                      {errors.otherReason.message}
-                    </Text>
-                  )}
+                  {errors.otherReason && <Text style={styles.error}>{errors.otherReason.message}</Text>}
                 </View>
               )}
             />
@@ -284,30 +275,22 @@ export default function CancelOrderDialog({
             <TouchableOpacity
               style={styles.buttonOutline}
               onPress={() => {
-                onOpenChange(false);
-                handleReset();
+                onOpenChange(false)
+                handleReset()
               }}
             >
               <Text style={styles.buttonOutlineText}>{t(`button.cancel`)}</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.buttonPrimary}
-              onPress={handleSubmit(onSubmit)}
-              disabled={isLoading}
-            >
+            <TouchableOpacity style={styles.buttonPrimary} onPress={handleSubmit(onSubmit)} disabled={isLoading}>
               <Text style={styles.buttonText}>
-                {isLoading ? (
-                  <LoadingIcon color="white" size="small" />
-                ) : (
-                  t(`button.ok`)
-                )}
+                {isLoading ? <LoadingIcon color='white' size='small' /> : t(`button.ok`)}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -317,57 +300,57 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 8,
-    fontSize: 12,
+    fontSize: 12
   },
   heading: {
-    fontSize: 18,
+    fontSize: 18
   },
   textJustify: {
-    textAlign: "justify",
+    textAlign: 'justify'
   },
   overlay: {
-    flex: 1,
+    flex: 1
   },
   contentContainer: {
-    padding: 16,
+    padding: 16
   },
   title: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
+    fontWeight: 'bold',
+    marginBottom: 8
   },
   alert: {
-    textAlign: "justify",
+    textAlign: 'justify'
   },
   formField: {
-    marginTop: 12,
+    marginTop: 12
   },
   selectContainer: {
-    flexDirection: "column",
+    flexDirection: 'column'
   },
   textAreaContainer: {
-    flexDirection: "column",
+    flexDirection: 'column'
   },
   textRed: {
     color: myTheme.destructive,
-    fontWeight: "bold",
+    fontWeight: 'bold'
   },
   labelContainer: {
-    flexDirection: "row",
+    flexDirection: 'row'
   },
   label: {
     fontSize: 16,
     marginBottom: 4,
-    fontWeight: 600,
+    fontWeight: 600
   },
   pickerContainer: {
-    paddingVertical: 10,
+    paddingVertical: 10
   },
   picker: {
     borderWidth: 1,
     borderColor: myTheme.primary,
     borderRadius: 7,
-    padding: 12,
+    padding: 12
   },
   textArea: {
     borderWidth: 1,
@@ -375,40 +358,40 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     padding: 12,
     height: 100,
-    textAlignVertical: "top",
+    textAlignVertical: 'top'
   },
   error: {
-    color: "red",
+    color: 'red',
     fontSize: 12,
-    marginTop: 4,
+    marginTop: 4
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     gap: 8,
-    marginTop: 16,
+    marginTop: 16
   },
   buttonOutline: {
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderWidth: 1,
     borderColor: myTheme.primary,
-    borderRadius: 7,
+    borderRadius: 7
   },
   buttonPrimary: {
     paddingVertical: 10,
     paddingHorizontal: 14,
     backgroundColor: myTheme.primary,
-    borderRadius: 7,
+    borderRadius: 7
   },
   buttonOutlineText: {
     color: myTheme.primary,
-    textAlign: "center",
-    fontWeight: 600,
+    textAlign: 'center',
+    fontWeight: 600
   },
   buttonText: {
     color: myTheme.white,
-    textAlign: "center",
-    fontWeight: 600,
-  },
-});
+    textAlign: 'center',
+    fontWeight: 600
+  }
+})

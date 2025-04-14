@@ -1,41 +1,22 @@
-import "@/i18n/i18n";
+import '@/i18n/i18n'
 
-import { Feather } from "@expo/vector-icons";
-import { Href, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-  FlatList,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { LoaderScreen, TextField, View } from "react-native-ui-lib";
+import React from 'react'
+import { FlatList, KeyboardAvoidingView, Platform } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
-import MyLink from "@/components/common/MyLink";
-import MyText from "@/components/common/MyText";
-import HomeBanner from "@/components/home/HomeBanner";
-import BeautyOffers from "@/components/home/BeautyOffers";
-import FlashSale from "@/components/home/FlashSale";
-import RecommendProduct from "@/components/home/RecommendProduct";
-import PreOrderProductSections from "@/components/home/PreOrderProductSection";
-
-interface IHomeLayout {
-  title: string;
-  learnMoreLink: Href;
-  component: React.JSX.Element;
-}
+import BeautyOffers from '@/components/home/BeautyOffers'
+import FlashSale from '@/components/home/FlashSale'
+import HomeBanner from '@/components/home/HomeBanner'
+import PreOrderProductSections from '@/components/home/PreOrderProductSection'
+import RecommendProduct from '@/components/home/RecommendProduct'
 
 export default function HomeScreen() {
   return (
     <>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{ flex: 1, backgroundColor: "#FFF" }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1, backgroundColor: '#FFF' }}
           keyboardVerticalOffset={100}
         >
           <FlatList
@@ -55,5 +36,5 @@ export default function HomeScreen() {
         </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </>
-  );
+  )
 }

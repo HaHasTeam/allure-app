@@ -1,50 +1,37 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { UseFormReturn, UseFormSetValue } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { z } from "zod";
-
-import { IAddress } from "@/types/address";
-
-import AddAddressBottomSheet from "./AddAddressBottomSheet";
-import AddressItem from "./AddressItem";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { AntDesign } from '@expo/vector-icons'
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetView,
-  TouchableWithoutFeedback,
-} from "@gorhom/bottom-sheet";
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { myTheme } from "@/constants";
-import { hexToRgba } from "@/utils/color";
-import { CreateOrderSchema } from "@/schema/order.schema";
-import { AntDesign } from "@expo/vector-icons";
-import Empty from "../empty";
+  TouchableWithoutFeedback
+} from '@gorhom/bottom-sheet'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { UseFormSetValue } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { z } from 'zod'
+
+import AddAddressBottomSheet from './AddAddressBottomSheet'
+import AddressItem from './AddressItem'
+import Empty from '../empty'
+
+import { myTheme } from '@/constants'
+import { CreateOrderSchema } from '@/schema/order.schema'
+import { IAddress } from '@/types/address'
+import { hexToRgba } from '@/utils/color'
 
 interface AddressListBottomSheetProps {
-  addresses?: IAddress[];
-  chosenAddress?: IAddress | null;
-  defaultAddress?: IAddress | null;
-  setChosenAddress?: Dispatch<SetStateAction<IAddress | null>>;
-  setIsModalVisible: Dispatch<SetStateAction<boolean>>;
-  bottomSheetModalRef: React.RefObject<BottomSheetModal>;
-  setValue: UseFormSetValue<z.infer<typeof CreateOrderSchema>>;
-  toggleModalVisibility: () => void;
-  isModalVisibility: boolean;
+  addresses?: IAddress[]
+  chosenAddress?: IAddress | null
+  defaultAddress?: IAddress | null
+  setChosenAddress?: Dispatch<SetStateAction<IAddress | null>>
+  setIsModalVisible: Dispatch<SetStateAction<boolean>>
+  bottomSheetModalRef: React.RefObject<BottomSheetModal>
+  setValue: UseFormSetValue<z.infer<typeof CreateOrderSchema>>
+  toggleModalVisibility: () => void
+  isModalVisibility: boolean
 }
 export default function AddressListBottomSheet({
   addresses,
@@ -55,21 +42,21 @@ export default function AddressListBottomSheet({
   bottomSheetModalRef,
   setValue,
   toggleModalVisibility,
-  isModalVisibility,
+  isModalVisibility
 }: AddressListBottomSheetProps) {
-  const { t } = useTranslation();
-  const [isAddVisible, setIsAddVisible] = useState(false);
+  const { t } = useTranslation()
+  const [isAddVisible, setIsAddVisible] = useState(false)
 
-  const bottomSheetAddModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetAddModalRef = useRef<BottomSheetModal>(null)
   const toggleModalAddVisibility = () => {
     if (isAddVisible) {
-      bottomSheetAddModalRef.current?.close(); // Close modal if it's visible
+      bottomSheetAddModalRef.current?.close() // Close modal if it's visible
     } else {
-      bottomSheetAddModalRef.current?.present(); // Open modal if it's not visible
+      bottomSheetAddModalRef.current?.present() // Open modal if it's not visible
     }
-    setIsAddVisible(!isAddVisible); // Toggle the state
-  };
-  const snapPoints = useMemo(() => ["60%", "100%"], []);
+    setIsAddVisible(!isAddVisible) // Toggle the state
+  }
+  const snapPoints = useMemo(() => ['60%', '100%'], [])
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -81,43 +68,40 @@ export default function AddressListBottomSheet({
       />
     ),
     []
-  );
+  )
 
-  const [selectedAddressId, setSelectedAddress] = useState(
-    defaultAddress?.id ?? ""
-  );
+  const [selectedAddressId, setSelectedAddress] = useState(defaultAddress?.id ?? '')
 
   const handleAddressSelection = (addressId?: string) => {
     if (addressId) {
-      setSelectedAddress(addressId);
+      setSelectedAddress(addressId)
     }
-  };
+  }
   // callbacks
   const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+    console.log('handleSheetChanges', index)
+  }, [])
   const handleModalDismiss = () => {
-    bottomSheetModalRef.current?.close();
-    setIsModalVisible(false);
-  };
+    bottomSheetModalRef.current?.close()
+    setIsModalVisible(false)
+  }
 
   const handleConfirm = () => {
     if (selectedAddressId) {
-      setValue("addressId", selectedAddressId);
-      const customChosenAddress =
-        addresses?.find((address) => address.id === selectedAddressId) ?? null;
-      setChosenAddress?.(customChosenAddress);
+      setValue('addressId', selectedAddressId)
+      const customChosenAddress = addresses?.find((address) => address.id === selectedAddressId) ?? null
+      setChosenAddress?.(customChosenAddress)
     }
-    toggleModalVisibility(); // Close the dialog
-  };
+    toggleModalVisibility() // Close the dialog
+  }
 
   useEffect(() => {
     if (!chosenAddress && defaultAddress) {
-      setSelectedAddress(defaultAddress?.id ?? "");
-      setChosenAddress?.(defaultAddress);
-      setValue("addressId", defaultAddress?.id ?? "");
+      setSelectedAddress(defaultAddress?.id ?? '')
+      setChosenAddress?.(defaultAddress)
+      setValue('addressId', defaultAddress?.id ?? '')
     }
-  }, [addresses, defaultAddress, chosenAddress, setChosenAddress]);
+  }, [addresses, defaultAddress, chosenAddress, setChosenAddress])
 
   const renderAddressItem = ({ item: address }: { item: IAddress }) => (
     <View style={styles.addressItemContainer}>
@@ -127,7 +111,7 @@ export default function AddressListBottomSheet({
         selectedAddressId={selectedAddressId}
       />
     </View>
-  );
+  )
   return (
     <BottomSheetModal
       ref={bottomSheetModalRef}
@@ -141,7 +125,7 @@ export default function AddressListBottomSheet({
         <View style={styles.overlay} />
       </TouchableWithoutFeedback>
       <BottomSheetView style={styles.contentContainer}>
-        <Text style={styles.title}>{t("address.chooseAddress")}</Text>
+        <Text style={styles.title}>{t('address.chooseAddress')}</Text>
         <TouchableOpacity
           onPress={() => toggleModalAddVisibility()}
           style={[
@@ -150,14 +134,12 @@ export default function AddressListBottomSheet({
               borderColor: myTheme.primary,
               backgroundColor: hexToRgba(myTheme.primary, 0.15),
               gap: 4,
-              alignItems: "center",
-            },
+              alignItems: 'center'
+            }
           ]}
         >
-          <AntDesign name="pluscircleo" color={myTheme.primary} size={16} />
-          <Text style={{ color: myTheme.primary }}>
-            {t("address.addNewAddress")}
-          </Text>
+          <AntDesign name='pluscircleo' color={myTheme.primary} size={16} />
+          <Text style={{ color: myTheme.primary }}>{t('address.addNewAddress')}</Text>
         </TouchableOpacity>
         <AddAddressBottomSheet
           bottomSheetModalRef={bottomSheetAddModalRef}
@@ -170,99 +152,91 @@ export default function AddressListBottomSheet({
             <FlatList
               data={addresses}
               renderItem={renderAddressItem}
-              keyExtractor={(address, index) =>
-                address.id || `address-${index}`
-              }
+              keyExtractor={(address, index) => address.id || `address-${index}`}
               contentContainerStyle={styles.flatListContent}
               showsVerticalScrollIndicator={false}
             />
           ) : (
-            <Empty
-              title={t("empty.address.title")}
-              description={t("empty.address.description")}
-            />
+            <Empty title={t('empty.address.title')} description={t('empty.address.description')} />
           )}
         </View>
         <View>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.outlineButton]}
-              onPress={() => toggleModalVisibility()}
-            >
-              <Text style={styles.outlineBtnText}>{t("dialog.cancel")}</Text>
+            <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={() => toggleModalVisibility()}>
+              <Text style={styles.outlineBtnText}>{t('dialog.cancel')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                handleConfirm();
+                handleConfirm()
               }}
             >
-              <Text style={styles.buttonText}>{t("dialog.ok")}</Text>
+              <Text style={styles.buttonText}>{t('dialog.ok')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </BottomSheetView>
     </BottomSheetModal>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   outlineBtnText: {
-    color: myTheme.primary,
+    color: myTheme.primary
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
+    fontWeight: 'bold',
+    marginBottom: 10
   },
   contentContainer: {
     flex: 1,
     paddingVertical: 20,
-    paddingHorizontal: 25,
+    paddingHorizontal: 25
   },
   overlay: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.25)",
-    zIndex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    zIndex: 1
   },
   listContainer: {
-    marginVertical: 10,
+    marginVertical: 10
   },
   flatListContent: {
-    paddingBottom: 20,
+    paddingBottom: 20
   },
   addressItemContainer: {
-    width: "100%",
-    marginBottom: 10,
+    width: '100%',
+    marginBottom: 10
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    gap: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 10
   },
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 8,
     borderWidth: 1,
     backgroundColor: myTheme.primary,
-    borderColor: myTheme.primary,
+    borderColor: myTheme.primary
   },
   outlineButton: {
-    backgroundColor: "transparent",
-    borderColor: myTheme.primary,
+    backgroundColor: 'transparent',
+    borderColor: myTheme.primary
   },
   buttonText: {
     color: myTheme.white,
-    fontWeight: "bold",
-  },
-});
+    fontWeight: 'bold'
+  }
+})

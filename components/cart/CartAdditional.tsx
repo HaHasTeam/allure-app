@@ -1,76 +1,68 @@
-import { StyleSheet, Text, View } from "react-native";
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
-import { FloatingButton, FloatingButtonLayouts } from "react-native-ui-lib";
-import { myTheme } from "@/constants";
-import { useTranslation } from "react-i18next";
-import { hexToRgba } from "@/utils/color";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMyCartApi, removeMultipleCartItemApi } from "@/hooks/api/cart";
-import { useToast } from "@/contexts/ToastContext";
-import useHandleServerError from "@/hooks/useHandleServerError";
-import Confirmation from "../confirmation/Confirmation";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { BottomSheetModal } from '@gorhom/bottom-sheet'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import React, { Dispatch, SetStateAction, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { StyleSheet, View } from 'react-native'
+import { FloatingButton, FloatingButtonLayouts } from 'react-native-ui-lib'
+
+import Confirmation from '../confirmation/Confirmation'
+
+import { myTheme } from '@/constants'
+import { useToast } from '@/contexts/ToastContext'
+import { getMyCartApi, removeMultipleCartItemApi } from '@/hooks/api/cart'
+import useHandleServerError from '@/hooks/useHandleServerError'
+import { hexToRgba } from '@/utils/color'
 
 interface CartAdditionalProps {
-  selectedCartItems: string[];
-  setSelectedCartItems: Dispatch<SetStateAction<string[]>>;
+  selectedCartItems: string[]
+  setSelectedCartItems: Dispatch<SetStateAction<string[]>>
 }
-const CartAdditional = ({
-  selectedCartItems,
-  setSelectedCartItems,
-}: CartAdditionalProps) => {
-  const { t } = useTranslation();
-  const { showToast } = useToast();
-  const queryClient = useQueryClient();
-  const handleServerError = useHandleServerError();
-  const [
-    openConfirmDeleteMultipleCartDialog,
-    setOpenConfirmDeleteMultipleCartDialog,
-  ] = useState(false);
+const CartAdditional = ({ selectedCartItems, setSelectedCartItems }: CartAdditionalProps) => {
+  const { t } = useTranslation()
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
+  const handleServerError = useHandleServerError()
+  const [openConfirmDeleteMultipleCartDialog, setOpenConfirmDeleteMultipleCartDialog] = useState(false)
 
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null)
   const toggleModalVisibility = () => {
     if (openConfirmDeleteMultipleCartDialog) {
-      bottomSheetModalRef.current?.close(); // Close modal if it's visible
+      bottomSheetModalRef.current?.close() // Close modal if it's visible
     } else {
-      bottomSheetModalRef.current?.present(); // Open modal if it's not visible
+      bottomSheetModalRef.current?.present() // Open modal if it's not visible
     }
-    setOpenConfirmDeleteMultipleCartDialog(
-      !openConfirmDeleteMultipleCartDialog
-    ); // Toggle the state
-  };
+    setOpenConfirmDeleteMultipleCartDialog(!openConfirmDeleteMultipleCartDialog) // Toggle the state
+  }
 
   const { mutateAsync: removeMultipleCartItemFn } = useMutation({
     mutationKey: [removeMultipleCartItemApi.mutationKey],
     mutationFn: removeMultipleCartItemApi.fn,
     onSuccess: () => {
       showToast(
-        t("delete.cart.success", {
-          amount: selectedCartItems?.length,
+        t('delete.cart.success', {
+          amount: selectedCartItems?.length
         }),
-        "success",
+        'success',
         4000
-      );
+      )
       setSelectedCartItems((prevSelectedCartItems) =>
-        prevSelectedCartItems.filter(
-          (itemId) => !selectedCartItems.includes(itemId)
-        )
-      );
+        prevSelectedCartItems.filter((itemId) => !selectedCartItems.includes(itemId))
+      )
       queryClient.invalidateQueries({
-        queryKey: [getMyCartApi.queryKey],
-      });
-    },
-  });
+        queryKey: [getMyCartApi.queryKey]
+      })
+    }
+  })
   async function handleRemoveMultipleCartItem() {
     try {
       if (selectedCartItems && selectedCartItems?.length > 0) {
-        await removeMultipleCartItemFn({ itemIds: selectedCartItems });
+        await removeMultipleCartItemFn({ itemIds: selectedCartItems })
       }
     } catch (error) {
-      console.log(error);
+      console.log(error)
       handleServerError({
-        error,
-      });
+        error
+      })
     }
   }
   return (
@@ -80,22 +72,22 @@ const CartAdditional = ({
           visible={selectedCartItems && selectedCartItems?.length > 0}
           fullWidth={false}
           secondaryButton={{
-            label: t("cart.clearAll"),
+            label: t('cart.clearAll'),
             onPress: () => {
-              setSelectedCartItems([]);
+              setSelectedCartItems([])
             },
             outline: true,
             color: myTheme.gray[600],
             outlineColor: myTheme.gray[500],
-            size: "large",
+            size: 'large'
           }}
           button={{
-            label: t("cart.delete"),
+            label: t('cart.delete'),
             onPress: () => {
-              toggleModalVisibility();
+              toggleModalVisibility()
             },
             backgroundColor: myTheme.destructive,
-            size: "large",
+            size: 'large'
           }}
           buttonLayout={FloatingButtonLayouts.HORIZONTAL}
           bottomMargin={0}
@@ -105,33 +97,33 @@ const CartAdditional = ({
         />
       </View>
       <Confirmation
-        action="delete"
-        item="cart"
-        title={t("delete.cart.title", { amount: selectedCartItems?.length })}
-        description={t("delete.cart.description", {
-          amount: selectedCartItems?.length,
+        action='delete'
+        item='cart'
+        title={t('delete.cart.title', { amount: selectedCartItems?.length })}
+        description={t('delete.cart.description', {
+          amount: selectedCartItems?.length
         })}
         onConfirm={() => {
           // Handle delete multiple confirmation
-          handleRemoveMultipleCartItem();
-          setOpenConfirmDeleteMultipleCartDialog(false);
+          handleRemoveMultipleCartItem()
+          setOpenConfirmDeleteMultipleCartDialog(false)
         }}
         bottomSheetModalRef={bottomSheetModalRef}
         setIsModalVisible={setOpenConfirmDeleteMultipleCartDialog}
         toggleModalVisibility={toggleModalVisibility}
       />
     </>
-  );
-};
+  )
+}
 
-export default CartAdditional;
+export default CartAdditional
 
 const styles = StyleSheet.create({
   floatingButtonContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     zIndex: 1,
-    width: "100%",
-    backgroundColor: hexToRgba(myTheme.white, 0.6),
-  },
-});
+    width: '100%',
+    backgroundColor: hexToRgba(myTheme.white, 0.6)
+  }
+})

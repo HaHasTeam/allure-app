@@ -1,15 +1,13 @@
-import { useTranslation } from "react-i18next";
+import { useTranslation } from 'react-i18next'
+import { StyleSheet, Text, View } from 'react-native'
 
-import { IClassification } from "@/types/classification";
-import { ClassificationTypeEnum, OrderEnum, StatusEnum } from "@/types/enum";
-import { IOrderDetail } from "@/types/order";
-import { IProduct } from "@/types/product";
+import ImageWithFallback from '../image/ImageWithFallBack'
+import ProductTag from '../product/ProductTag'
 
-import ProductTag from "../product/ProductTag";
-import ImageWithFallback from "../image/ImageWithFallBack";
-import { myTheme } from "@/constants";
-import { StyleSheet, Text } from "react-native";
-import { View } from "react-native";
+import { myTheme } from '@/constants'
+import { IClassification } from '@/types/classification'
+import { IOrderDetail } from '@/types/order'
+import { IProduct } from '@/types/product'
 
 interface ProductOrderLandscapeProps {
   product: IProduct;
@@ -21,126 +19,117 @@ const ProductOrderLandscape = ({
   product,
   productClassification,
   orderDetail,
-  productType,
+  productType
 }: ProductOrderLandscapeProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <ImageWithFallback
-          src={
-            productClassification?.type === "DEFAULT"
-              ? product?.images?.filter((img) => img?.status === "ACTIVE")[0]
-                  ?.fileUrl
-              : productClassification?.images?.filter(
-                  (img) => img?.status === "ACTIVE"
-                )[0]?.fileUrl ?? ""
-          }
+          source={{
+            uri:
+              productClassification?.type === 'DEFAULT'
+                ? product?.images?.filter((img) => img?.status === 'ACTIVE')[0]?.fileUrl
+                : (productClassification?.images?.filter((img) => img?.status === 'ACTIVE')[0]?.fileUrl ?? '')
+          }}
           style={styles.image}
-          resizeMode="cover"
+          resizeMode='cover'
         />
       </View>
       <View style={styles.contentContainer}>
         <Text style={styles.productName} numberOfLines={2}>
           {product?.name}
         </Text>
-        {productClassification?.type === "CUSTOM" && (
+        {productClassification?.type === 'CUSTOM' && (
           <Text style={styles.classificationText}>
-            {t("order.classification")}:{" "}
-            <Text style={styles.classificationTitle}>
-              {productClassification?.title}
-            </Text>
+            {t('order.classification')}: <Text style={styles.classificationTitle}>{productClassification?.title}</Text>
           </Text>
         )}
         <Text style={styles.quantity}>x{orderDetail?.quantity}</Text>
-        {productType && productType !== "NORMAL" && (
+        {productType && productType !== 'NORMAL' && (
           <View style={styles.productTagContainer}>
             <ProductTag tag={productType} />
           </View>
         )}
       </View>
       <View style={styles.priceContainer}>
-        {orderDetail?.unitPriceBeforeDiscount -
-          orderDetail?.unitPriceAfterDiscount ===
-        0 ? null : (
+        {orderDetail?.unitPriceBeforeDiscount - orderDetail?.unitPriceAfterDiscount === 0 ? null : (
           <Text style={styles.priceBeforeDiscount}>
-            {t("productCard.price", { price: productClassification?.price })}
+            {t('productCard.price', { price: productClassification?.price })}
           </Text>
         )}
-        {orderDetail?.unitPriceBeforeDiscount -
-          orderDetail?.unitPriceAfterDiscount ===
-        0 ? (
+        {orderDetail?.unitPriceBeforeDiscount - orderDetail?.unitPriceAfterDiscount === 0 ? (
           <Text style={styles.priceFinal}>
-            {t("productCard.price", {
-              price: productClassification?.price,
+            {t('productCard.price', {
+              price: productClassification?.price
             })}
           </Text>
         ) : (
           <Text style={styles.priceFinal}>
-            {t("productCard.price", {
-              price: orderDetail?.unitPriceAfterDiscount,
+            {t('productCard.price', {
+              price: orderDetail?.unitPriceAfterDiscount
             })}
           </Text>
         )}
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   productTagContainer: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginTop: 4,
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginTop: 4
   },
   container: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 16,
-    marginBottom: 16,
+    marginBottom: 16
   },
   imageContainer: {
     width: 40,
     height: 40,
-    alignSelf: "center",
+    alignSelf: 'center'
   },
   image: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 8,
+    width: '100%',
+    height: '100%',
+    borderRadius: 8
   },
   contentContainer: {
-    flex: 1,
+    flex: 1
   },
   productName: {
     fontSize: 14,
-    fontWeight: "500",
-    textOverflow: "ellipsis",
+    fontWeight: '500',
+    textOverflow: 'ellipsis'
   },
   classificationText: {
     fontSize: 14,
-    color: myTheme.mutedForeground,
+    color: myTheme.mutedForeground
   },
   classificationTitle: {
     color: myTheme.primary,
-    fontWeight: "500",
+    fontWeight: '500'
   },
   quantity: {
-    fontSize: 14,
+    fontSize: 14
   },
   priceContainer: {
-    alignItems: "flex-end",
-    justifyContent: "center",
-    gap: 4,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    gap: 4
   },
   priceBeforeDiscount: {
     fontSize: 14,
     color: myTheme.mutedForeground,
-    textDecorationLine: "line-through",
+    textDecorationLine: 'line-through'
   },
   priceFinal: {
     fontSize: 14,
-    color: myTheme.red[500],
-  },
-});
-export default ProductOrderLandscape;
+    color: myTheme.red[500]
+  }
+})
+export default ProductOrderLandscape

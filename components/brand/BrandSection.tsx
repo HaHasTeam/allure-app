@@ -1,27 +1,21 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
-import MyLink from "../common/MyLink";
-import { Ionicons } from "@expo/vector-icons";
-import { Checkbox } from "react-native-ui-lib";
-import { myTheme } from "@/constants";
-import { Link } from "expo-router";
-import { hexToRgba } from "@/utils/color";
-import ImageWithFallback from "../image/ImageWithFallBack";
+import { Link } from 'expo-router'
+import React from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import { Checkbox } from 'react-native-ui-lib'
+
+import ImageWithFallback from '../image/ImageWithFallBack'
+
+import { myTheme } from '@/constants'
+import { hexToRgba } from '@/utils/color'
 
 interface BrandSectionProps {
-  brandName: string;
-  brandId: string;
-  brandLogo: string;
-  isBrandSelected?: boolean;
-  handleBrandSelect?: (value: boolean) => void;
+  brandName: string
+  brandId: string
+  brandLogo: string
+  isBrandSelected?: boolean
+  handleBrandSelect?: (value: boolean) => void
 }
-const BrandSection = ({
-  brandName,
-  brandId,
-  handleBrandSelect,
-  isBrandSelected,
-  brandLogo,
-}: BrandSectionProps) => {
+const BrandSection = ({ brandName, brandId, handleBrandSelect, isBrandSelected, brandLogo }: BrandSectionProps) => {
   return (
     <View>
       <View style={styles.container}>
@@ -36,15 +30,10 @@ const BrandSection = ({
           />
         )}
         {/* <Ionicons name="storefront-sharp" size={24} style={styles.icon} /> */}
-        <Link href="/" style={styles.brandNameLink}>
+        <Link href='/' style={styles.brandNameLink}>
           <View style={styles.commonFlex}>
             <View style={styles.avatarContainer}>
-              <ImageWithFallback
-                src={brandLogo}
-                alt={brandName}
-                resizeMode="cover"
-                style={styles.avatar}
-              />
+              <ImageWithFallback source={{ uri: brandLogo }} alt={brandName} resizeMode='cover' style={styles.avatar} />
             </View>
             <Text numberOfLines={2} style={styles.brandName}>
               {brandName}
@@ -53,49 +42,49 @@ const BrandSection = ({
         </Link>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default BrandSection;
+export default BrandSection
 
 const styles = StyleSheet.create({
   brandName: {
-    fontWeight: "semibold",
-    color: myTheme.secondaryForeground,
+    fontWeight: 'semibold',
+    color: myTheme.secondaryForeground
   },
   avatarContainer: {
     width: 30,
-    height: 30,
+    height: 30
   },
   avatar: {
     borderRadius: 50,
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%'
   },
   commonFlex: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6
   },
   icon: {
-    color: myTheme.primary,
+    color: myTheme.primary
   },
   container: {
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 6,
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 6,
-    alignItems: "center",
-    backgroundColor: hexToRgba(myTheme.secondary, 0.3),
+    alignItems: 'center',
+    backgroundColor: hexToRgba(myTheme.secondary, 0.3)
   },
   brandNameLink: {
-    fontWeight: "medium",
+    fontWeight: 'medium'
   },
 
   checkbox: {
-    alignSelf: "center",
-    borderRadius: 6,
-  },
-});
+    alignSelf: 'center',
+    borderRadius: 6
+  }
+})

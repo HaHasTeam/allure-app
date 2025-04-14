@@ -51,62 +51,57 @@ export default function ProfileOrder() {
   const [isTrigger, setIsTrigger] = useState<boolean>(false);
   const queryClient = useQueryClient();
 
-  const [requestTypes, setRequestTypes] = useState<OrderRequestTypeEnum[]>([]);
-  const [requestStatuses, setRequestStatuses] = useState<RequestStatusEnum[]>(
-    []
-  );
+  const [requestTypes, setRequestTypes] = useState<OrderRequestTypeEnum[]>([])
+  const [requestStatuses, setRequestStatuses] = useState<RequestStatusEnum[]>([])
 
   const simplifiedTriggers = useMemo(
     () => [
-      { value: "all", text: `${t("order.all")}` },
+      { value: 'all', text: `${t('order.all')}` },
       {
-        value: "pending",
-        text: `${t("requestStatus.pending")}`,
+        value: 'pending',
+        text: `${t('requestStatus.pending')}`,
         statuses: [
           ShippingStatusEnum.JOIN_GROUP_BUYING,
           ShippingStatusEnum.TO_PAY,
-          ShippingStatusEnum.WAIT_FOR_CONFIRMATION,
-        ],
+          ShippingStatusEnum.WAIT_FOR_CONFIRMATION
+        ]
       },
       {
-        value: "processing",
-        text: `${t("order.processing")}`,
-        statuses: [
-          ShippingStatusEnum.PREPARING_ORDER,
-          ShippingStatusEnum.TO_SHIP,
-        ],
+        value: 'processing',
+        text: `${t('order.processing')}`,
+        statuses: [ShippingStatusEnum.PREPARING_ORDER, ShippingStatusEnum.TO_SHIP]
       },
       {
-        value: "shipping",
-        text: `${t("order.delivering")}`,
-        statuses: [ShippingStatusEnum.SHIPPING],
+        value: 'shipping',
+        text: `${t('order.delivering')}`,
+        statuses: [ShippingStatusEnum.SHIPPING]
       },
       {
-        value: "delivered",
-        text: `${t("order.delivered")}`,
-        statuses: [ShippingStatusEnum.DELIVERED],
+        value: 'delivered',
+        text: `${t('order.delivered')}`,
+        statuses: [ShippingStatusEnum.DELIVERED]
       },
       {
-        value: "completed",
-        text: `${t("order.completed")}`,
-        statuses: [ShippingStatusEnum.COMPLETED],
+        value: 'completed',
+        text: `${t('order.completed')}`,
+        statuses: [ShippingStatusEnum.COMPLETED]
       },
       {
-        value: "returns",
-        text: `${t("order.returns")}`,
+        value: 'returns',
+        text: `${t('order.returns')}`,
         statuses: [
           ShippingStatusEnum.RETURNING,
           ShippingStatusEnum.BRAND_RECEIVED,
           ShippingStatusEnum.RETURNED_FAIL,
-          ShippingStatusEnum.REFUNDED,
-        ],
+          ShippingStatusEnum.REFUNDED
+        ]
       },
       {
-        value: "cancelled",
-        text: `${t("order.cancelled")}`,
-        statuses: [ShippingStatusEnum.CANCELLED],
+        value: 'cancelled',
+        text: `${t('order.cancelled')}`,
+        statuses: [ShippingStatusEnum.CANCELLED]
       },
-      { value: "request", text: `${t("order.requestManagement")}` },
+      { value: 'request', text: `${t('order.requestManagement')}` }
     ],
     [t]
   );
@@ -173,10 +168,8 @@ export default function ProfileOrder() {
       <View style={styles.orderItemContainer}>
         <OrderItem
           brand={
-            item?.orderDetails?.[0]?.productClassification?.preOrderProduct
-              ?.product?.brand ??
-            item?.orderDetails?.[0]?.productClassification?.productDiscount
-              ?.product?.brand ??
+            item?.orderDetails?.[0]?.productClassification?.preOrderProduct?.product?.brand ??
+            item?.orderDetails?.[0]?.productClassification?.productDiscount?.product?.brand ??
             item?.orderDetails?.[0]?.productClassification?.product?.brand ??
             null
           }
@@ -184,71 +177,50 @@ export default function ProfileOrder() {
           setIsTrigger={setIsTrigger}
         />
       </View>
-    );
-  };
+    )
+  }
   const renderRequestItem = ({ item }: { item: IRequest }) => {
     return (
       <View style={styles.orderItemContainer}>
         <OrderItem
           brand={
-            item?.order?.orderDetails[0]?.productClassification?.preOrderProduct
-              ?.product?.brand ??
-            item?.order?.orderDetails[0]?.productClassification?.productDiscount
-              ?.product?.brand ??
-            item?.order?.orderDetails[0]?.productClassification?.product
-              ?.brand ??
+            item?.order?.orderDetails[0]?.productClassification?.preOrderProduct?.product?.brand ??
+            item?.order?.orderDetails[0]?.productClassification?.productDiscount?.product?.brand ??
+            item?.order?.orderDetails[0]?.productClassification?.product?.brand ??
             null
           }
           orderItem={item?.order}
           setIsTrigger={setIsTrigger}
         />
       </View>
-    );
-  };
+    )
+  }
 
   const renderEmpty = () => {
     return (
       <View style={styles.emptyContainer}>
         <Empty
-          title={t("empty.order.title")}
-          description={
-            activeTab === "all"
-              ? t("empty.order.description")
-              : t("empty.order.statusDescription")
-          }
+          title={t('empty.order.title')}
+          description={activeTab === 'all' ? t('empty.order.description') : t('empty.order.statusDescription')}
         />
       </View>
-    );
-  };
+    )
+  }
 
   const renderOptions = () => {
     return simplifiedTriggers.map((trigger) => (
-      <Picker.Item
-        key={trigger.value}
-        value={trigger.value}
-        label={trigger.text}
-      />
-    ));
-  };
+      <Picker.Item key={trigger.value} value={trigger.value} label={trigger.text} />
+    ))
+  }
 
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
-      style={[
-        styles.triggerButton,
-        activeTab === item.value && styles.activeTrigger,
-      ]}
+      style={[styles.triggerButton, activeTab === item.value && styles.activeTrigger]}
       onPress={() => setActiveTab(item.value)}
     >
-      <Text
-        style={[
-          styles.triggerText,
-          activeTab === item.value && styles.activeText,
-        ]}
-      >
-        {item.text}
-      </Text>
+      <Text style={[styles.triggerText, activeTab === item.value && styles.activeText]}>{item.text}</Text>
     </TouchableOpacity>
-  );
+  )
 
   return (
     <>
@@ -258,23 +230,23 @@ export default function ProfileOrder() {
             <Header
               headerLeft={() => (
                 <HeaderBackButton
-                  label="Quay lại"
+                  label='Quay lại'
                   tintColor={myTheme.primary}
                   labelStyle={{
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
                     color: myTheme.primary,
-                    backgroundColor: myTheme.primary,
+                    backgroundColor: myTheme.primary
                   }}
                   onPress={() => router.back()}
                 />
               )}
-              title={t("order.myOrder")}
+              title={t('order.myOrder')}
               headerTitleStyle={{
-                fontWeight: "bold",
-                color: myTheme.primary,
+                fontWeight: 'bold',
+                color: myTheme.primary
               }}
             />
-          ),
+          )
         }}
       />
       {isLoading && <LoadingContentLayer />}
@@ -295,18 +267,13 @@ export default function ProfileOrder() {
               {renderOptions()}
             </Picker>
           </View> */}
-          <TriggerList
-            renderItem={renderItem}
-            simplifiedTriggers={simplifiedTriggers}
-          />
+          <TriggerList renderItem={renderItem} simplifiedTriggers={simplifiedTriggers} />
 
           <View style={styles.contentWrapper}>
             <View style={styles.searchContainer}>
-              {activeTab === "request" ? (
+              {activeTab === 'request' ? (
                 <View style={styles.filterContainer}>
-                  <OrderRequestFilter
-                    onFilterChange={handleRequestFilterChange}
-                  />
+                  <OrderRequestFilter onFilterChange={handleRequestFilterChange} />
                 </View>
               ) : (
                 <SearchOrders onSearch={handleSearch} />
@@ -365,7 +332,7 @@ export default function ProfileOrder() {
         </View>
       </View>
     </>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -376,75 +343,75 @@ const styles = StyleSheet.create({
   triggerButton: {
     paddingHorizontal: 2,
     paddingVertical: 3,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     borderBottomWidth: 2,
-    borderBottomColor: "transparent",
-    marginRight: 16,
+    borderBottomColor: 'transparent',
+    marginRight: 16
   },
   activeTrigger: {
-    borderBottomColor: myTheme.primary,
+    borderBottomColor: myTheme.primary
   },
   triggerText: {
     fontSize: 16,
-    color: myTheme.gray[500],
+    color: myTheme.gray[500]
   },
   activeText: {
     color: myTheme.primary,
-    fontWeight: 600,
+    fontWeight: 600
   },
   container: {
-    width: "100%",
-    alignItems: "center",
+    width: '100%',
+    alignItems: 'center',
     flex: 1,
-    backgroundColor: myTheme.background,
+    backgroundColor: myTheme.background
   },
   contentContainer: {
-    width: "100%",
+    width: '100%',
     padding: 10,
-    maxWidth: Dimensions.get("window").width,
-    flex: 1,
+    maxWidth: Dimensions.get('window').width,
+    flex: 1
   },
   pickerContainer: {
-    marginBottom: 16,
+    marginBottom: 16
   },
   picker: {
     borderWidth: 1,
     borderColor: myTheme.primary,
-    borderRadius: 8,
+    borderRadius: 8
   },
   contentWrapper: {
     marginTop: 8,
-    flex: 1,
+    flex: 1
   },
   searchContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8
   },
   filterContainer: {
-    width: "100%",
-    alignItems: "flex-end",
+    width: '100%',
+    alignItems: 'flex-end'
   },
   listContainer: {
-    paddingBottom: 20,
+    paddingBottom: 20
   },
   separator: {
-    height: 10,
+    height: 10
   },
   orderItemContainer: {
     backgroundColor: myTheme.white,
     borderWidth: 1,
     borderColor: myTheme.gray[200],
-    borderRadius: 8,
+    borderRadius: 8
   },
   emptyContainer: {
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "auto",
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 'auto',
     backgroundColor: myTheme.white,
     padding: 10,
-    borderRadius: 10,
-  },
-});
+    borderRadius: 10
+  }
+})

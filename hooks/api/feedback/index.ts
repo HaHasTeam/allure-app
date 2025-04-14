@@ -1,40 +1,40 @@
+import { IFilterFeedback, IReplyFeedback } from './type'
+
 import { IFeedbackGeneral, IResponseFeedback, IResponseFilterFeedback, ISubmitFeedback } from '@/types/feedback'
 import { TServerResponse } from '@/types/request'
 import { toMutationFetcher, toQueryFetcher } from '@/utils/query'
 import { privateRequest } from '@/utils/request'
-
-import { IFilterFeedback, IReplyFeedback } from './type'
 
 export const createFeedbackApi = toMutationFetcher<ISubmitFeedback, TServerResponse<string>>(
   'createFeedbackApi',
   async (data) => {
     return privateRequest('/feedbacks/create', {
       method: 'POST',
-      data,
+      data
     })
-  },
+  }
 )
 
 export const getMyFeedbacksApi = toQueryFetcher<void, TServerResponse<IResponseFeedback[]>>(
   'getMyFeedbacksApi',
   async () => {
     return privateRequest('/feedbacks/get-my-feedbacks/', {
-      method: 'GET',
+      method: 'GET'
     })
-  },
+  }
 )
 
 export const getFeedbackByIdApi = toQueryFetcher<string, TServerResponse<IResponseFeedback>>(
   'getFeedbackByIdApi',
   async (feedbackId) => {
     return privateRequest(`/feedbacks/get-by-id/${feedbackId}`)
-  },
+  }
 )
 export const getFeedbackGeneralOfProductApi = toQueryFetcher<string, TServerResponse<IFeedbackGeneral>>(
   'getFeedbackGeneralOfProductApi',
   async (feedbackId) => {
     return privateRequest(`/feedbacks/review-general-of-product/${feedbackId}`)
-  },
+  }
 )
 
 export const filterFeedbackApi = toMutationFetcher<
@@ -45,14 +45,14 @@ export const filterFeedbackApi = toMutationFetcher<
     method: 'POST',
     params: {
       page: page || '1',
-      limit: limit || '2',
+      limit: limit || '2'
     },
     data: data
       ? {
           type: data?.type,
-          value: data?.value,
+          value: data?.value
         }
-      : {},
+      : {}
   })
 })
 export const replyFeedbackApi = toMutationFetcher<IReplyFeedback, TServerResponse<string>>(
@@ -60,7 +60,7 @@ export const replyFeedbackApi = toMutationFetcher<IReplyFeedback, TServerRespons
   async ({ params, content }) => {
     return privateRequest(`/feedbacks/reply/${params}`, {
       method: 'POST',
-      data: { content },
+      data: { content }
     })
-  },
+  }
 )

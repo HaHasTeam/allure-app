@@ -1,35 +1,36 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import useHandleServerError from "@/hooks/useHandleServerError";
+/* eslint-disable radix */
+import { Ionicons } from '@expo/vector-icons'
+import { BottomSheetModal } from '@gorhom/bottom-sheet'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from 'expo-router'
+import { Dispatch, SetStateAction, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 
-import { IBrand } from "@/types/brand";
-import { OrderEnum, RequestStatusEnum, ShippingStatusEnum } from "@/types/enum";
-import { IOrderItem } from "@/types/order";
+import CancelOrderDialog from './CancelOrderDialog'
+import ProductOrderLandscape from './ProductOrderLandscape'
+import RequestCancelOrderDialog from './RequestCancelOrderDialog'
+import { RequestReturnOrderDialog } from './RequestReturnOrderDialog'
+import MyText from '../common/MyText'
+import ImageWithFallback from '../image/ImageWithFallBack'
+import LoadingIcon from '../loading/LoadingIcon'
+import OrderStatus from '../order-status'
+import { getRequestStatusColor } from '../request-status'
 
-import CancelOrderDialog from "./CancelOrderDialog";
-import ProductOrderLandscape from "./ProductOrderLandscape";
-import RequestCancelOrderDialog from "./RequestCancelOrderDialog";
-import { RequestReturnOrderDialog } from "./RequestReturnOrderDialog";
+import { myTheme } from '@/constants'
+import { useToast } from '@/contexts/ToastContext'
+import { createCartItemApi, getMyCartApi } from '@/hooks/api/cart'
+import { getMasterConfigApi } from '@/hooks/api/master-config'
 import {
   getCancelAndReturnRequestApi,
   getOrderByIdApi,
   getStatusTrackingByIdApi,
-  updateOrderStatusApi,
-} from "@/hooks/api/order";
-import { Link, useRouter } from "expo-router";
-import { getMasterConfigApi } from "@/hooks/api/master-config";
-import { createCartItemApi, getMyCartApi } from "@/hooks/api/cart";
-import { getRequestStatusColor } from "../request-status";
-import LoadingIcon from "../loading/LoadingIcon";
-import OrderStatus from "../order-status";
-import { myTheme } from "@/constants";
-import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
-import MyText from "../common/MyText";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import ImageWithFallback from "../image/ImageWithFallBack";
-import { Feather, Ionicons } from "@expo/vector-icons";
-import { useToast } from "@/contexts/ToastContext";
+  updateOrderStatusApi
+} from '@/hooks/api/order'
+import useHandleServerError from '@/hooks/useHandleServerError'
+import { IBrand } from '@/types/brand'
+import { OrderEnum, RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
+import { IOrderItem } from '@/types/order'
 
 interface OrderItemProps {
   brand: IBrand | null;
@@ -54,73 +55,67 @@ const OrderItem = ({
   const [openRequestReturnOrderDialog, setOpenRequestReturnOrderDialog] =
     useState<boolean>(false);
 
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null)
   const toggleModalVisibility = () => {
     if (openCancelOrderDialog) {
-      bottomSheetModalRef.current?.close(); // Close modal if it's visible
+      bottomSheetModalRef.current?.close() // Close modal if it's visible
     } else {
-      bottomSheetModalRef.current?.present(); // Open modal if it's not visible
+      bottomSheetModalRef.current?.present() // Open modal if it's not visible
     }
-    setOpenCancelOrderDialog(!openCancelOrderDialog); // Toggle the state
-  };
-  const bottomSheetModalRequestCancelRef = useRef<BottomSheetModal>(null);
+    setOpenCancelOrderDialog(!openCancelOrderDialog) // Toggle the state
+  }
+  const bottomSheetModalRequestCancelRef = useRef<BottomSheetModal>(null)
   const toggleModalRequestCancelVisibility = () => {
     if (openRequestCancelOrderDialog) {
-      bottomSheetModalRequestCancelRef.current?.close(); // Close modal if it's visible
+      bottomSheetModalRequestCancelRef.current?.close() // Close modal if it's visible
     } else {
-      bottomSheetModalRequestCancelRef.current?.present(); // Open modal if it's not visible
+      bottomSheetModalRequestCancelRef.current?.present() // Open modal if it's not visible
     }
-    setOpenRequestCancelOrderDialog(!openRequestCancelOrderDialog); // Toggle the state
-  };
-  const bottomSheetModalRequestReturnRef = useRef<BottomSheetModal>(null);
+    setOpenRequestCancelOrderDialog(!openRequestCancelOrderDialog) // Toggle the state
+  }
+  const bottomSheetModalRequestReturnRef = useRef<BottomSheetModal>(null)
   const toggleModalRequestReturnVisibility = () => {
     if (openRequestReturnOrderDialog) {
-      bottomSheetModalRequestReturnRef.current?.close(); // Close modal if it's visible
+      bottomSheetModalRequestReturnRef.current?.close() // Close modal if it's visible
     } else {
-      bottomSheetModalRequestReturnRef.current?.present(); // Open modal if it's not visible
+      bottomSheetModalRequestReturnRef.current?.present() // Open modal if it's not visible
     }
-    setOpenRequestReturnOrderDialog(!openRequestReturnOrderDialog); // Toggle the state
-  };
+    setOpenRequestReturnOrderDialog(!openRequestReturnOrderDialog) // Toggle the state
+  }
 
   const { data: cancelAndReturnRequestData } = useQuery({
-    queryKey: [
-      getCancelAndReturnRequestApi.queryKey,
-      orderItem.id ?? ("" as string),
-    ],
+    queryKey: [getCancelAndReturnRequestApi.queryKey, orderItem.id ?? ('' as string)],
     queryFn: getCancelAndReturnRequestApi.fn,
-    enabled: !!orderItem.id,
-  });
+    enabled: !!orderItem.id
+  })
   const { data: useStatusTrackingData } = useQuery({
-    queryKey: [
-      getStatusTrackingByIdApi.queryKey,
-      orderItem.id ?? ("" as string),
-    ],
+    queryKey: [getStatusTrackingByIdApi.queryKey, orderItem.id ?? ('' as string)],
     queryFn: getStatusTrackingByIdApi.fn,
-    enabled: !!orderItem.id,
-  });
+    enabled: !!orderItem.id
+  })
   const { data: masterConfig } = useQuery({
     queryKey: [getMasterConfigApi.queryKey],
-    queryFn: getMasterConfigApi.fn,
-  });
+    queryFn: getMasterConfigApi.fn
+  })
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const { showToast } = useToast();
-  const queryClient = useQueryClient();
-  const handleServerError = useHandleServerError();
+  const [isProcessing, setIsProcessing] = useState(false)
+  const { showToast } = useToast()
+  const queryClient = useQueryClient()
+  const handleServerError = useHandleServerError()
   const { mutateAsync: createCartItemFn } = useMutation({
     mutationKey: [createCartItemApi.mutationKey],
     mutationFn: createCartItemApi.fn,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [getMyCartApi.queryKey],
-      });
-      showToast(t("cart.addToCartSuccess"), "success", 4000);
-    },
-  });
+        queryKey: [getMyCartApi.queryKey]
+      })
+      showToast(t('cart.addToCartSuccess'), 'success', 4000)
+    }
+  })
 
   const handleCreateCartItem = async () => {
-    if (isProcessing) return;
-    setIsProcessing(true);
+    if (isProcessing) return
+    setIsProcessing(true)
     try {
       if (orderItem?.orderDetails?.length) {
         await Promise.all(
@@ -128,42 +123,42 @@ const OrderItem = ({
             createCartItemFn({
               classification: productOrder?.productClassification?.title,
               productClassification: productOrder?.productClassification?.id,
-              quantity: 1,
+              quantity: 1
             })
           )
-        );
+        )
       }
     } catch (error) {
-      handleServerError({ error });
+      handleServerError({ error })
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   const { mutateAsync: updateOrderStatusFn } = useMutation({
     mutationKey: [updateOrderStatusApi.mutationKey],
     mutationFn: updateOrderStatusApi.fn,
     onSuccess: async () => {
-      showToast(t("order.receivedOrderStatusSuccess"), "success", 4000);
+      showToast(t('order.receivedOrderStatusSuccess'), 'success', 4000)
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: [getOrderByIdApi.queryKey] }),
         queryClient.invalidateQueries({
-          queryKey: [getStatusTrackingByIdApi.queryKey],
-        }),
-      ]);
-      setIsTrigger((prev) => !prev);
-    },
-  });
+          queryKey: [getStatusTrackingByIdApi.queryKey]
+        })
+      ])
+      setIsTrigger((prev) => !prev)
+    }
+  })
   async function handleUpdateStatus(values: string) {
     try {
-      setIsLoading(true);
-      await updateOrderStatusFn({ id: orderItem?.id, status: values });
-      setIsLoading(false);
+      setIsLoading(true)
+      await updateOrderStatusFn({ id: orderItem?.id, status: values })
+      setIsLoading(false)
     } catch (error) {
-      setIsLoading(false);
+      setIsLoading(false)
       handleServerError({
-        error,
-      });
+        error
+      })
     }
   }
 
@@ -171,61 +166,56 @@ const OrderItem = ({
     const isOrderDeliveredRecently = () => {
       const deliveredStatusTrack = useStatusTrackingData?.data?.find(
         (track) => track.status === ShippingStatusEnum.DELIVERED
-      );
+      )
 
-      if (!deliveredStatusTrack?.createdAt) return false;
+      if (!deliveredStatusTrack?.createdAt) return false
 
-      const deliveredDate = new Date(deliveredStatusTrack.createdAt);
-      const currentDate = new Date();
+      const deliveredDate = new Date(deliveredStatusTrack.createdAt)
+      const currentDate = new Date()
       const allowedTimeInMs = masterConfig?.data[0].refundTimeExpired
         ? parseInt(masterConfig?.data[0].refundTimeExpired)
-        : null;
-      console.log(currentDate.getTime() - deliveredDate.getTime());
-      return allowedTimeInMs
-        ? currentDate.getTime() - deliveredDate.getTime() <= allowedTimeInMs
-        : true;
-    };
+        : null
+      console.log(currentDate.getTime() - deliveredDate.getTime())
+      return allowedTimeInMs ? currentDate.getTime() - deliveredDate.getTime() <= allowedTimeInMs : true
+    }
     return (
-      (orderItem?.status === ShippingStatusEnum.DELIVERED ||
-        orderItem?.status === ShippingStatusEnum.COMPLETED) &&
+      (orderItem?.status === ShippingStatusEnum.DELIVERED || orderItem?.status === ShippingStatusEnum.COMPLETED) &&
       !cancelAndReturnRequestData?.data?.refundRequest &&
       isOrderDeliveredRecently()
-    );
+    )
   }, [
     cancelAndReturnRequestData?.data?.refundRequest,
     masterConfig?.data,
     orderItem?.status,
-    useStatusTrackingData?.data,
-  ]);
+    useStatusTrackingData?.data
+  ])
   const showReceivedButton = useMemo(() => {
     const isOrderDeliveredRecently = () => {
       const deliveredStatusTrack = useStatusTrackingData?.data?.find(
         (track) => track.status === ShippingStatusEnum.DELIVERED
-      );
+      )
 
-      if (!deliveredStatusTrack?.createdAt) return false;
+      if (!deliveredStatusTrack?.createdAt) return false
 
-      const deliveredDate = new Date(deliveredStatusTrack.createdAt);
-      const currentDate = new Date();
+      const deliveredDate = new Date(deliveredStatusTrack.createdAt)
+      const currentDate = new Date()
       const allowedTimeInMs = masterConfig?.data[0].expiredCustomerReceivedTime
         ? parseInt(masterConfig?.data[0].expiredCustomerReceivedTime)
-        : null;
-      console.log(currentDate.getTime() - deliveredDate.getTime());
-      return allowedTimeInMs
-        ? currentDate.getTime() - deliveredDate.getTime() <= allowedTimeInMs
-        : true;
-    };
+        : null
+      console.log(currentDate.getTime() - deliveredDate.getTime())
+      return allowedTimeInMs ? currentDate.getTime() - deliveredDate.getTime() <= allowedTimeInMs : true
+    }
     return (
       orderItem?.status === ShippingStatusEnum.DELIVERED &&
       !cancelAndReturnRequestData?.data?.refundRequest &&
       isOrderDeliveredRecently()
-    );
+    )
   }, [
     cancelAndReturnRequestData?.data?.refundRequest,
     masterConfig?.data,
     orderItem?.status,
-    useStatusTrackingData?.data,
-  ]);
+    useStatusTrackingData?.data
+  ])
 
   return (
     <>
@@ -237,21 +227,18 @@ const OrderItem = ({
             <View style={styles.brandNameContainer}>
               <View style={styles.avatarContainer}>
                 <ImageWithFallback
-                  src={brand?.logo ?? ""}
+                  source={{ uri: brand?.logo ?? '' }}
                   alt={brand?.name}
-                  resizeMode="cover"
+                  resizeMode='cover'
                   style={styles.avatar}
                 />
               </View>
-              <TouchableOpacity
-                style={styles.nameContainer}
-                onPress={() => router.push(`/brands/${brand?.id}`)}
-              >
+              <TouchableOpacity style={styles.nameContainer} onPress={() => router.push(`/brands/${brand?.id}`)}>
                 <MyText
                   numberOfLines={1}
-                  ellipsizeMode="tail"
+                  ellipsizeMode='tail'
                   style={styles.overFlowText}
-                  text={brand?.name ?? ""}
+                  text={brand?.name ?? ''}
                   styleProps={styles.brandName}
                 />
               </TouchableOpacity>
@@ -310,10 +297,8 @@ const OrderItem = ({
               <ProductOrderLandscape
                 orderDetail={productOder}
                 product={
-                  productOder?.productClassification?.preOrderProduct
-                    ?.product ??
-                  productOder?.productClassification?.productDiscount
-                    ?.product ??
+                  productOder?.productClassification?.preOrderProduct?.product ??
+                  productOder?.productClassification?.productDiscount?.product ??
                   productOder?.productClassification?.product
                 }
                 productClassification={productOder?.productClassification}
@@ -327,14 +312,8 @@ const OrderItem = ({
 
         {/* total price */}
         <View style={styles.totalPriceContainer}>
-          <MyText
-            text={t("cart.totalPrice") + ": "}
-            styleProps={styles.totalPriceLabel}
-          />
-          <MyText
-            text={t("productCard.price", { price: orderItem?.totalPrice })}
-            styleProps={styles.totalPriceValue}
-          />
+          <MyText text={t('cart.totalPrice') + ': '} styleProps={styles.totalPriceLabel} />
+          <MyText text={t('productCard.price', { price: orderItem?.totalPrice })} styleProps={styles.totalPriceValue} />
         </View>
 
         {/* Request Status Information (Enhanced) */}
@@ -344,27 +323,18 @@ const OrderItem = ({
           <View style={styles.requestStatusContainer}>
             {cancelAndReturnRequestData?.data?.cancelRequest && (
               <View style={styles.requestRow}>
-                <MyText
-                  text={t("request.cancelRequest")}
-                  styleProps={styles.requestLabel}
-                />
+                <MyText text={t('request.cancelRequest')} styleProps={styles.requestLabel} />
                 <View
                   style={[
                     styles.statusBadge,
-                    getRequestStatusColor(
-                      cancelAndReturnRequestData?.data?.cancelRequest?.status
-                    ),
+                    getRequestStatusColor(cancelAndReturnRequestData?.data?.cancelRequest?.status)
                   ]}
                 >
                   <MyText
-                    text={t(
-                      `request.status.BRAND_${cancelAndReturnRequestData?.data?.cancelRequest?.status}`
-                    )}
+                    text={t(`request.status.BRAND_${cancelAndReturnRequestData?.data?.cancelRequest?.status}`)}
                     styleProps={[
                       styles.statusBadgeText,
-                      getRequestStatusColor(
-                        cancelAndReturnRequestData?.data?.cancelRequest?.status
-                      ),
+                      getRequestStatusColor(cancelAndReturnRequestData?.data?.cancelRequest?.status)
                     ]}
                   />
                 </View>
@@ -373,53 +343,37 @@ const OrderItem = ({
             {cancelAndReturnRequestData?.data?.refundRequest && (
               <View style={styles.requestColumn}>
                 <View style={styles.requestRow}>
-                  <MyText
-                    text={t("request.returnRequest")}
-                    styleProps={styles.requestLabel}
-                  />
+                  <MyText text={t('request.returnRequest')} styleProps={styles.requestLabel} />
                   <View
                     style={[
                       styles.statusBadge,
-                      getRequestStatusColor(
-                        cancelAndReturnRequestData?.data?.refundRequest?.status
-                      ),
+                      getRequestStatusColor(cancelAndReturnRequestData?.data?.refundRequest?.status)
                     ]}
                   >
                     <MyText
-                      text={t(
-                        `request.status.BRAND_${cancelAndReturnRequestData?.data?.refundRequest?.status}`
-                      )}
+                      text={t(`request.status.BRAND_${cancelAndReturnRequestData?.data?.refundRequest?.status}`)}
                       styleProps={[
                         styles.statusBadgeText,
-                        getRequestStatusColor(
-                          cancelAndReturnRequestData?.data?.refundRequest
-                            ?.status
-                        ),
+                        getRequestStatusColor(cancelAndReturnRequestData?.data?.refundRequest?.status)
                       ]}
                     />
                   </View>
                 </View>
 
                 {/* Show rejection details if applicable */}
-                {cancelAndReturnRequestData?.data?.refundRequest?.status ===
-                  RequestStatusEnum.REJECTED && (
+                {cancelAndReturnRequestData?.data?.refundRequest?.status === RequestStatusEnum.REJECTED && (
                   <>
                     {/* Show pending counter-request if any */}
-                    {cancelAndReturnRequestData?.data?.refundRequest
-                      ?.rejectedRefundRequest && (
+                    {cancelAndReturnRequestData?.data?.refundRequest?.rejectedRefundRequest && (
                       <View style={styles.rejectedRequestContainer}>
                         <View style={styles.requestRow}>
-                          <MyText
-                            text={t("request.appealRequest")}
-                            styleProps={styles.requestLabel}
-                          />
+                          <MyText text={t('request.appealRequest')} styleProps={styles.requestLabel} />
                           <View
                             style={[
                               styles.statusBadge,
                               getRequestStatusColor(
-                                cancelAndReturnRequestData?.data?.refundRequest
-                                  ?.rejectedRefundRequest?.status
-                              ),
+                                cancelAndReturnRequestData?.data?.refundRequest?.rejectedRefundRequest?.status
+                              )
                             ]}
                           >
                             <MyText
@@ -429,21 +383,15 @@ const OrderItem = ({
                               styleProps={[
                                 styles.statusBadgeText,
                                 getRequestStatusColor(
-                                  cancelAndReturnRequestData?.data
-                                    ?.refundRequest?.rejectedRefundRequest
-                                    ?.status
-                                ),
+                                  cancelAndReturnRequestData?.data?.refundRequest?.rejectedRefundRequest?.status
+                                )
                               ]}
                             />
                           </View>
                         </View>
-                        {cancelAndReturnRequestData?.data?.refundRequest
-                          ?.rejectedRefundRequest?.status ===
+                        {cancelAndReturnRequestData?.data?.refundRequest?.rejectedRefundRequest?.status ===
                           RequestStatusEnum.PENDING && (
-                          <MyText
-                            text={t("request.awaitingResponse")}
-                            styleProps={styles.awaitingResponseText}
-                          />
+                          <MyText text={t('request.awaitingResponse')} styleProps={styles.awaitingResponseText} />
                         )}
                       </View>
                     )}
@@ -454,29 +402,18 @@ const OrderItem = ({
             {cancelAndReturnRequestData?.data?.complaintRequest && (
               <View style={styles.requestColumn}>
                 <View style={styles.requestRow}>
-                  <MyText
-                    text={t("request.complaintRequest")}
-                    styleProps={styles.requestLabel}
-                  />
+                  <MyText text={t('request.complaintRequest')} styleProps={styles.requestLabel} />
                   <View
                     style={[
                       styles.statusBadge,
-                      getRequestStatusColor(
-                        cancelAndReturnRequestData?.data?.refundRequest
-                          ?.status ?? ""
-                      ),
+                      getRequestStatusColor(cancelAndReturnRequestData?.data?.refundRequest?.status ?? '')
                     ]}
                   >
                     <MyText
-                      text={t(
-                        `request.status.ADMIN_${cancelAndReturnRequestData?.data?.refundRequest?.status}`
-                      )}
+                      text={t(`request.status.ADMIN_${cancelAndReturnRequestData?.data?.refundRequest?.status}`)}
                       styleProps={[
                         styles.statusBadgeText,
-                        getRequestStatusColor(
-                          cancelAndReturnRequestData?.data?.refundRequest
-                            ?.status ?? ""
-                        ),
+                        getRequestStatusColor(cancelAndReturnRequestData?.data?.refundRequest?.status ?? '')
                       ]}
                     />
                   </View>
@@ -599,7 +536,7 @@ const OrderItem = ({
         setIsModalVisible={setOpenCancelOrderDialog}
         toggleModalVisibility={toggleModalVisibility}
         onOpenChange={setOpenCancelOrderDialog}
-        orderId={orderItem?.id ?? ""}
+        orderId={orderItem?.id ?? ''}
         setIsTrigger={setIsTrigger}
       />
       <RequestCancelOrderDialog
@@ -607,7 +544,7 @@ const OrderItem = ({
         setIsModalVisible={setOpenRequestCancelOrderDialog}
         toggleModalVisibility={toggleModalRequestCancelVisibility}
         onOpenChange={setOpenRequestCancelOrderDialog}
-        orderId={orderItem?.id ?? ""}
+        orderId={orderItem?.id ?? ''}
         setIsTrigger={setIsTrigger}
       />
       <RequestReturnOrderDialog
@@ -615,178 +552,178 @@ const OrderItem = ({
         setIsModalVisible={setOpenRequestReturnOrderDialog}
         toggleModalVisibility={toggleModalRequestReturnVisibility}
         setIsTrigger={setIsTrigger}
-        orderId={orderItem?.id ?? ""}
+        orderId={orderItem?.id ?? ''}
       />
     </>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   avatarContainer: {
     width: 30,
-    height: 30,
+    height: 30
   },
   avatar: {
     borderRadius: 50,
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%'
   },
   container: {
-    padding: 10,
+    padding: 10
   },
   header: {
-    flexDirection: "column-reverse",
+    flexDirection: 'column-reverse',
     gap: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e5e5",
+    borderBottomColor: '#e5e5e5',
     paddingBottom: 8,
-    marginBottom: 16,
+    marginBottom: 16
   },
   brandContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 8,
-    flexWrap: "wrap",
-    width: "100%",
+    flexWrap: 'wrap',
+    width: '100%'
   },
   overFlowText: {
     flexShrink: 1,
-    flexWrap: "wrap",
-    maxWidth: "100%",
+    flexWrap: 'wrap',
+    maxWidth: '100%'
   },
   nameContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "auto",
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: 'auto'
   },
   brandNameContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
   },
   brandName: {
-    width: "100%",
+    width: '100%',
     flex: 1,
     fontWeight: 500,
-    textOverflow: "ellipsis",
+    textOverflow: 'ellipsis'
   },
   brandButtonsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
   },
   chatButton: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: myTheme.primary,
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 6,
     gap: 4,
-    width: "auto",
+    width: 'auto'
   },
   chatButtonText: {
-    color: "white",
-    fontSize: 14,
+    color: 'white',
+    fontSize: 14
   },
   viewShopButton: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: myTheme.primary,
     paddingVertical: 6,
     paddingHorizontal: 8,
     borderRadius: 6,
-    gap: 8,
+    gap: 8
   },
   viewShopText: {
     color: myTheme.primary,
-    fontSize: 14,
+    fontSize: 14
   },
   statusContainer: {
-    flexDirection: "column",
-    alignItems: "flex-end",
-    gap: 4,
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 4
   },
   orderStatusContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   productItem: {
     borderBottomWidth: 1,
-    borderBottomColor: "#e5e5e5",
-    marginBottom: 8,
+    borderBottomColor: '#e5e5e5',
+    marginBottom: 8
   },
   totalPriceContainer: {
-    width: "100%",
-    marginLeft: "auto",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 4,
+    width: '100%',
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 4
   },
   totalPriceLabel: {
     color: myTheme.mutedForeground,
-    fontWeight: "500",
-    fontSize: 18,
+    fontWeight: '500',
+    fontSize: 18
   },
   totalPriceValue: {
     color: myTheme.red[500],
-    fontWeight: "700",
-    fontSize: 18,
+    fontWeight: '700',
+    fontSize: 18
   },
   requestStatusContainer: {
     marginTop: 4,
     paddingVertical: 8,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: "#e5e5e5",
+    borderColor: '#e5e5e5'
   },
   requestRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   requestColumn: {
-    flexDirection: "column",
+    flexDirection: 'column',
     gap: 8,
-    marginTop: 8,
+    marginTop: 8
   },
   requestLabel: {
-    fontWeight: "500",
+    fontWeight: '500'
   },
   statusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 999,
+    borderRadius: 999
   },
   statusBadgeText: {
-    textTransform: "uppercase",
-    fontWeight: "700",
-    fontSize: 12,
+    textTransform: 'uppercase',
+    fontWeight: '700',
+    fontSize: 12
   },
   rejectedRequestContainer: {
-    marginTop: 4,
+    marginTop: 4
   },
   awaitingResponseText: {
     fontSize: 14,
-    color: "#4B5563",
-    marginTop: 4,
+    color: '#4B5563',
+    marginTop: 4
   },
   actionContainer: {
-    flexDirection: "column",
-    alignItems: "flex-end",
+    flexDirection: 'column',
+    alignItems: 'flex-end',
     gap: 8,
-    paddingTop: 10,
+    paddingTop: 10
   },
   lastUpdatedText: {
-    color: "#374151",
-    fontSize: 14,
+    color: '#374151',
+    fontSize: 14
   },
   buttonsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
-    alignItems: "center",
+    alignItems: 'center'
   },
   outlineButton: {
     borderWidth: 1,
@@ -794,25 +731,25 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 6,
-    width: "auto",
+    width: 'auto'
   },
   outlineButtonText: {
-    color: myTheme.primary,
+    color: myTheme.primary
   },
   primaryButton: {
     backgroundColor: myTheme.primary,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
-    width: "auto",
+    width: 'auto'
   },
   primaryButtonText: {
-    color: "white",
+    color: 'white'
   },
   checkbox: {
-    alignSelf: "center",
-    borderRadius: 6,
-  },
-});
+    alignSelf: 'center',
+    borderRadius: 6
+  }
+})
 
-export default OrderItem;
+export default OrderItem

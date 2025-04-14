@@ -6,7 +6,7 @@ export const createFirebaseTokenApi = toMutationFetcher<void, TServerResponse<{ 
   'createFirebaseTokenApi',
   async () => {
     return privateRequest('/firebase-auth/generate-token', {
-      method: 'POST',
+      method: 'POST'
     })
-  },
+  }
 )

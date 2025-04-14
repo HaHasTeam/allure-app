@@ -1,29 +1,28 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter } from 'expo-router'
+import React from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 
-import { myTheme } from "@/constants";
-import { Image } from "react-native";
+import { myTheme } from '@/constants'
 
 // Import images - in React Native, you need to require images
-const emptyInbox = require("@/assets/images/EmptyInbox.png");
+const emptyInbox = require('@/assets/images/EmptyInbox.png')
 
 type EmptyProps = {
-  title: string;
-  description: string;
-  icon?: any;
-  linkText?: string;
-  link?: "/" | "/(app)/(profile)/orders";
-};
+  title: string
+  description: string
+  icon?: any
+  linkText?: string
+  link?: '/' | '/(app)/(profile)/orders'
+}
 
 const Empty = ({ title, description, icon, linkText, link }: EmptyProps) => {
-  const router = useRouter();
+  const router = useRouter()
 
   const handleNavigation = () => {
     if (link) {
-      router.push(link);
+      router.push(link)
     }
-  };
+  }
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
@@ -41,50 +40,50 @@ const Empty = ({ title, description, icon, linkText, link }: EmptyProps) => {
         )}
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    height: "50%",
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 16,
+    width: '100%',
+    height: '50%',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16
   },
   imageContainer: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   image: {
-    resizeMode: "contain",
+    resizeMode: 'contain'
   },
   contentContainer: {
-    alignItems: "center",
-    gap: 16,
+    alignItems: 'center',
+    gap: 16
   },
   textContainer: {
-    gap: 8,
+    gap: 8
   },
   title: {
-    fontWeight: "600",
+    fontWeight: '600',
     fontSize: 18,
     color: myTheme.primary,
-    textAlign: "center",
+    textAlign: 'center'
   },
   description: {
     color: myTheme.gray[600],
-    textAlign: "center",
+    textAlign: 'center'
   },
   button: {
     padding: 12,
     borderRadius: 8,
-    backgroundColor: myTheme.primary,
+    backgroundColor: myTheme.primary
   },
   buttonText: {
-    color: myTheme.primaryForeground,
-  },
-});
+    color: myTheme.primaryForeground
+  }
+})
 
-export default Empty;
+export default Empty

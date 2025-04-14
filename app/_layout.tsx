@@ -1,41 +1,42 @@
-import { myFontWeight } from "@/constants";
-import { SessionProvider } from "@/contexts/AuthContext";
-import QueryProvider from "@/provider/QueryProvider";
-import { ActionSheetProvider } from "@expo/react-native-action-sheet";
-import { Header, HeaderBackButton } from "@react-navigation/elements";
-import { SplashScreen, Stack, useRouter } from "expo-router";
-import { useEffect } from "react";
-import { Appearance, Platform, StatusBar, StyleSheet } from "react-native";
-import { View } from "react-native-ui-lib";
-import * as Linking from "expo-linking";
-import { ToastProvider } from "@/contexts/ToastContext";
+import { ActionSheetProvider } from '@expo/react-native-action-sheet'
+import { Header, HeaderBackButton } from '@react-navigation/elements'
+import * as Linking from 'expo-linking'
+import { Stack, useRouter } from 'expo-router'
+
+import { Appearance, Platform, StatusBar, StyleSheet } from 'react-native'
+import { View } from 'react-native-ui-lib'
+
+import { myFontWeight } from '@/constants'
+import { SessionProvider } from '@/contexts/AuthContext'
+import { ToastProvider } from '@/contexts/ToastContext'
+import QueryProvider from '@/provider/QueryProvider'
 // import { SessionProvider } from "@/contexts/AuthContext";
 // import QueryProvider from "@/provider/QueryProvider";
 // import { myFontWeight } from "@/contracts/constants";
 // import { firebaseCloudMessaging } from "@/utils/firebase";
 // SplashScreen.preventAutoHideAsync();
-const prefix = Linking.createURL("/");
+const prefix = Linking.createURL('/')
 
 const linking = {
   prefixes: [prefix],
   config: {
     screens: {
-      home: "",
-      login: "login",
-      register: "register",
-      verify: "verify",
+      home: '',
+      login: 'login',
+      register: 'register',
+      verify: 'verify'
       // Add other screens here
-    },
-  },
-};
+    }
+  }
+}
 export default function Root() {
-  const router = useRouter();
+  const router = useRouter()
 
   const styles = StyleSheet.create({
     container: {
-      flex: 1,
-    },
-  });
+      flex: 1
+    }
+  })
 
   // setBackgroundMessageHandler(firebaseCloudMessaging, async (remoteMessage) => {
   //   console.log("Message handled in the background!", remoteMessage);
@@ -43,15 +44,10 @@ export default function Root() {
 
   return (
     <ActionSheetProvider>
-      <View
-        useSafeArea={Platform.OS === "ios" || Platform.OS === "android"}
-        style={styles.container}
-      >
+      <View useSafeArea={Platform.OS === 'ios' || Platform.OS === 'android'} style={styles.container}>
         <StatusBar
           translucent={false}
-          backgroundColor={
-            Appearance.getColorScheme() === "dark" ? "black" : "transparent"
-          }
+          backgroundColor={Appearance.getColorScheme() === 'dark' ? 'black' : 'transparent'}
         />
 
         <QueryProvider>
@@ -59,73 +55,73 @@ export default function Root() {
             <ToastProvider>
               <Stack>
                 <Stack.Screen
-                  name="(app)"
+                  name='(app)'
                   options={{
-                    headerShown: false,
+                    headerShown: false
                   }}
                 />
                 <Stack.Screen
-                  name="welcome"
+                  name='welcome'
                   options={{
-                    title: "",
-                    headerShown: false,
+                    title: '',
+                    headerShown: false
                   }}
                 />
                 <Stack.Screen
-                  name="login"
+                  name='login'
                   options={{
                     header: () => (
                       <Header
                         headerLeft={() => (
                           <HeaderBackButton
-                            label="Quay lại"
+                            label='Quay lại'
                             labelStyle={{
-                              fontFamily: myFontWeight.regular,
+                              fontFamily: myFontWeight.regular
                             }}
                             onPress={() => router.back()}
                           />
                         )}
-                        title="Đăng nhập"
+                        title='Đăng nhập'
                         headerTitleStyle={{
-                          fontFamily: myFontWeight.bold,
+                          fontFamily: myFontWeight.bold
                         }}
                       />
-                    ),
+                    )
                   }}
                 />
                 <Stack.Screen
-                  name="register"
+                  name='register'
                   options={{
                     header: () => (
                       <Header
-                        title="Tạo tài khoản"
+                        title='Tạo tài khoản'
                         headerLeft={() => (
                           <HeaderBackButton
-                            label="Quay lại"
+                            label='Quay lại'
                             labelStyle={{
-                              fontFamily: myFontWeight.regular,
+                              fontFamily: myFontWeight.regular
                             }}
                             onPress={() => router.back()}
                           />
                         )}
                         headerTitleStyle={{
-                          fontFamily: myFontWeight.bold,
+                          fontFamily: myFontWeight.bold
                         }}
                       />
-                    ),
+                    )
                   }}
                 />
                 <Stack.Screen
-                  name="verify"
+                  name='verify'
                   options={{
                     header: () => (
                       <Header
-                        title="Xác minh tài khoản"
+                        title='Xác minh tài khoản'
                         headerTitleStyle={{
-                          fontFamily: myFontWeight.bold,
+                          fontFamily: myFontWeight.bold
                         }}
                       />
-                    ),
+                    )
                   }}
                 />
               </Stack>
@@ -134,5 +130,5 @@ export default function Root() {
         </QueryProvider>
       </View>
     </ActionSheetProvider>
-  );
+  )
 }

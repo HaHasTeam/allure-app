@@ -1,17 +1,19 @@
-import { Dimensions, StyleSheet, Text, View } from "react-native";
-import React from "react";
-import { Carousel, Spacings } from "react-native-ui-lib";
-import ImageWithFallback from "../image/ImageWithFallBack";
-import { TServerFile } from "@/types/file";
-import { getMasterConfigApi } from "@/hooks/api/master-config";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query'
+import React from 'react'
+import { Dimensions, StyleSheet, View } from 'react-native'
+import { Carousel, Spacings } from 'react-native-ui-lib'
+
+import ImageWithFallback from '../image/ImageWithFallBack'
+
+import { getMasterConfigApi } from '@/hooks/api/master-config'
+import { TServerFile } from '@/types/file'
 
 const HomeBanner = () => {
   const { data: masterConfig } = useQuery({
     queryKey: [getMasterConfigApi.queryKey],
-    queryFn: getMasterConfigApi.fn,
-  });
-  console.log("masterConfig?.data[0]", masterConfig?.data[0]);
+    queryFn: getMasterConfigApi.fn
+  })
+  console.log('masterConfig?.data[0]', masterConfig?.data[0])
 
   return (
     <View style={styles.container}>
@@ -24,51 +26,49 @@ const HomeBanner = () => {
         containerStyle={styles.carouselContainer}
         pageControlPosition={Carousel.pageControlPositions.UNDER}
       >
-        {masterConfig?.data[0]?.banners.map(
-          (banner: TServerFile, index: number) => (
-            <View key={banner.id} style={styles.page}>
-              <ImageWithFallback
-                source={{ uri: banner.fileUrl ?? "" }}
-                style={styles.image}
-                // resizeMode="cover"
-              />
-            </View>
-          )
-        )}
+        {masterConfig?.data[0]?.banners.map((banner: TServerFile, index: number) => (
+          <View key={banner.id} style={styles.page}>
+            <ImageWithFallback
+              source={{ uri: banner.fileUrl ?? '' }}
+              style={styles.image}
+              // resizeMode="cover"
+            />
+          </View>
+        ))}
       </Carousel>
     </View>
-  );
-};
+  )
+}
 
-export default HomeBanner;
+export default HomeBanner
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center'
   },
   carousel: {
-    width: Dimensions.get("window").width,
+    width: Dimensions.get('window').width
   },
   carouselContainer: {
-    position: "relative",
-    height: 210,
+    position: 'relative',
+    height: 210
   },
   page: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#ddd",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ddd',
     borderRadius: 4,
-    overflow: "hidden",
-    width: "100%",
-    flex: 1,
+    overflow: 'hidden',
+    width: '100%',
+    flex: 1
   },
   image: {
-    width: "100%",
-    resizeMode: "cover",
+    width: '100%',
+    resizeMode: 'cover',
     borderRadius: 4,
     flex: 1,
-    overflow: "hidden",
-  },
-});
+    overflow: 'hidden'
+  }
+})

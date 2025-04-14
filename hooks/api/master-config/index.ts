@@ -7,7 +7,7 @@ export const getMasterConfigApi = toQueryFetcher<string, TServerResponse<IMaster
   'getMasterConfigApi',
   async () => {
     return publicRequest(`/master-config/`, {
-      method: 'GET',
+      method: 'GET'
     })
-  },
+  }
 )
