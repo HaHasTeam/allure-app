@@ -41,7 +41,9 @@ i18n.use(initReactI18next).init({
         const currency = lng === 'vi' ? 'VND' : 'VND' // Don't change currency per language
         return new Intl.NumberFormat('vi', {
           style: 'currency',
-          currency
+          currency,
+          maximumFractionDigits: 0,
+          currencyDisplay: 'symbol'
         }).format(value)
       }
       return value

@@ -12,7 +12,14 @@ import { myTheme } from '@/constants'
 import { IBrand } from '@/types/brand'
 import { ICartItem } from '@/types/cart'
 import { IClassification } from '@/types/classification'
-import { ClassificationTypeEnum, DiscountTypeEnum, OrderEnum, ProductDiscountEnum, StatusEnum } from '@/types/enum'
+import {
+  ClassificationTypeEnum,
+  DiscountTypeEnum,
+  LiveStreamEnum,
+  OrderEnum,
+  ProductDiscountEnum,
+  StatusEnum
+} from '@/types/enum'
 import { PreOrderProductEnum } from '@/types/pre-order'
 import { IBrandBestVoucher, ICheckoutItem, TVoucher } from '@/types/voucher'
 import { calculateBrandVoucherDiscount } from '@/utils/price'
@@ -127,18 +134,31 @@ const CartItem = ({
         const productQuantity = cartItem?.quantity ?? 0
         // const selectedClassification = cartItem?.classification ?? ''
 
-        const eventType =
+        const isLivestreamItem = cartItem.livestream && cartItem.livestream.status === LiveStreamEnum.LIVE
+        let eventType = ''
+        if (isLivestreamItem) {
+          eventType = OrderEnum.LIVE_STREAM
+        } else if (
           cartItem?.productClassification?.preOrderProduct &&
           cartItem?.productClassification?.preOrderProduct?.status === PreOrderProductEnum.ACTIVE
-            ? OrderEnum.PRE_ORDER
-            : cartItem?.productClassification?.productDiscount &&
-                cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.ACTIVE
-              ? OrderEnum.FLASH_SALE
-              : ''
-        const discount =
-          eventType === OrderEnum.FLASH_SALE ? cartItem?.productClassification?.productDiscount?.discount : null
+        ) {
+          eventType = OrderEnum.PRE_ORDER
+        } else if (
+          cartItem?.productClassification?.productDiscount &&
+          cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.ACTIVE
+        ) {
+          eventType = OrderEnum.FLASH_SALE
+        }
 
-        const discountType = eventType === OrderEnum.FLASH_SALE ? DiscountTypeEnum.PERCENTAGE : null
+        const discount =
+          eventType === OrderEnum.FLASH_SALE
+            ? cartItem?.productClassification?.productDiscount?.discount
+            : isLivestreamItem
+              ? cartItem.livestreamDiscount
+              : null
+
+        const discountType =
+          eventType === OrderEnum.FLASH_SALE || eventType === OrderEnum.LIVE_STREAM ? DiscountTypeEnum.PERCENTAGE : null
         const productStatus = product.status
 
         return (

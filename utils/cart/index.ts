@@ -1,6 +1,8 @@
+import { hasActiveClassification, hasClassificationWithQuantity } from '../product'
+
 import { ICartByBrand, ICartItem } from '@/types/cart'
 import { IClassification } from '@/types/classification'
-import { ProductDiscountEnum, StatusEnum } from '@/types/enum'
+import { LiveStreamEnum, ProductDiscountEnum, ProductEnum, StatusEnum } from '@/types/enum'
 import { IPreOrder, PreOrderProductEnum } from '@/types/pre-order'
 import { IProduct } from '@/types/product'
 import { IProductDiscount } from '@/types/product-discount'
@@ -92,4 +94,64 @@ export const createCartFromProduct = (
   return {
     [brandName]: [cartItems]
   }
+}
+
+export const checkPreventAction = (cartItem: ICartItem) => {
+  if (!cartItem) return true
+
+  const product =
+    cartItem?.productClassification?.preOrderProduct?.product ??
+    cartItem?.productClassification?.productDiscount?.product ??
+    cartItem?.productClassification?.product
+
+  const productClassification = cartItem?.productClassification ?? null
+  const classifications =
+    productClassification?.preOrderProduct?.productClassifications ??
+    productClassification?.productDiscount?.productClassifications ??
+    productClassification?.product?.productClassifications ??
+    []
+
+  const productStatus = product?.status
+
+  // check event status
+  const EVENT_CANCELLED =
+    (cartItem.livestream && cartItem.livestream.status === LiveStreamEnum.CANCELLED) ||
+    (cartItem?.productClassification?.productDiscount &&
+      cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.CANCELLED) ||
+    (cartItem?.productClassification?.preOrderProduct &&
+      cartItem?.productClassification?.preOrderProduct?.status === PreOrderProductEnum.CANCELLED)
+  const EVENT_ENDED = cartItem.livestream && cartItem.livestream.status === LiveStreamEnum.ENDED
+  const EVENT_INACTIVE =
+    (cartItem?.productClassification?.productDiscount &&
+      cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.INACTIVE) ||
+    (cartItem?.productClassification?.preOrderProduct &&
+      cartItem?.productClassification?.preOrderProduct?.status === PreOrderProductEnum.INACTIVE) ||
+    false
+  const EVENT_SOLD_OUT =
+    (cartItem?.productClassification?.productDiscount &&
+      cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.SOLD_OUT) ||
+    (cartItem?.productClassification?.preOrderProduct &&
+      cartItem?.productClassification?.preOrderProduct?.status === PreOrderProductEnum.SOLD_OUT) ||
+    false
+
+  const HAS_ACTIVE_CLASSIFICATION = hasActiveClassification(classifications)
+  const IN_STOCK_CLASSIFICATION = hasClassificationWithQuantity(classifications)
+
+  return (
+    !HAS_ACTIVE_CLASSIFICATION ||
+    !IN_STOCK_CLASSIFICATION ||
+    !(productStatus === ProductEnum.FLASH_SALE || productStatus === ProductEnum.OFFICIAL) ||
+    EVENT_CANCELLED ||
+    EVENT_ENDED ||
+    EVENT_INACTIVE ||
+    EVENT_SOLD_OUT
+  )
+}
+
+export const findCartItemById = (id: string, cartItems: ICartByBrand) => {
+  for (const brandName in cartItems) {
+    const item = cartItems[brandName].find((item) => item.id === id)
+    if (item) return item
+  }
+  return null
 }

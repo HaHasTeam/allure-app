@@ -11,7 +11,7 @@ import { myTheme } from '@/constants'
 import type { IClassification } from '@/types/classification'
 import { ClassificationTypeEnum, DiscountTypeEnum } from '@/types/enum'
 import type { DiscountType } from '@/types/product-discount'
-import { calculateDiscountPrice } from '@/utils/price'
+import { calculateDiscountPrice, calculateTotalPrice } from '@/utils/price'
 
 interface ProductCheckoutLandscapeProps {
   productImage: string
@@ -24,7 +24,6 @@ interface ProductCheckoutLandscapeProps {
   price: number
   productQuantity: number
   productClassification: IClassification | null
-  livestreamDiscount?: number
 }
 
 const ProductCheckoutLandscape = ({
@@ -37,39 +36,12 @@ const ProductCheckoutLandscape = ({
   productQuantity,
   selectedClassification,
   price,
-  productClassification,
-  livestreamDiscount
+  productClassification
 }: ProductCheckoutLandscapeProps) => {
   const { t } = useTranslation()
   const router = useRouter()
-
-  // Check if livestream discount exists and calculate it
-  const hasLivestreamDiscount = livestreamDiscount !== undefined && livestreamDiscount > 0
-
-  // Calculate prices based on discounts
-  let finalPrice = price
-  let originalPrice = price
-
-  // Apply regular discount if it exists
-  if (
-    discount &&
-    discount > 0 &&
-    (discountType === DiscountTypeEnum.AMOUNT || discountType === DiscountTypeEnum.PERCENTAGE)
-  ) {
-    finalPrice = calculateDiscountPrice(price, discount, discountType)
-  }
-
-  // Apply livestream discount if it exists (on top of any existing discount)
-  if (hasLivestreamDiscount) {
-    originalPrice = finalPrice
-    const mockDiscount = DiscountTypeEnum.PERCENTAGE
-    finalPrice = calculateDiscountPrice(finalPrice, livestreamDiscount, mockDiscount)
-
-    // finalPrice =  finalPrice - (finalPrice * livestreamDiscount) / 100;
-  }
-
-  // Calculate total price with quantity
-  const totalPrice = finalPrice * productQuantity
+  const basePrice = calculateTotalPrice(price, productQuantity, discount, discountType)
+  const discountPrice = calculateDiscountPrice(price, discount, discountType)
 
   return (
     <View style={styles.container}>
@@ -93,8 +65,7 @@ const ProductCheckoutLandscape = ({
               </Text>
             </TouchableOpacity>
             <View style={styles.tagContainer}>
-              {eventType ? <ProductTag tag={eventType} size='small' /> : null}
-              {hasLivestreamDiscount && <ProductTag tag='LIVESTREAM' size='small' />}
+              {eventType && eventType !== '' ? <ProductTag tag={eventType} size='small' /> : null}
             </View>
           </View>
           {productClassification?.type === ClassificationTypeEnum.CUSTOM && (
@@ -106,11 +77,13 @@ const ProductCheckoutLandscape = ({
             </View>
           )}
 
-          {discount || hasLivestreamDiscount ? (
+          {discount ? (
             <View style={styles.priceContainer}>
-              <Text style={styles.discountPrice}>{t('productCard.currentPrice', { price: finalPrice })}</Text>
-              <Text style={styles.originalPrice}>{t('productCard.price', { price: originalPrice })}</Text>
-              {hasLivestreamDiscount && <Text style={styles.discountBadge}>-{livestreamDiscount * 100}%</Text>}
+              <Text style={styles.discountPrice}>{t('productCard.currentPrice', { price: discountPrice })}</Text>
+              <Text style={styles.originalPrice}>{t('productCard.price', { price })}</Text>
+              <Text style={styles.discountBadge}>
+                {t('voucher.off.numberPercentage', { percentage: discount * 100 })}
+              </Text>
             </View>
           ) : (
             <View style={styles.priceContainer}>
@@ -123,7 +96,7 @@ const ProductCheckoutLandscape = ({
           <View style={styles.quantityContainer}>
             <Text style={styles.quantityText}>x{productQuantity}</Text>
           </View>
-          <Text style={styles.totalPrice}>{t('productCard.currentPrice', { price: totalPrice })}</Text>
+          <Text style={styles.totalPrice}>{t('productCard.currentPrice', { price: basePrice })}</Text>
         </View>
       </View>
     </View>

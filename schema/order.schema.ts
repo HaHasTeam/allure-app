@@ -7,6 +7,7 @@ const ItemSchema = z.object({
 })
 
 const OrderSchema = z.object({
+  brandId: z.string().optional(), // Optional
   shopVoucherId: z.string().optional(), // Optional
   // items: z.array(ItemSchema).min(1), // Must have at least one item
   items: z.array(ItemSchema).optional(), // Create items manually
@@ -18,6 +19,11 @@ export const getCreateOrderSchema = () => {
     addressId: z.string().uuid(), // Must be a valid UUID
     paymentMethod: z.string().min(1, i18next.t('validation.paymentRequired')), // string
     platformVoucherId: z.string().optional() // Optional UUID
+  })
+}
+export const getUpdatePaymentMethodSchema = () => {
+  return z.object({
+    paymentMethod: z.string().min(1, i18next.t('validation.paymentRequired')) // string
   })
 }
 
@@ -47,5 +53,6 @@ export const getReturnOrderSchema = () => {
 }
 
 export const CreateOrderSchema = getCreateOrderSchema()
+export const UpdatePaymentMethodSchema = getUpdatePaymentMethodSchema()
 export const CancelOrderSchema = getCancelOrderSchema()
 export const ReturnOrderSchema = getRequestReturnOrderSchema()

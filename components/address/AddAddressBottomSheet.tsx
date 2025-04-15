@@ -61,13 +61,15 @@ const AddAddressBottomSheet = ({
 
   const defaultValues = {
     fullName: '',
-    phoneNumber: '',
+    phone: '',
     detailAddress: '',
     ward: '',
     district: '',
     province: '',
     fullAddress: '',
-    type: AddressEnum.HOME
+    type: AddressEnum.HOME,
+    notes: '',
+    isDefault: false
   }
 
   // const form = useForm<z.infer<typeof CreateAddressSchema>>({
@@ -90,7 +92,7 @@ const AddAddressBottomSheet = ({
     defaultValues
   })
   const handleReset = () => {
-    reset()
+    reset(defaultValues)
     setOpen(false)
   }
 
@@ -162,7 +164,13 @@ const AddAddressBottomSheet = ({
           </ScrollView>
           <View>
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={() => toggleModalVisibility()}>
+              <TouchableOpacity
+                style={[styles.button, styles.outlineButton]}
+                onPress={() => {
+                  toggleModalVisibility()
+                  reset(defaultValues)
+                }}
+              >
                 <Text>{t('dialog.cancel')}</Text>
               </TouchableOpacity>
 

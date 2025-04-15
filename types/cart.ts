@@ -1,6 +1,7 @@
 import { IClassification } from './classification'
 import { StatusEnum } from './enum'
 import { TGroupBuying } from './group-buying'
+import { ILivestream } from './livestream'
 import { IProductCart } from './product'
 
 export type ICart = {
@@ -19,7 +20,7 @@ export interface ICartItem {
   status: StatusEnum.ACTIVE | StatusEnum.INACTIVE
   productClassification: IClassification
   livestreamDiscount?: number
-  livestream?: string
+  livestream?: ILivestream
 }
 
 export type ICreateCartItem = Omit<

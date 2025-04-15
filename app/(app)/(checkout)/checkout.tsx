@@ -80,7 +80,7 @@ const Checkout = () => {
   }, {})
 
   // Get cart totals including livestream discount
-  const { totalProductCost, totalProductDiscount, totalLivestreamDiscount, totalPrice } = useMemo(() => {
+  const { totalProductCost, totalProductDiscount, totalPrice } = useMemo(() => {
     return calculateCartTotals(selectedCartItems, selectedCartItem)
   }, [selectedCartItem, selectedCartItems])
 
@@ -103,10 +103,9 @@ const Checkout = () => {
   }, [selectedCartItem, selectedCartItems, chosenPlatformVoucher, totalBrandDiscount, chosenBrandVouchers])
 
   // Total saved price (product discounts + brand vouchers + platform voucher + livestream discounts)
-  const totalSavings =
-    totalProductDiscount + totalBrandDiscount + (platformVoucherDiscount ?? 0) + totalLivestreamDiscount
+  const totalSavings = totalProductDiscount + totalBrandDiscount + (platformVoucherDiscount ?? 0)
 
-  const totalPayment = totalPrice - totalBrandDiscount - (platformVoucherDiscount ?? 0)
+  const totalPayment = Math.floor(totalPrice - totalBrandDiscount - (platformVoucherDiscount ?? 0))
 
   const bottomSheetPlatformVoucherModalRef = useRef<BottomSheetModal>(null)
   const togglePlatformVoucherVisibility = () => {
@@ -427,7 +426,6 @@ const Checkout = () => {
                   totalProductCost={totalProductCost}
                   totalBrandDiscount={totalBrandDiscount}
                   totalPlatformDiscount={platformVoucherDiscount ?? 0}
-                  totalLivestreamDiscount={totalLivestreamDiscount}
                   totalSavings={totalSavings}
                   totalPayment={totalPayment}
                   handleSubmit={handleSubmit}

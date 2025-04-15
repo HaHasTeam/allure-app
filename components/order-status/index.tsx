@@ -21,7 +21,8 @@ export default function OrderStatus({ tag, text, size = 'small' }: OrderStatusPr
     },
     text: {
       textTransform: 'uppercase',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      textOverflow: 'ellipsis'
     },
     textSmall: {
       fontSize: 10
@@ -155,7 +156,9 @@ export default function OrderStatus({ tag, text, size = 'small' }: OrderStatusPr
 
   return (
     <View style={[styles.container, bgColor, sizeStyle]}>
-      <Text style={[styles.text, textSize, tagColor]}>{text ? text : tagText}</Text>
+      <Text style={[styles.text, textSize, tagColor]} numberOfLines={1}>
+        {text ? text : tagText}
+      </Text>
     </View>
   )
 }

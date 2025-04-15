@@ -88,7 +88,11 @@ const RecommendProduct = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t('home.recommendProductsTitle')}</Text>
+        <View style={styles.titleContainer}>
+          <Feather name='star' size={20} color={myTheme.red[500]} />
+          <Text style={styles.title}>{t('home.recommendProductsTitle')}</Text>
+        </View>
+
         <Link href='/products/recommendProducts' style={styles.link}>
           <Text style={styles.linkText}>{t('button.viewAll')}</Text>
           <Feather name='arrow-right' size={16} color={myTheme.primary} />
@@ -134,6 +138,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8
   },
   title: {
     fontSize: 20,

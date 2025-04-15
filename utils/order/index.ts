@@ -1,3 +1,6 @@
+import { IMasterConfig } from '@/types/master-config'
+import { IOrder } from '@/types/order'
+
 /**
  * Calculates the discounted price for an order detail.
  * @param orderDetail - The order detail object containing pricing and discount information.
@@ -17,4 +20,23 @@ export function getOrderDetailDiscountPrice(orderDetail: {
 
   // Ensure discounted price is not less than 0
   return Math.max(subTotal - totalDiscount, 0)
+}
+
+export const calculatePaymentCountdown = (order: IOrder, masterConfigData: IMasterConfig[]) => {
+  const createdAt = new Date(order.createdAt).getTime()
+
+  const autoCancelTime = parseInt(masterConfigData[0]?.autoCancelOrderTime ?? '') || 0
+
+  const deadline = createdAt + autoCancelTime
+
+  // Get the current time
+  const now = new Date().getTime()
+
+  const remainingTime = Math.max(0, Math.floor((deadline - now) / 1000))
+
+  const hours = Math.floor(remainingTime / 3600)
+  const minutes = Math.floor((remainingTime % 3600) / 60)
+  const seconds = remainingTime % 60
+
+  return { hours, minutes, seconds }
 }

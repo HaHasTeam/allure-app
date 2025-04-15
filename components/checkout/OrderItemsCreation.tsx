@@ -35,6 +35,7 @@ export const OrderItemCreation = ({ values, selectedCartItem, chosenBrandVoucher
         const shopVoucherId = chosenBrandVouchers[brandId]?.id ?? ''
 
         return {
+          brandId,
           shopVoucherId,
           message: values?.orders[index]?.message ?? '',
           items
