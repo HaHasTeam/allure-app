@@ -24,7 +24,16 @@ import useHandleServerError from '@/hooks/useHandleServerError'
 import useCartStore from '@/store/cart'
 import { ICartByBrand, ICartItem } from '@/types/cart'
 import { IClassification } from '@/types/classification'
-import { ClassificationTypeEnum, DiscountTypeEnum, ProductCartStatusEnum, ProductEnum } from '@/types/enum'
+import {
+  ClassificationTypeEnum,
+  DiscountTypeEnum,
+  LiveStreamEnum,
+  OrderEnum,
+  ProductCartStatusEnum,
+  ProductDiscountEnum,
+  ProductEnum
+} from '@/types/enum'
+import { PreOrderProductEnum } from '@/types/pre-order'
 import { DiscountType } from '@/types/product-discount'
 import { calculateDiscountPrice } from '@/utils/price'
 import {
@@ -261,10 +270,42 @@ const ProductCardLandscape = ({
   const HAS_ACTIVE_CLASSIFICATION = hasActiveClassification(classifications)
   const IN_STOCK_CLASSIFICATION = hasClassificationWithQuantity(classifications)
 
+  // check event status
+  const EVENT_CANCELLED =
+    (cartItem.livestream && cartItem.livestream.status === LiveStreamEnum.CANCELLED) ||
+    (cartItem?.productClassification?.productDiscount &&
+      cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.CANCELLED) ||
+    (cartItem?.productClassification?.preOrderProduct &&
+      cartItem?.productClassification?.preOrderProduct?.status === PreOrderProductEnum.CANCELLED)
+  const EVENT_ENDED = cartItem.livestream && cartItem.livestream.status === LiveStreamEnum.ENDED
+  const EVENT_INACTIVE =
+    (cartItem?.productClassification?.productDiscount &&
+      cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.INACTIVE) ||
+    (cartItem?.productClassification?.preOrderProduct &&
+      cartItem?.productClassification?.preOrderProduct?.status === PreOrderProductEnum.INACTIVE) ||
+    false
+  const EVENT_SOLD_OUT =
+    (cartItem?.productClassification?.productDiscount &&
+      cartItem?.productClassification?.productDiscount?.status === ProductDiscountEnum.SOLD_OUT) ||
+    (cartItem?.productClassification?.preOrderProduct &&
+      cartItem?.productClassification?.preOrderProduct?.status === PreOrderProductEnum.SOLD_OUT) ||
+    false
+
+  const eventName = cartItem?.productClassification?.preOrderProduct
+    ? t(`event.status.${OrderEnum.PRE_ORDER}`)
+    : cartItem?.productClassification?.productDiscount
+      ? t(`event.status.${OrderEnum.FLASH_SALE}`)
+      : cartItem.livestream
+        ? t(`event.status.${OrderEnum.LIVE_STREAM}`)
+        : null
   const PREVENT_ACTION =
     !HAS_ACTIVE_CLASSIFICATION ||
     !IN_STOCK_CLASSIFICATION ||
-    !(productStatus === ProductEnum.FLASH_SALE || productStatus === ProductEnum.OFFICIAL)
+    !(productStatus === ProductEnum.FLASH_SALE || productStatus === ProductEnum.OFFICIAL) ||
+    EVENT_CANCELLED ||
+    EVENT_ENDED ||
+    EVENT_INACTIVE ||
+    EVENT_SOLD_OUT
 
   useEffect(() => {
     setQuantity(productQuantity)
@@ -329,6 +370,20 @@ const ProductCardLandscape = ({
                   <ProductTag tag={ProductCartStatusEnum.UN_PUBLISHED} />
                 ) : productStatus === ProductEnum.OUT_OF_STOCK ? (
                   <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+                ) : EVENT_CANCELLED ? (
+                  <ProductTag tag={ProductCartStatusEnum.CANCELLED} />
+                ) : EVENT_ENDED ? (
+                  <ProductTag tag={ProductCartStatusEnum.ENDED} />
+                ) : EVENT_INACTIVE ? (
+                  <ProductTag tag={ProductCartStatusEnum.INACTIVE} />
+                ) : EVENT_SOLD_OUT ? (
+                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+                ) : HIDDEN ? (
+                  <ProductTag tag={ProductCartStatusEnum.HIDDEN} />
+                ) : OUT_OF_STOCK ? (
+                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
+                ) : !IN_STOCK_CLASSIFICATION ? (
+                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
                 ) : IS_ACTIVE ? (
                   <Checkbox
                     size={20}
@@ -338,12 +393,6 @@ const ProductCardLandscape = ({
                     color={myTheme.primary}
                     onValueChange={() => onChooseProduct(cartItemId)}
                   />
-                ) : HIDDEN ? (
-                  <ProductTag tag={ProductCartStatusEnum.HIDDEN} />
-                ) : OUT_OF_STOCK ? (
-                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
-                ) : IN_STOCK_CLASSIFICATION ? (
-                  <ProductTag tag={ProductCartStatusEnum.SOLD_OUT} />
                 ) : null}
                 {/* product image */}
                 <Link
@@ -440,6 +489,46 @@ const ProductCardLandscape = ({
                         text='danger'
                         message={t('cart.soldOutMessage')}
                       />
+                    ) : EVENT_SOLD_OUT ? (
+                      <div>
+                        <AlertMessage
+                          style={[styles.alertMessage, styles.danger]}
+                          textSize='small'
+                          color='danger'
+                          text='danger'
+                          message={t('cart.eventSoldOutMessage', { eventName })}
+                        />
+                      </div>
+                    ) : EVENT_ENDED ? (
+                      <div>
+                        <AlertMessage
+                          style={[styles.alertMessage, styles.danger]}
+                          textSize='small'
+                          color='danger'
+                          text='danger'
+                          message={t('cart.eventEndedMessage', { eventName })}
+                        />
+                      </div>
+                    ) : EVENT_CANCELLED ? (
+                      <div>
+                        <AlertMessage
+                          style={[styles.alertMessage, styles.danger]}
+                          textSize='small'
+                          color='danger'
+                          text='danger'
+                          message={t('cart.eventCancelledMessage', { eventName })}
+                        />
+                      </div>
+                    ) : EVENT_INACTIVE ? (
+                      <div>
+                        <AlertMessage
+                          style={[styles.alertMessage, styles.hidden]}
+                          textSize='small'
+                          color='danger'
+                          text='danger'
+                          message={t('cart.eventInactiveMessage', { eventName })}
+                        />
+                      </div>
                     ) : null}
                   </View>
                 </View>

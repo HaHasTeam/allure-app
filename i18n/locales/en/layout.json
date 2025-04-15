@@ -59,6 +59,19 @@
     "soldFlashSale": "Sold {{amount}}",
     "soldInPastMonth": "{{amount}} bought in past month"
   },
+  "price": {
+    "slider": "Slider",
+    "days": "Days",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds",
+    "status": {
+      "PRE_ORDER": "Pre-Order",
+      "GROUP_BUYING": "Group buying",
+      "FLASH_SALE": "Flash sale",
+      "LIVE_STREAM": "Livestream"
+    }
+  },
   "productTag": {
     "bestSeller": "Best Seller",
     "limitedEdition": "Limited Edition",
@@ -74,7 +87,9 @@
     "cancelled": "Cancelled",
     "inactive": "Inactive",
     "banned": "Banned",
-    "unPublished": "Unavailable"
+    "unPublished": "Unavailable",
+    "eventCancelled": "Event Cancelled",
+    "eventEnded": "Event Ended"
   },
   "statusTag": {
     "default": "Default"
@@ -156,6 +171,10 @@
     "vietnamese": "VN"
   },
   "search": {
+    "mask": "mask",
+    "toner": "toner",
+    "cushion": "cushion",
+    "lipstick": "lipstick",
     "result": "Search results for {{keyword}}: {{total}} data",
     "reset": "Reset",
     "orderPlaceholder": "Search for orders by Order ID, Product Name, or Brand Name",
@@ -502,6 +521,10 @@
     "productLeft": "{{count}} products left",
     "updateClassificationSuccess": "Update product classification successfully!",
     "soldOutMessage": "This product classification is sold out, please choose another.",
+    "eventSoldOutMessage": "The product classification for this {{eventName}} event is sold out.",
+    "eventEndedMessage": "This {{eventName}} event has ended.",
+    "eventCancelledMessage": "This {{eventName}} event has been cancelled.",
+    "eventInactiveMessage": "The product classification for this {{eventName}} event is inactive.",
     "soldOutAllMessage": "This product is sold out.",
     "bannedMessage": "This product is banned.",
     "inactiveMessage": "This product is inactive.",
@@ -699,6 +722,7 @@
     "refunded": "Returned & Refunded",
     "lastUpdated": "Last updated",
     "success": "Order placed successfully!",
+    "successNoPayment": "Order placed successfully! Please complete the payment to proceed.",
     "prepareCash": "Prepare cash",
     "failure": "Order placement failed!",
     "retry": "Please try again later",
@@ -1065,6 +1089,15 @@
     "button_INACTIVE": "Inactive",
     "button_ACTIVE": "Active",
     "button_OFFICIAL": "Active"
+  },
+  "tags": {
+    "bestSeller": "Best Seller",
+    "hot": "Hot",
+    "preOrder": "Pre-Order",
+    "official": "Official",
+    "outOfStock": "Out of Stock",
+    "inactive": "Inactive",
+    "flashSale": "Flash sale"
   },
   "groupBuy": {
     "productListLabel": "Product available in this deal ({{amount}})",
@@ -1457,7 +1490,9 @@
       "none": "None"
     },
     "notifyPayment": "Your order hasn’t been paid yet. Please complete the payment via {{method}} by {{val}}.",
-    "changePaymentMethod": "Change payment method"
+    "changePaymentMethod": "Change payment method",
+    "paymentSuccess": "Payment successful!",
+    "methodMessage": "For group-buying purchases, the default payment method is wallet. The amount will be automatically deducted once the group order is successfully completed. Please ensure your wallet has sufficient available balance to avoid any transaction interruptions."
   },
   "backendError": {
     "invalidEmail": "Email is invalid"

@@ -1,55 +1,32 @@
-import {
-  Dimensions,
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React from "react";
+import { Header, HeaderBackButton } from '@react-navigation/elements'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Stack, useRouter } from 'expo-router'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Picker } from 'react-native-ui-lib'
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
-import { useTranslation } from "react-i18next";
-
-import OrderItem from "@/components/order/OrderItem";
-import { OrderRequestFilter } from "@/components/order/OrderRequestFilter";
-import SearchOrders from "@/components/order/SearchOrders";
-import {
-  OrderRequestTypeEnum,
-  RequestStatusEnum,
-  ShippingStatusEnum,
-} from "@/types/enum";
-import {
-  IOrderFilter,
-  IOrderItem,
-  IRequest,
-  IRequestFilter,
-} from "@/types/order";
-import {
-  filterOrdersParentApi,
-  filterRequestApi,
-  getMyOrdersApi,
-  getMyRequestsApi,
-} from "@/hooks/api/order";
-import Empty from "@/components/empty";
-import LoadingContentLayer from "@/components/loading/LoadingContentLayer";
-import { myTheme } from "@/constants";
-import { Picker } from "react-native-ui-lib";
-import TriggerList from "@/components/ui/tabs";
-import { Stack, useRouter } from "expo-router";
-import { Header, HeaderBackButton } from "@react-navigation/elements";
-import OrderParentItem from "@/components/order/OrderParentItem";
+import Empty from '@/components/empty'
+import LoadingContentLayer from '@/components/loading/LoadingContentLayer'
+import OrderItem from '@/components/order/OrderItem'
+import OrderParentItem from '@/components/order/OrderParentItem'
+import { OrderRequestFilter } from '@/components/order/OrderRequestFilter'
+import SearchOrders from '@/components/order/SearchOrders'
+import TriggerList from '@/components/ui/tabs'
+import { myTheme } from '@/constants'
+import { filterOrdersParentApi, filterRequestApi, getMyOrdersApi, getMyRequestsApi } from '@/hooks/api/order'
+import { OrderRequestTypeEnum, RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
+import { IOrderFilter, IOrderItem, IRequest, IRequestFilter } from '@/types/order'
 
 export default function ProfileOrder() {
-  const { t } = useTranslation();
-  const router = useRouter();
+  const { t } = useTranslation()
+  const router = useRouter()
   // const [orders, setOrders] = useState<IOrderItem[]>([]);
   // const [requests, setRequests] = useState<IRequest[]>([]);
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isTrigger, setIsTrigger] = useState<boolean>(false);
-  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [isTrigger, setIsTrigger] = useState<boolean>(false)
+  const queryClient = useQueryClient()
 
   const [requestTypes, setRequestTypes] = useState<OrderRequestTypeEnum[]>([])
   const [requestStatuses, setRequestStatuses] = useState<RequestStatusEnum[]>([])
@@ -104,64 +81,58 @@ export default function ProfileOrder() {
       { value: 'request', text: `${t('order.requestManagement')}` }
     ],
     [t]
-  );
+  )
   const { data: filterOrdersData, isFetching: isLoading } = useQuery({
     queryKey: [
       filterOrdersParentApi.queryKey,
       {
         page: 1,
         limit: 100,
-        order: "DESC",
-        statuses: simplifiedTriggers.find(
-          (trigger) => trigger.value === activeTab
-        )?.statuses
-          ? simplifiedTriggers.find((trigger) => trigger.value === activeTab)
-              ?.statuses
-          : activeTab === "all"
-          ? undefined
-          : (activeTab.toUpperCase() as ShippingStatusEnum),
-        search: searchQuery || undefined,
-      },
+        order: 'DESC',
+        statuses: simplifiedTriggers.find((trigger) => trigger.value === activeTab)?.statuses
+          ? simplifiedTriggers.find((trigger) => trigger.value === activeTab)?.statuses
+          : activeTab === 'all'
+            ? undefined
+            : (activeTab.toUpperCase() as ShippingStatusEnum),
+        search: searchQuery || undefined
+      }
     ],
-    queryFn: filterOrdersParentApi.fn,
-  });
+    queryFn: filterOrdersParentApi.fn
+  })
   const { data: filterRequestsData, isFetching: isLoadingRequest } = useQuery({
     queryKey: [
       filterRequestApi.queryKey,
       {
         page: 1,
         limit: 100,
-        order: "DESC",
+        order: 'DESC',
         statuses: requestStatuses.length > 0 ? requestStatuses : undefined,
-        types: requestTypes.length > 0 ? requestTypes : undefined,
-      },
+        types: requestTypes.length > 0 ? requestTypes : undefined
+      }
     ],
-    queryFn: filterRequestApi.fn,
-  });
+    queryFn: filterRequestApi.fn
+  })
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
-  const handleRequestFilterChange = async (
-    types: OrderRequestTypeEnum[],
-    statuses: RequestStatusEnum[]
-  ) => {
-    setRequestTypes(types);
-    setRequestStatuses(statuses);
+    setSearchQuery(query)
+  }
+  const handleRequestFilterChange = async (types: OrderRequestTypeEnum[], statuses: RequestStatusEnum[]) => {
+    setRequestTypes(types)
+    setRequestStatuses(statuses)
     // Trigger refetch with new filters
     await Promise.all([
       queryClient.invalidateQueries({
-        queryKey: [filterOrdersParentApi.queryKey],
+        queryKey: [filterOrdersParentApi.queryKey]
       }),
-      queryClient.invalidateQueries({ queryKey: [filterRequestApi.queryKey] }),
-    ]);
-  };
+      queryClient.invalidateQueries({ queryKey: [filterRequestApi.queryKey] })
+    ])
+  }
   useEffect(() => {
     queryClient.invalidateQueries({
-      queryKey: [filterOrdersParentApi.queryKey],
-    });
-    queryClient.invalidateQueries({ queryKey: [filterRequestApi.queryKey] });
-  }, [isTrigger, queryClient]);
+      queryKey: [filterOrdersParentApi.queryKey]
+    })
+    queryClient.invalidateQueries({ queryKey: [filterRequestApi.queryKey] })
+  }, [isTrigger, queryClient])
 
   const renderOrderItem = ({ item }: { item: IOrderItem }) => {
     return (
@@ -280,14 +251,10 @@ export default function ProfileOrder() {
               )}
             </View>
 
-            {(activeTab === "request" &&
-              !isLoadingRequest &&
-              filterRequestsData?.data?.total === 0) ||
-            (activeTab !== "request" &&
-              !isLoading &&
-              filterOrdersData?.data?.total === 0) ? (
+            {(activeTab === 'request' && !isLoadingRequest && filterRequestsData?.data?.total === 0) ||
+            (activeTab !== 'request' && !isLoading && filterOrdersData?.data?.total === 0) ? (
               renderEmpty()
-            ) : activeTab === "request" &&
+            ) : activeTab === 'request' &&
               !isLoadingRequest &&
               filterRequestsData?.data &&
               filterRequestsData?.data?.total > 0 ? (
@@ -299,17 +266,11 @@ export default function ProfileOrder() {
                 contentContainerStyle={styles.listContainer}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
               />
-            ) : activeTab !== "request" &&
-              !isLoading &&
-              filterOrdersData?.data &&
-              filterOrdersData?.data?.total > 0 ? (
+            ) : activeTab !== 'request' && !isLoading && filterOrdersData?.data && filterOrdersData?.data?.total > 0 ? (
               filterOrdersData?.data?.items?.map((order) => (
                 <View>
                   {order?.status === ShippingStatusEnum.TO_PAY ? (
-                    <OrderParentItem
-                      setIsTrigger={setIsTrigger}
-                      order={order}
-                    />
+                    <OrderParentItem setIsTrigger={setIsTrigger} order={order} />
                   ) : (
                     <View style={styles.orderContainer}>
                       <FlatList
@@ -319,9 +280,7 @@ export default function ProfileOrder() {
                         renderItem={renderOrderItem}
                         keyExtractor={(item) => item?.id.toString()}
                         contentContainerStyle={styles.listContainer}
-                        ItemSeparatorComponent={() => (
-                          <View style={styles.separator} />
-                        )}
+                        ItemSeparatorComponent={() => <View style={styles.separator} />}
                       />
                     </View>
                   )}
@@ -337,8 +296,8 @@ export default function ProfileOrder() {
 
 const styles = StyleSheet.create({
   orderContainer: {
-    flexDirection: "column",
-    gap: 4,
+    flexDirection: 'column',
+    gap: 4
   },
   triggerButton: {
     paddingHorizontal: 2,

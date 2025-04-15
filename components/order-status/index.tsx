@@ -20,9 +20,9 @@ export default function OrderStatus({ tag, text, size = 'small' }: OrderStatusPr
       alignSelf: 'baseline'
     },
     text: {
-      textTransform: "uppercase",
-      fontWeight: "bold",
-      textOverflow: "ellipsis",
+      textTransform: 'uppercase',
+      fontWeight: 'bold',
+      textOverflow: 'ellipsis'
     },
     textSmall: {
       fontSize: 10

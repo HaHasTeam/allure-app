@@ -1,17 +1,11 @@
-import { IClassification } from "./classification";
-import {
-  OrderEnum,
-  OrderRequestTypeEnum,
-  PaymentMethod,
-  RequestStatusEnum,
-  ShippingStatusEnum,
-} from "./enum";
-import { IResponseFeedback } from "./feedback";
-import { TFile, TServerFile } from "./file";
-import { PaymentMethodEnum } from "./payment";
-import { BaseParams } from "./request";
-import { TUser } from "./user";
-import { TVoucher } from "./voucher";
+import { IClassification } from './classification'
+import { OrderEnum, OrderRequestTypeEnum, PaymentMethod, RequestStatusEnum, ShippingStatusEnum } from './enum'
+import { IResponseFeedback } from './feedback'
+import { TFile, TServerFile } from './file'
+import { PaymentMethodEnum } from './payment'
+import { BaseParams } from './request'
+import { TUser } from './user'
+import { TVoucher } from './voucher'
 
 export interface IOrderDetail {
   platformVoucherDiscount: number
@@ -63,48 +57,49 @@ export interface IOrderItem {
 }
 
 export type IOrder = {
-  platformVoucherDiscount: number;
-  shopVoucherDiscount: number;
-  id: string;
-  createdAt: string;
-  updatedAt: string;
-  subTotal: number;
-  totalPrice: number;
-  shippingAddress: string;
-  recipientName: string;
-  phone: string;
-  paymentMethod: string;
-  notes: string;
-  type: string;
-  status: string;
-  account: TUser;
-  children: IOrderItem[];
-  orderDetails: IOrderItem[]; // for requests
-};
+  platformVoucherDiscount: number
+  shopVoucherDiscount: number
+  id: string
+  createdAt: string
+  updatedAt: string
+  subTotal: number
+  totalPrice: number
+  shippingAddress: string
+  recipientName: string
+  phone: string
+  paymentMethod: string
+  notes: string
+  type: string
+  status: string
+  account: TUser
+  children: IOrderItem[]
+  orderDetails: IOrderItem[] // for requests
+  isPaymentMethodUpdated: boolean
+}
 
 export type IOrderFilter = {
-  search?: string;
-  statusList?: string[];
-};
+  search?: string
+  statusList?: string[]
+}
 
 export type IOrderFilterFilter = BaseParams<{
-  search?: string;
-  statuses?: ShippingStatusEnum[] | undefined | ShippingStatusEnum;
-  types?: OrderEnum[];
-  paymentMethods?: PaymentMethodEnum[];
-  productIds?: string[];
-}>;
+  search?: string
+  statuses?: ShippingStatusEnum[] | undefined | ShippingStatusEnum
+  types?: OrderEnum[]
+  paymentMethods?: PaymentMethodEnum[]
+  productIds?: string[]
+}>
 
 export type IRequestFilter = {
-  search?: string;
-  types?: string[];
-  statusList?: string[];
-};
+  search?: string
+  types?: string[]
+  statusList?: string[]
+}
 
 export type IRequestFilterFilter = BaseParams<{
-  statuses?: RequestStatusEnum[] | undefined | RequestStatusEnum;
-  types?: OrderRequestTypeEnum[];
-}>;
+  statuses?: RequestStatusEnum[] | undefined | RequestStatusEnum
+  types?: OrderRequestTypeEnum[]
+}>
 
 export type IOrderCheckoutItem = {
   productClassificationId: string
@@ -112,11 +107,11 @@ export type IOrderCheckoutItem = {
 }
 
 export type ICreateOrderItem = {
-  brandId?: string;
-  shopVoucherId?: string;
-  items: IOrderCheckoutItem[];
-  message?: string;
-};
+  brandId?: string
+  shopVoucherId?: string
+  items: IOrderCheckoutItem[]
+  message?: string
+}
 
 export type ICreateOrder = {
   orders: ICreateOrderItem[]

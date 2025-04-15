@@ -87,15 +87,15 @@ export default function ProductTag({ tag, text, size = 'small' }: ProductTagProp
       tagText = t('productTag.outOfStock')
       break
     case OrderEnum.FLASH_SALE:
-      tagStyle = styles.flashSale;
-      textStyle = styles.flashSaleText;
-      tagText = t("productTag.flashSale");
-      break;
+      tagStyle = styles.flashSale
+      textStyle = styles.flashSaleText
+      tagText = t('productTag.flashSale')
+      break
     case OrderEnum.LIVE_STREAM:
-      tagStyle = styles.liveStream;
-      textStyle = styles.liveStreamText;
-      tagText = t("productTag.liveStream");
-      break;
+      tagStyle = styles.liveStream
+      textStyle = styles.liveStreamText
+      tagText = t('productTag.liveStream')
+      break
     case OrderEnum.GROUP_BUYING:
       textStyle = styles.orderGroupBuyingText
       tagStyle = styles.orderGroupBuying
@@ -120,6 +120,16 @@ export default function ProductTag({ tag, text, size = 'small' }: ProductTagProp
       tagStyle = styles.preOrderCancelled
       textStyle = styles.preOrderCancelledText
       tagText = t('productTag.cancelled')
+      break
+    case ProductCartStatusEnum.CANCELLED:
+      tagStyle = styles.preOrderCancelled
+      textStyle = styles.preOrderCancelledText
+      tagText = t('productTag.eventCancelled')
+      break
+    case ProductCartStatusEnum.ENDED:
+      tagStyle = styles.preOrderCancelled
+      textStyle = styles.preOrderCancelledText
+      tagText = t('productTag.eventEnded')
       break
     case PreOrderProductEnum.INACTIVE:
       tagStyle = styles.preOrderInactive
@@ -211,13 +221,13 @@ const styles = StyleSheet.create({
   },
   flashSale: {
     backgroundColor: myTheme.rose[200],
-    color: myTheme.white,
+    color: myTheme.white
   },
   liveStream: {
     backgroundColor: myTheme.purple[500],
     color: myTheme.white,
     borderWidth: 1,
-    borderColor: myTheme.purple[500],
+    borderColor: myTheme.purple[500]
   },
   orderGroupBuying: {
     backgroundColor: myTheme.white,
@@ -342,16 +352,16 @@ const styles = StyleSheet.create({
     color: myTheme.red[500]
   },
   flashSaleText: {
-    color: myTheme.white,
+    color: myTheme.white
   },
   liveStreamText: {
-    color: myTheme.white,
+    color: myTheme.white
   },
   orderGroupBuyingText: {
     color: myTheme.orange[500]
   },
   orderPreOrderText: {
-    color: myTheme.white,
+    color: myTheme.white
   },
   preOrderWaitingText: {
     color: myTheme.yellow[800]

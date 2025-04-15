@@ -12,15 +12,12 @@ import {
   IRejectReturnRequestOrder,
   IRequest,
   IRequestFilter,
-  IRequestFilterFilter,
-} from "@/types/order";
-import {
-  TServerResponse,
-  TServerResponseWithPagination,
-} from "@/types/request";
-import { IStatusTracking } from "@/types/status-tracking";
-import { toMutationFetcher, toQueryFetcher } from "@/utils/query";
-import { privateRequest } from "@/utils/request";
+  IRequestFilterFilter
+} from '@/types/order'
+import { TServerResponse, TServerResponseWithPagination } from '@/types/request'
+import { IStatusTracking } from '@/types/status-tracking'
+import { toMutationFetcher, toQueryFetcher } from '@/utils/query'
+import { privateRequest } from '@/utils/request'
 
 export const createOderApi = toMutationFetcher<ICreateOrder, TServerResponse<IOrder>>('createOderApi', async (data) => {
   return privateRequest('/orders/create-normal', {
@@ -92,131 +89,131 @@ export const getRejectReturnRequestApi = toQueryFetcher<string, TServerResponse<
   }
 )
 
-export const getOrderByIdApi = toQueryFetcher<
-  string,
-  TServerResponse<IOrderItem>
->("getOrderByIdApi", async (orderId) => {
-  return privateRequest(`/orders/get-by-id/${orderId}`);
-});
-export const getParentOrderByIdApi = toQueryFetcher<
-  string,
-  TServerResponse<IOrder>
->("getParentOrderByIdApi", async (orderId) => {
-  return privateRequest(`/orders/get-parent-by-id/${orderId}`);
-});
+export const getOrderByIdApi = toQueryFetcher<string, TServerResponse<IOrderItem>>(
+  'getOrderByIdApi',
+  async (orderId) => {
+    return privateRequest(`/orders/get-by-id/${orderId}`)
+  }
+)
+export const getParentOrderByIdApi = toQueryFetcher<string, TServerResponse<IOrder>>(
+  'getParentOrderByIdApi',
+  async (orderId) => {
+    return privateRequest(`/orders/get-parent-by-id/${orderId}`)
+  }
+)
 
-export const filterRequestApi = toQueryFetcher<
-  IRequestFilterFilter,
-  TServerResponseWithPagination<IRequest[]>
->("filterRequestApi", async (filterData) => {
-  const { page, limit, sortBy, order, ...rest } = filterData || {};
+export const filterRequestApi = toQueryFetcher<IRequestFilterFilter, TServerResponseWithPagination<IRequest[]>>(
+  'filterRequestApi',
+  async (filterData) => {
+    const { page, limit, sortBy, order, ...rest } = filterData || {}
 
-  const body: IRequestFilterFilter = {};
+    const body: IRequestFilterFilter = {}
 
-  if (rest.statuses?.length) {
-    body.statuses = rest.statuses;
-  }
-  if (rest.types?.length) {
-    body.types = rest.types;
-  }
+    if (rest.statuses?.length) {
+      body.statuses = rest.statuses
+    }
+    if (rest.types?.length) {
+      body.types = rest.types
+    }
 
-  return privateRequest("/orders/filter-parent", {
-    method: "POST",
-    data: body,
-    params: {
-      page,
-      limit,
-      sortBy,
-      order,
-    },
-  });
-});
+    return privateRequest('/orders/filter-parent', {
+      method: 'POST',
+      data: body,
+      params: {
+        page,
+        limit,
+        sortBy,
+        order
+      }
+    })
+  }
+)
 
-export const filterOrdersApi = toQueryFetcher<
-  IOrderFilterFilter,
-  TServerResponseWithPagination<IOrder[]>
->("filterOrdersApi", async (filterData) => {
-  const { page, limit, sortBy, order, ...rest } = filterData || {};
+export const filterOrdersApi = toQueryFetcher<IOrderFilterFilter, TServerResponseWithPagination<IOrder[]>>(
+  'filterOrdersApi',
+  async (filterData) => {
+    const { page, limit, sortBy, order, ...rest } = filterData || {}
 
-  const body: IOrderFilterFilter = {};
-  if (rest.search) {
-    body.search = rest.search;
-  }
-  if (rest.statuses?.length) {
-    body.statuses = rest.statuses;
-  }
-  if (rest.types?.length) {
-    body.types = rest.types;
-  }
-  if (rest.paymentMethods?.length) {
-    body.paymentMethods = rest.paymentMethods;
-  }
-  if (rest.productIds?.length) {
-    body.productIds = rest.productIds;
-  }
+    const body: IOrderFilterFilter = {}
+    if (rest.search) {
+      body.search = rest.search
+    }
+    if (rest.statuses?.length) {
+      body.statuses = rest.statuses
+    }
+    if (rest.types?.length) {
+      body.types = rest.types
+    }
+    if (rest.paymentMethods?.length) {
+      body.paymentMethods = rest.paymentMethods
+    }
+    if (rest.productIds?.length) {
+      body.productIds = rest.productIds
+    }
 
-  return privateRequest("/orders/filter", {
-    method: "POST",
-    data: body,
-    params: {
-      page,
-      limit,
-      sortBy,
-      order,
-    },
-  });
-});
+    return privateRequest('/orders/filter', {
+      method: 'POST',
+      data: body,
+      params: {
+        page,
+        limit,
+        sortBy,
+        order
+      }
+    })
+  }
+)
 
-export const cancelParentOrderApi = toMutationFetcher<
-  ICancelOrder,
-  TServerResponse<IOrder>
->("cancelParentOrderApi", async ({ orderId, reason }) => {
-  return privateRequest(`/orders/cancel-parent-order/${orderId}`, {
-    method: "POST",
-    data: { reason },
-  });
-});
+export const cancelParentOrderApi = toMutationFetcher<ICancelOrder, TServerResponse<IOrder>>(
+  'cancelParentOrderApi',
+  async ({ orderId, reason }) => {
+    return privateRequest(`/orders/cancel-parent-order/${orderId}`, {
+      method: 'POST',
+      data: { reason }
+    })
+  }
+)
 
-export const filterOrdersParentApi = toQueryFetcher<
-  IOrderFilterFilter,
-  TServerResponseWithPagination<IOrder[]>
->("filterOrdersParentApi", async (filterData) => {
-  const { page, limit, sortBy, order, ...rest } = filterData || {};
+export const filterOrdersParentApi = toQueryFetcher<IOrderFilterFilter, TServerResponseWithPagination<IOrder[]>>(
+  'filterOrdersParentApi',
+  async (filterData) => {
+    const { page, limit, sortBy, order, ...rest } = filterData || {}
 
-  const body: IOrderFilterFilter = {};
-  if (rest.search) {
-    body.search = rest.search;
-  }
-  if (rest.statuses?.length) {
-    body.statuses = rest.statuses;
-  }
-  if (rest.types?.length) {
-    body.types = rest.types;
-  }
-  if (rest.paymentMethods?.length) {
-    body.paymentMethods = rest.paymentMethods;
-  }
-  if (rest.productIds?.length) {
-    body.productIds = rest.productIds;
-  }
+    const body: IOrderFilterFilter = {}
+    if (rest.search) {
+      body.search = rest.search
+    }
+    if (rest.statuses?.length) {
+      body.statuses = rest.statuses
+    }
+    if (rest.types?.length) {
+      body.types = rest.types
+    }
+    if (rest.paymentMethods?.length) {
+      body.paymentMethods = rest.paymentMethods
+    }
+    if (rest.productIds?.length) {
+      body.productIds = rest.productIds
+    }
 
-  return privateRequest("/orders/filter-parent", {
-    method: "POST",
-    data: body,
-    params: {
-      page,
-      limit,
-      sortBy,
-      order,
-    },
-  });
-});
-export const getStatusTrackingByIdApi = toQueryFetcher<
-  string,
-  TServerResponse<IStatusTracking[]>
->("getStatusTrackingByIdApi", async (orderId) => {
-  return privateRequest(`/orders/get-status-tracking/${orderId}`);
-});
+    return privateRequest('/orders/filter-parent', {
+      method: 'POST',
+      data: body,
+      params: {
+        page,
+        limit,
+        sortBy,
+        order
+      }
+    })
+  }
+)
+export const getStatusTrackingByIdApi = toQueryFetcher<string, TServerResponse<IStatusTracking[]>>(
+  'getStatusTrackingByIdApi',
+  async (orderId) => {
+    return privateRequest(`/orders/get-status-tracking/${orderId}`)
+  }
+)
 
 export const getAllOrderListApi = toQueryFetcher<void, TServerResponse<IOrder[]>>('getAllOrderListApi', async () => {
   return privateRequest('/orders', {

@@ -28,6 +28,7 @@ const CartScreen = () => {
   const { t } = useTranslation()
   const [selectedCartItems, setSelectedCartItems] = useState<string[]>([])
   const [allCartItemIds, setAllCartItemIds] = useState<string[]>([])
+  const [allValidCartItemIds, setAllValidCartItemIds] = useState<string[]>([])
   const [isAllSelected, setIsAllSelected] = useState<boolean>(false)
   const [cartByBrand, setCartByBrand] = useState<ICartByBrand | undefined>(undefined)
   const [bestBrandVouchers, setBestBrandVouchers] = useState<IBrandBestVoucher[]>([])
@@ -69,7 +70,7 @@ const CartScreen = () => {
 
   // Total saved price (product discounts + brand vouchers + platform voucher)
   const savedPrice = totalDirectProductsDiscount + totalVoucherDiscount + platformVoucherDiscount
-  const totalFinalPrice = totalPrice - totalVoucherDiscount - platformVoucherDiscount
+  const totalFinalPrice = Math.floor(totalPrice - totalVoucherDiscount - platformVoucherDiscount)
 
   const { data: useMyCartData, isFetching } = useQuery({
     queryKey: [getMyCartApi.queryKey],
@@ -96,7 +97,13 @@ const CartScreen = () => {
     if (isAllSelected) {
       setSelectedCartItems([]) // Deselect all
     } else {
-      setSelectedCartItems(allCartItemIds) // Select all
+      // Only select cart items where PREVENT_ACTION is false
+      const validCartItemIds = allCartItemIds.filter((id) => {
+        const cartItem = findCartItemById(id, cartItems)
+        return cartItem && !checkPreventAction(cartItem)
+      })
+
+      setSelectedCartItems(validCartItemIds) // Select all
     }
   }
 
@@ -172,11 +179,52 @@ const CartScreen = () => {
         cartBrand.map((cartItem) => cartItem.id)
       )
       setAllCartItemIds(tmpAllCartItemIds)
-      setIsAllSelected(tmpAllCartItemIds.every((id) => selectedCartItems.includes(id)))
+      // Filter out valid cart items (where PREVENT_ACTION is false)
+      const validCartItemIds = tmpAllCartItemIds.filter((id) => {
+        const cartItem = findCartItemById(id, cartItems)
+        return cartItem && !checkPreventAction(cartItem)
+      })
+      // Check if all valid items are selected
+      const isAllValid = validCartItemIds.length > 0 && validCartItemIds.every((id) => selectedCartItems.includes(id))
 
+      // Check if selection includes only valid items
       const validSelectedCartItems = selectedCartItems.filter((id) => tmpAllCartItemIds.includes(id))
+
+      setIsAllSelected(isAllValid && validSelectedCartItems.length === validCartItemIds.length)
+      setAllValidCartItemIds(validCartItemIds)
+
       if (validSelectedCartItems.length !== selectedCartItems.length) {
         setSelectedCartItems(validSelectedCartItems)
+      }
+
+      // handle show best voucher for each brand
+      async function handleShowBestBrandVoucher() {
+        try {
+          if (cartItems) {
+            const checkoutItems = createCheckoutItems(cartItems, selectedCartItems)
+            await callBestBrandVouchersFn({
+              checkoutItems
+            })
+          }
+        } catch (error) {
+          console.error(error)
+        }
+      }
+      async function handleShowBestPlatformVoucher() {
+        try {
+          let checkoutItems: ICheckoutItem[] = []
+          if (cartItems) {
+            checkoutItems = Object.entries(cartItems)
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              .flatMap(([_brandName, cartItems]) => createCheckoutItem(cartItems, selectedCartItems))
+          }
+
+          await callBestPlatformVouchersFn({
+            checkoutItems
+          })
+        } catch (error) {
+          console.error(error)
+        }
       }
 
       handleShowBestBrandVoucher()
@@ -301,7 +349,7 @@ const CartScreen = () => {
           />
           {/* Cart Footer */}
           <CartFooter
-            cartItemCountAll={allCartItemIds?.length}
+            cartItemCountAll={allValidCartItemIds?.length}
             cartItemCount={selectedCartItems?.length}
             setSelectedCartItems={setSelectedCartItems}
             onCheckAll={handleSelectAll}

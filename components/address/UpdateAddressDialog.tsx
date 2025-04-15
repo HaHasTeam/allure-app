@@ -89,7 +89,6 @@ const UpdateAddressDialog = ({
     defaultValues
   })
   const handleReset = () => {
-    reset(defaultValues)
     setOpen(false)
   }
   const { mutateAsync: updateAddressFn } = useMutation({
@@ -166,7 +165,13 @@ const UpdateAddressDialog = ({
 
           <View>
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={() => toggleModalVisible()}>
+              <TouchableOpacity
+                style={[styles.button, styles.outlineButton]}
+                onPress={() => {
+                  toggleModalVisible()
+                  reset(defaultValues)
+                }}
+              >
                 <Text style={styles.buttonOutlineText}>{t('dialog.cancel')}</Text>
               </TouchableOpacity>
 

@@ -10,10 +10,10 @@ import { IOrderDetail } from '@/types/order'
 import { IProduct } from '@/types/product'
 
 interface ProductOrderLandscapeProps {
-  product: IProduct;
-  productClassification: IClassification;
-  orderDetail: IOrderDetail;
-  productType: string | null;
+  product: IProduct
+  productClassification: IClassification
+  orderDetail: IOrderDetail
+  productType: string | null
 }
 const ProductOrderLandscape = ({
   product,

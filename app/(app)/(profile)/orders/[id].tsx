@@ -53,7 +53,6 @@ const OrderDetail = () => {
   const { showToast } = useToast()
   const handleServerError = useHandleServerError()
   const [isLoading, setIsLoading] = useState(false)
-  const [openRequestReturnOrderDialog, setOpenRequestReturnOrderDialog] = useState<boolean>(false)
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null)
   const toggleModalVisibility = () => {
@@ -75,12 +74,12 @@ const OrderDetail = () => {
   }
   const bottomSheetModalRequestReturnRef = useRef<BottomSheetModal>(null)
   const toggleModalRequestReturnVisibility = () => {
-    if (openRequestReturnOrderDialog) {
+    if (openReqReturnDialog) {
       bottomSheetModalRequestReturnRef.current?.close() // Close modal if it's visible
     } else {
       bottomSheetModalRequestReturnRef.current?.present() // Open modal if it's not visible
     }
-    setOpenRequestReturnOrderDialog(!openRequestReturnOrderDialog) // Toggle the state
+    setOpenReqReturnDialog(!openReqReturnDialog) // Toggle the state
   }
 
   const { data: useOrderData, isFetching } = useQuery({
@@ -477,8 +476,7 @@ const OrderDetail = () => {
                 paymentMethod={useOrderData?.data?.paymentMethod}
               />
 
-              {(useOrderData?.data?.status === ShippingStatusEnum.TO_PAY ||
-                useOrderData?.data?.status === ShippingStatusEnum.WAIT_FOR_CONFIRMATION) && (
+              {useOrderData?.data?.status === ShippingStatusEnum.WAIT_FOR_CONFIRMATION && (
                 <TouchableOpacity style={styles.outlineButton} onPress={() => setOpenCancelOrderDialog(true)}>
                   <MyText text={t('order.cancelOrder')} styleProps={styles.outlineButtonText} />
                 </TouchableOpacity>
@@ -510,11 +508,7 @@ const OrderDetail = () => {
                 )}
                 {showReturnButton && (
                   <TouchableOpacity style={styles.outlineButton} onPress={() => setOpenReqReturnDialog(true)}>
-                    {isLoading ? (
-                      <LoadingIcon color='primaryBackground' />
-                    ) : (
-                      <MyText text={t('order.returnOrder')} styleProps={styles.outlineButtonText} />
-                    )}
+                    <MyText text={t('order.returnOrder')} styleProps={styles.outlineButtonText} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -556,7 +550,7 @@ const OrderDetail = () => {
       {!isFetching && useOrderData?.data && (
         <RequestReturnOrderDialog
           bottomSheetModalRef={bottomSheetModalRequestReturnRef}
-          setIsModalVisible={setOpenRequestReturnOrderDialog}
+          setIsModalVisible={setOpenReqReturnDialog}
           toggleModalVisibility={toggleModalRequestReturnVisibility}
           setIsTrigger={setIsTrigger}
           orderId={useOrderData?.data?.id ?? ''}

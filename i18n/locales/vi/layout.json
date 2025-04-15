@@ -74,7 +74,22 @@
     "cancelled": "Đã hủy",
     "inactive": "Đã ẩn",
     "banned": "Đã cấm",
-    "unPublished": "Không khả dụng"
+    "unPublished": "Không khả dụng",
+    "eventCancelled": "Sự kiện đã hủy",
+    "eventEnded": "Đã kết thúc"
+  },
+  "price": {
+    "slider": "Thanh trượt",
+    "days": "Ngày",
+    "hours": "Giờ",
+    "minutes": "Phút",
+    "seconds": "Giây",
+    "status": {
+      "PRE_ORDER": "Đặt trước",
+      "GROUP_BUYING": "Mua nhóm",
+      "FLASH_SALE": "Flash sale",
+      "LIVE_STREAM": "Livestream"
+    }
   },
   "statusTag": {
     "default": "Mặc định"
@@ -156,10 +171,23 @@
     "vietnamese": "VN"
   },
   "search": {
+    "mask": "mặt nạ",
+    "toner": "nước cân bằng",
+    "cushion": "phấn nước",
+    "lipstick": "son môi",
     "result": "Kết quả tìm kiếm cho từ khóa {{keyword}}: {{total}} dữ liệu",
     "reset": "Đặt lại",
     "orderPlaceholder": "Tìm đơn hàng theo Mã đơn hàng, Tên sản phẩm hoặc Tên thương hiệu",
     "orderButton": "Tìm đơn hàng"
+  },
+  "tags": {
+    "bestSeller": "Best Seller",
+    "hot": "Hot",
+    "preOrder": "Đặt trước",
+    "official": "Chính hãng",
+    "outOfStock": "Hết hàng",
+    "inactive": "Không hoạt động",
+    "flashSale": "Flash sale"
   },
   "filter": {
     "title": "Lọc",
@@ -498,6 +526,10 @@
     "productLeft": "Còn {{count}} sản phẩm",
     "updateClassificationSuccess": "Thay đổi phân loại sản phẩm thành công!",
     "soldOutMessage": "Phân loại hàng này đã bán hết, vui lòng chọn phân loại khác.",
+    "eventSoldOutMessage": "Phân loại sản phẩm trong sự kiện {{eventName}} đã hết hàng.",
+    "eventEndedMessage": "Sự kiện {{eventName}} đã kết thúc.",
+    "eventCancelledMessage": "Sự kiện {{eventName}} đã bị hủy.",
+    "eventInactiveMessage": "Phân loại sản phẩm trong sự kiện {{eventName}} hiện không hoạt động.",
     "soldOutAllMessage": "Sản phẩm này đã hết hàng.",
     "bannedMessage": "Sản phẩm này đã bị cấm.",
     "inactiveMessage": "Sản phẩm này đang không hoạt động.",
@@ -695,6 +727,7 @@
     "refunded": "Đã Trả Hàng & Hoàn Tiền",
     "lastUpdated": "Cập nhật lần cuối",
     "success": "Đặt hàng thành công!",
+    "successNoPayment": "Đặt hàng thành công! Vui lòng hoàn tất thanh toán để tiếp tục.",
     "prepareCash": "Chuẩn bị tiền mặt",
     "failure": "Đặt hàng thất bại!",
     "retry": "Vui lòng thử lại sau",
@@ -1456,6 +1489,8 @@
       "none": "Không có"
     },
     "notifyPayment": "Đơn hàng của bạn chưa được thanh toán. Vui lòng hoàn tất thanh toán bằng {{method}} trong {{val}}.",
-    "changePaymentMethod": "Đổi phương thức thanh toán"
+    "changePaymentMethod": "Đổi phương thức thanh toán",
+    "paymentSuccess": "Thanh toán thành công!",
+    "methodMessage": "Đối với giao dịch mua nhóm, phương thức thanh toán mặc định là ví. Số tiền sẽ được tự động trừ khi đơn mua nhóm hoàn tất. Vui lòng đảm bảo số dư khả dụng trong ví để tránh gián đoạn giao dịch."
   }
 }

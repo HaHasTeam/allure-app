@@ -23,23 +23,23 @@ export class ResponseError<TErrorResponse = unknown> extends Error {
   }
 }
 export type TServerResponseWithPagination<TItems = undefined> = {
-  message: string;
+  message: string
   data: (TItems extends undefined ? object : { items: TItems }) & {
-    total: number;
-    totalPages: number;
-  };
-};
+    total: number
+    totalPages: number
+  }
+}
 
 export type BaseParams<T> = {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  order?: "ASC" | "DESC";
-} & Partial<T>;
+  page?: number
+  limit?: number
+  sortBy?: string
+  order?: 'ASC' | 'DESC'
+} & Partial<T>
 
 export type BaseFilterParams = {
-  sortBy?: string;
-  order?: "ASC" | "DESC";
-  page?: number;
-  limit?: number;
-};
+  sortBy?: string
+  order?: 'ASC' | 'DESC'
+  page?: number
+  limit?: number
+}

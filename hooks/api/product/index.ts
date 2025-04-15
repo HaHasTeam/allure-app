@@ -21,7 +21,7 @@ export const getAllProductApi = toQueryFetcher<void, TServerResponse<IResponsePr
   }
 )
 export const getProductApi = toQueryFetcher<string, TServerResponse<IProduct>>('getProductApi', async (productId) => {
-  return privateRequest(`/products/get-by-id/${productId}`)
+  return publicRequest(`/products/get-by-id/${productId}`)
 })
 
 export const createProductApi = toMutationFetcher<IServerCreateProduct, TServerResponse<IServerCreateProduct>>(

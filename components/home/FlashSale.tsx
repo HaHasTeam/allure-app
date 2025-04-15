@@ -28,8 +28,8 @@ const FlashSale = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>{t('flashSale.title')}</Text>
           <Feather name='zap' size={20} color={myTheme.red[500]} />
+          <Text style={styles.title}>{t('flashSale.title')}</Text>
         </View>
         <Link href='/products/productFlashSale' style={styles.link}>
           <Text style={styles.linkText}>{t('button.seeAll')}</Text>

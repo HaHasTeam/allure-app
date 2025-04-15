@@ -1,4 +1,4 @@
-import { MaterialIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,7 +23,7 @@ function PreOrderProductSections() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <MaterialIcons name='access-time' size={24} color={myTheme.primary} />
+        <MaterialCommunityIcons name='calendar-clock' size={24} color={myTheme.primary} />
         <Text style={styles.title}>{t('home.preOrderTitle')}</Text>
       </View>
 

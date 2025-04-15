@@ -41,13 +41,15 @@ const OrderStatusTrackingDetail = ({ statusTrackingData }: OrderStatusTrackingDe
     text: StatusTrackingText(tracking.status),
     icon: StatusTrackingIcon(tracking.status),
     reason: tracking.reason,
-    updatedBy: t(
-      `role.${
-        tracking.updatedBy.role.role === UserRoleEnum.MANAGER || tracking.updatedBy.role.role === UserRoleEnum.STAFF
-          ? 'BRAND'
-          : tracking.updatedBy.role.role
-      }`
-    )
+    updatedBy: tracking.updatedBy
+      ? t(
+          `role.${
+            tracking.updatedBy.role.role === UserRoleEnum.MANAGER || tracking.updatedBy.role.role === UserRoleEnum.STAFF
+              ? 'BRAND'
+              : tracking.updatedBy.role.role
+          }`
+        )
+      : ''
   }))
 
   const timeline = [...defaultTimeline, ...databaseTimeline]

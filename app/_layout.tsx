@@ -2,7 +2,6 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 import { Header, HeaderBackButton } from '@react-navigation/elements'
 import * as Linking from 'expo-linking'
 import { Stack, useRouter } from 'expo-router'
-
 import { Appearance, Platform, StatusBar, StyleSheet } from 'react-native'
 import { View } from 'react-native-ui-lib'
 

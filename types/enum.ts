@@ -67,11 +67,11 @@ export enum DiscountTypeEnum {
 }
 
 export enum OrderEnum {
-  PRE_ORDER = "PRE_ORDER",
-  NORMAL = "NORMAL",
-  GROUP_BUYING = "GROUP_BUYING",
-  FLASH_SALE = "FLASH_SALE",
-  LIVE_STREAM = "LIVE_STREAM",
+  PRE_ORDER = 'PRE_ORDER',
+  NORMAL = 'NORMAL',
+  GROUP_BUYING = 'GROUP_BUYING',
+  FLASH_SALE = 'FLASH_SALE',
+  LIVE_STREAM = 'LIVE_STREAM'
 }
 
 export enum ProjectInformationEnum {
@@ -133,7 +133,9 @@ export enum ProductCartStatusEnum {
   SOLD_OUT = 'SOLD_OUT',
   INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
-  UN_PUBLISHED = 'UN_PUBLISHED'
+  UN_PUBLISHED = 'UN_PUBLISHED',
+  ENDED = 'ENDED',
+  CANCELLED = 'CANCELLED'
 }
 export enum ClassificationTypeEnum {
   DEFAULT = 'DEFAULT',

@@ -37,14 +37,14 @@ i18n.use(initReactI18next).init({
         return moment(dateValue).format(format || 'DD/MM/YYYY HH:mm:ss')
       }
 
-      if (format === "currency") {
-        const currency = lng === "vi" ? "VND" : "VND"; // Don't change currency per language
-        return new Intl.NumberFormat("vi", {
-          style: "currency",
+      if (format === 'currency') {
+        const currency = lng === 'vi' ? 'VND' : 'VND' // Don't change currency per language
+        return new Intl.NumberFormat('vi', {
+          style: 'currency',
           currency,
           maximumFractionDigits: 0,
-          currencyDisplay: 'symbol',
-        }).format(value);
+          currencyDisplay: 'symbol'
+        }).format(value)
       }
       return value
     }

@@ -33,27 +33,19 @@ import { OrderEnum, RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
 import { IOrderItem } from '@/types/order'
 
 interface OrderItemProps {
-  brand: IBrand | null;
-  orderItem: IOrderItem;
-  setIsTrigger: Dispatch<SetStateAction<boolean>>;
-  isShowAction?: boolean;
-  orderId?: string;
+  brand: IBrand | null
+  orderItem: IOrderItem
+  setIsTrigger: Dispatch<SetStateAction<boolean>>
+  isShowAction?: boolean
+  orderId?: string
 }
-const OrderItem = ({
-  brand,
-  orderItem,
-  setIsTrigger,
-  isShowAction = true,
-  orderId,
-}: OrderItemProps) => {
-  const { t } = useTranslation();
-  const router = useRouter();
-  const [openRequestCancelOrderDialog, setOpenRequestCancelOrderDialog] =
-    useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [openCancelOrderDialog, setOpenCancelOrderDialog] = useState(false);
-  const [openRequestReturnOrderDialog, setOpenRequestReturnOrderDialog] =
-    useState<boolean>(false);
+const OrderItem = ({ brand, orderItem, setIsTrigger, isShowAction = true, orderId }: OrderItemProps) => {
+  const { t } = useTranslation()
+  const router = useRouter()
+  const [openRequestCancelOrderDialog, setOpenRequestCancelOrderDialog] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [openCancelOrderDialog, setOpenCancelOrderDialog] = useState(false)
+  const [openRequestReturnOrderDialog, setOpenRequestReturnOrderDialog] = useState<boolean>(false)
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null)
   const toggleModalVisibility = () => {
@@ -251,22 +243,16 @@ const OrderItem = ({
                   styleProps={styles.chatButtonText}
                 />
               </TouchableOpacity> */}
-              <TouchableOpacity
-                style={styles.viewShopButton}
-                onPress={() => router.push(`/brands/${brand?.id}`)}
-              >
+              <TouchableOpacity style={styles.viewShopButton} onPress={() => router.push(`/brands/${brand?.id}`)}>
                 <View style={styles.avatarContainer}>
                   <ImageWithFallback
-                    src={brand?.logo ?? ""}
+                    source={{ uri: brand?.logo ?? '' }}
                     alt={brand?.name}
-                    resizeMode="cover"
+                    resizeMode='cover'
                     style={styles.avatar}
                   />
                 </View>
-                <MyText
-                  text={t("brand.viewShop")}
-                  styleProps={styles.viewShopText}
-                />
+                <MyText text={t('brand.viewShop')} styleProps={styles.viewShopText} />
               </TouchableOpacity>
             </View>
           </View>
@@ -285,10 +271,10 @@ const OrderItem = ({
           renderItem={({ item: productOder }) => (
             <TouchableOpacity
               onPress={() => {
-                if (orderId && orderId !== "") {
-                  router.push(`/(profile)/orders/origin/${orderId}`);
+                if (orderId && orderId !== '') {
+                  router.push(`/(profile)/orders/origin/${orderId}`)
                 } else {
-                  router.push(`/(profile)/orders/${orderItem?.id}`);
+                  router.push(`/(profile)/orders/${orderItem?.id}`)
                 }
               }}
               key={productOder?.id}
@@ -429,10 +415,10 @@ const OrderItem = ({
             <View>
               <MyText
                 text={
-                  t("order.lastUpdated") +
-                  ": " +
-                  t("date.toLocaleDateTimeString", {
-                    val: new Date(orderItem?.updatedAt),
+                  t('order.lastUpdated') +
+                  ': ' +
+                  t('date.toLocaleDateTimeString', {
+                    val: new Date(orderItem?.updatedAt)
                   })
                 }
                 styleProps={styles.lastUpdatedText}
@@ -442,54 +428,32 @@ const OrderItem = ({
               <TouchableOpacity
                 style={styles.outlineButton}
                 onPress={() => {
-                  console.log("Navigating with orderItem.id:", orderItem?.id);
+                  console.log('Navigating with orderItem.id:', orderItem?.id)
                   router.push({
-                    pathname: "/(app)/(profile)/orders/[id]",
-                    params: { id: orderItem?.id },
-                  });
+                    pathname: '/(app)/(profile)/orders/[id]',
+                    params: { id: orderItem?.id }
+                  })
                 }}
               >
-                <MyText
-                  text={t("order.viewDetail")}
-                  styleProps={styles.outlineButtonText}
-                />
+                <MyText text={t('order.viewDetail')} styleProps={styles.outlineButtonText} />
               </TouchableOpacity>
 
-              {orderItem?.status ===
-                ShippingStatusEnum.WAIT_FOR_CONFIRMATION && (
-                <TouchableOpacity
-                  style={styles.outlineButton}
-                  onPress={() => toggleModalVisibility()}
-                >
-                  <MyText
-                    text={t("order.cancelOrder")}
-                    styleProps={styles.outlineButtonText}
-                  />
+              {orderItem?.status === ShippingStatusEnum.WAIT_FOR_CONFIRMATION && (
+                <TouchableOpacity style={styles.outlineButton} onPress={() => toggleModalVisibility()}>
+                  <MyText text={t('order.cancelOrder')} styleProps={styles.outlineButtonText} />
                 </TouchableOpacity>
               )}
 
               {orderItem?.status === ShippingStatusEnum.PREPARING_ORDER &&
                 !cancelAndReturnRequestData?.data?.cancelRequest && (
-                  <TouchableOpacity
-                    style={styles.outlineButton}
-                    onPress={() => toggleModalRequestCancelVisibility()}
-                  >
-                    <MyText
-                      text={t("order.cancelOrder")}
-                      styleProps={styles.outlineButtonText}
-                    />
+                  <TouchableOpacity style={styles.outlineButton} onPress={() => toggleModalRequestCancelVisibility()}>
+                    <MyText text={t('order.cancelOrder')} styleProps={styles.outlineButtonText} />
                   </TouchableOpacity>
                 )}
 
               {showReturnButton && (
-                <TouchableOpacity
-                  style={styles.outlineButton}
-                  onPress={() => toggleModalRequestReturnVisibility()}
-                >
-                  <MyText
-                    text={t("order.returnOrder")}
-                    styleProps={styles.outlineButtonText}
-                  />
+                <TouchableOpacity style={styles.outlineButton} onPress={() => toggleModalRequestReturnVisibility()}>
+                  <MyText text={t('order.returnOrder')} styleProps={styles.outlineButtonText} />
                 </TouchableOpacity>
               )}
 
@@ -497,32 +461,23 @@ const OrderItem = ({
                 <TouchableOpacity
                   style={styles.primaryButton}
                   onPress={() => {
-                    handleUpdateStatus(ShippingStatusEnum.COMPLETED);
+                    handleUpdateStatus(ShippingStatusEnum.COMPLETED)
                   }}
                 >
                   {isLoading ? (
-                    <LoadingIcon color="primaryBackground" size="small" />
+                    <LoadingIcon color='primaryBackground' size='small' />
                   ) : (
-                    <MyText
-                      text={t("order.received")}
-                      styleProps={styles.primaryButtonText}
-                    />
+                    <MyText text={t('order.received')} styleProps={styles.primaryButtonText} />
                   )}
                 </TouchableOpacity>
               )}
 
               {orderItem?.status === ShippingStatusEnum.COMPLETED && (
-                <TouchableOpacity
-                  style={styles.outlineButton}
-                  onPress={() => handleCreateCartItem()}
-                >
+                <TouchableOpacity style={styles.outlineButton} onPress={() => handleCreateCartItem()}>
                   {isProcessing ? (
-                    <LoadingIcon color="primaryBackground" size="small" />
+                    <LoadingIcon color='primaryBackground' size='small' />
                   ) : (
-                    <MyText
-                      text={t("order.buyAgain")}
-                      styleProps={styles.outlineButtonText}
-                    />
+                    <MyText text={t('order.buyAgain')} styleProps={styles.outlineButtonText} />
                   )}
                 </TouchableOpacity>
               )}

@@ -1,34 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useId,
-  useMemo,
-  useState,
-} from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import { z } from "zod";
-
-import useHandleServerError from "@/hooks/useHandleServerError";
-
-import AlertMessage from "../alert/AlertMessage";
-import { getCancelOrderSchema } from "@/schema/order.schema";
-import {
-  cancelOrderApi,
-  cancelParentOrderApi,
-  getCancelAndReturnRequestApi,
-  getParentOrderByIdApi,
-} from "@/hooks/api/order";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
 import {
   BottomSheetBackdrop,
   BottomSheetBackdropProps,
@@ -50,18 +19,23 @@ import LoadingIcon from '../loading/LoadingIcon'
 
 import { myTheme } from '@/constants'
 import { useToast } from '@/contexts/ToastContext'
-import { cancelOrderApi, getCancelAndReturnRequestApi } from '@/hooks/api/order'
+import {
+  cancelOrderApi,
+  cancelParentOrderApi,
+  getCancelAndReturnRequestApi,
+  getParentOrderByIdApi
+} from '@/hooks/api/order'
 import useHandleServerError from '@/hooks/useHandleServerError'
 import { getCancelOrderSchema } from '@/schema/order.schema'
 
 interface CancelOrderDialogProps {
-  orderId: string;
-  onOpenChange: (open: boolean) => void;
-  setIsModalVisible: Dispatch<SetStateAction<boolean>>;
-  toggleModalVisibility: () => void;
-  bottomSheetModalRef: React.RefObject<BottomSheetModal>;
-  setIsTrigger: Dispatch<SetStateAction<boolean>>;
-  isParent?: boolean;
+  orderId: string
+  onOpenChange: (open: boolean) => void
+  setIsModalVisible: Dispatch<SetStateAction<boolean>>
+  toggleModalVisibility: () => void
+  bottomSheetModalRef: React.RefObject<BottomSheetModal>
+  setIsTrigger: Dispatch<SetStateAction<boolean>>
+  isParent?: boolean
 }
 
 export default function CancelOrderDialog({
@@ -71,7 +45,7 @@ export default function CancelOrderDialog({
   toggleModalVisibility,
   bottomSheetModalRef,
   setIsTrigger,
-  isParent = false,
+  isParent = false
 }: CancelOrderDialogProps) {
   const { t } = useTranslation()
   const { showToast } = useToast()
@@ -121,39 +95,37 @@ export default function CancelOrderDialog({
       showToast(t('order.cancelSuccess'), 'success', 4000)
       setIsTrigger((prev) => !prev)
       queryClient.invalidateQueries({
-        queryKey: [getCancelAndReturnRequestApi.queryKey],
-      });
-      handleReset();
-    },
-  });
+        queryKey: [getCancelAndReturnRequestApi.queryKey]
+      })
+      handleReset()
+    }
+  })
   const { mutateAsync: cancelParentOrderFn } = useMutation({
     mutationKey: [cancelParentOrderApi.mutationKey],
     mutationFn: cancelParentOrderApi.fn,
     onSuccess: () => {
-      showToast(t("order.cancelSuccess"), "success", 4000);
-      setIsTrigger((prev) => !prev);
+      showToast(t('order.cancelSuccess'), 'success', 4000)
+      setIsTrigger((prev) => !prev)
       queryClient.invalidateQueries({
-        queryKey: [getCancelAndReturnRequestApi.queryKey],
-      });
+        queryKey: [getCancelAndReturnRequestApi.queryKey]
+      })
       queryClient.invalidateQueries({
-        queryKey: [getParentOrderByIdApi.queryKey],
-      });
-      handleReset();
-    },
-  });
+        queryKey: [getParentOrderByIdApi.queryKey]
+      })
+      handleReset()
+    }
+  })
 
   async function onSubmit(values: z.infer<typeof CancelOrderSchema>) {
     try {
-      setIsLoading(true);
-      const payload = isOtherReason
-        ? { reason: values.otherReason }
-        : { reason: values.reason };
+      setIsLoading(true)
+      const payload = isOtherReason ? { reason: values.otherReason } : { reason: values.reason }
       if (isParent) {
-        await cancelParentOrderFn({ orderId, ...payload });
+        await cancelParentOrderFn({ orderId, ...payload })
       } else {
-        await cancelOrderFn({ orderId, ...payload });
+        await cancelOrderFn({ orderId, ...payload })
       }
-      setIsLoading(false);
+      setIsLoading(false)
     } catch (error) {
       setIsLoading(false)
       handleServerError({
