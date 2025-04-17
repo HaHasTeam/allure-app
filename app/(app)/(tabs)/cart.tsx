@@ -17,7 +17,7 @@ import { getBestPlatformVouchersApi, getBestShopVouchersApi } from '@/hooks/api/
 import useCartStore from '@/store/cart'
 import { ICartByBrand } from '@/types/cart'
 import { IBrandBestVoucher, ICheckoutItem, IPlatformBestVoucher, TVoucher } from '@/types/voucher'
-import { createCheckoutItem, createCheckoutItems } from '@/utils/cart'
+import { checkPreventAction, createCheckoutItem, createCheckoutItems, findCartItemById } from '@/utils/cart'
 import {
   calculateCartTotals,
   calculatePlatformVoucherDiscount,
@@ -112,9 +112,13 @@ const CartScreen = () => {
     setSelectedCartItems((prev) => {
       if (isSelected) {
         // Add all cartItems of the brand
-        return [...prev, ...cartItemIds.filter((id) => !prev.includes(id))]
+        const validCartItemIds = cartItemIds.filter((id) => {
+          const cartItem = findCartItemById(id, cartItems)
+          return cartItem && !checkPreventAction(cartItem)
+        })
+        return [...prev, ...validCartItemIds.filter((id) => !prev.includes(id))]
       } else {
-        // Remove all cartItems of the brand
+        // Remove all valid cartItems of the brand
         return prev.filter((id) => !cartItemIds.includes(id))
       }
     })
