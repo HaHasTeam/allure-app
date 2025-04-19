@@ -19,15 +19,21 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
-  Image
+  Image,
+  Keyboard,
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  PanResponder,
+  SafeAreaView
 } from 'react-native'
 import type { FlatList as FlatListType } from 'react-native'
 import { RtcSurfaceView, ClientRoleType } from 'react-native-agora'
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated'
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import ProductsBottomSheet from '@/components/livestream/product-bottom-sheet'
 import { myTheme } from '@/constants/index'
-import { getCustomTokenLivestreamApi, getLiveStreamByIdMutation, LiveSteamDetail } from '@/hooks/api/livestream'
+import { getCustomTokenLivestreamApi, getLiveStreamByIdMutation, type LiveSteamDetail } from '@/hooks/api/livestream'
 import useUser from '@/hooks/api/useUser'
 import { useFirebaseChat } from '@/hooks/useFirebaseChat'
 import { useViewerStreamAttachment } from '@/hooks/useViewerStreamAttachment'
@@ -39,15 +45,15 @@ const { width, height } = Dimensions.get('window')
 export default function LivestreamViewerScreen() {
   const router = useRouter()
   const params = useLocalSearchParams()
-  const [isChatVisible, setIsChatVisible] = useState(false)
   const [newMessage, setNewMessage] = useState('')
   const [streamDuration, setStreamDuration] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [currentToken, setCurrentToken] = useState<string | null>(null)
   const [isRefreshingToken, setIsRefreshingToken] = useState(false)
   const [listProduct, setListProduct] = useState<LiveSteamDetail[]>([])
-  // const { firebaseError, firebaseUser } = useSession();
   const [tokenError, setTokenError] = useState(false)
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
+  const [streamStartTime, setStreamStartTime] = useState<string | null>(null)
   const [streamInfo, setStreamInfo] = useState<{
     title: string
     hostName: string
@@ -58,8 +64,14 @@ export default function LivestreamViewerScreen() {
     hostAvatar: undefined
   })
 
+  // Add these new state variables for gesture scrolling
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true)
+  const [lastScrollPosition, setLastScrollPosition] = useState(0)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const [contentHeight, setContentHeight] = useState(0)
+  const [visibleHeight, setVisibleHeight] = useState(0)
+
   const [account, setAccount] = useState<{ id: string; name: string } | null>(null)
-  const [cartItems, setCartItems] = useState<IResponseProduct[]>([])
 
   // Products modal visibility state
   const [isProductsModalVisible, setProductsModalVisible] = useState(false)
@@ -103,9 +115,60 @@ export default function LivestreamViewerScreen() {
     }>
   >(null)
 
+  // Add a ref for the text input
+  const inputRef = useRef<any>(null)
+
+  // Set up pan responder for gesture-based scrolling
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        // Only respond to vertical gestures
+        return Math.abs(gestureState.dy) > Math.abs(gestureState.dx)
+      },
+      onPanResponderGrant: () => {
+        setIsScrolling(true)
+        setIsAutoScrollEnabled(false)
+      },
+      onPanResponderMove: (_, gestureState) => {
+        if (chatListRef.current) {
+          // Calculate new scroll position based on gesture
+          const newPosition = lastScrollPosition - gestureState.dy
+          chatListRef.current.scrollToOffset({ offset: newPosition, animated: false })
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        // Update last scroll position
+        if (chatListRef.current) {
+          setLastScrollPosition(lastScrollPosition - gestureState.dy)
+        }
+
+        // If user flicked quickly, add momentum scrolling
+        if (Math.abs(gestureState.vy) > 0.5) {
+          const distance = gestureState.vy * 300 // Adjust multiplier for momentum
+          if (chatListRef.current) {
+            chatListRef.current.scrollToOffset({
+              offset: lastScrollPosition - gestureState.dy - distance,
+              animated: true
+            })
+            // Update last position after momentum scroll
+            setLastScrollPosition(lastScrollPosition - gestureState.dy - distance)
+          }
+        }
+
+        setIsScrolling(false)
+
+        // After a short delay, re-enable auto-scroll if at bottom
+        setTimeout(() => {
+          if (chatListRef.current && isNearBottom()) {
+            setIsAutoScrollEnabled(true)
+          }
+        }, 1000)
+      }
+    })
+  ).current
+
   // Animation values
-  const chatWidth = useSharedValue(width * 0.85)
-  const chatOpacity = useSharedValue(1)
   const controlsOpacity = useSharedValue(1)
   const fabScale = useSharedValue(1)
 
@@ -137,6 +200,28 @@ export default function LivestreamViewerScreen() {
     fetchProfile()
   }, [getProfile])
 
+  // Listen for keyboard events
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setIsKeyboardVisible(true)
+    })
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setIsKeyboardVisible(false)
+    })
+
+    return () => {
+      keyboardDidHideListener.remove()
+      keyboardDidShowListener.remove()
+    }
+  }, [])
+
+  // Function to focus the input
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }
+
   // Fetch livestream info and token
   useEffect(() => {
     async function fetchLivestreamData() {
@@ -152,7 +237,23 @@ export default function LivestreamViewerScreen() {
             hostAvatar: undefined
           })
           setListProduct(livestreamData.livestreamProducts)
+
+          // Store the stream start time
+          if (livestreamData.startTime) {
+            setStreamStartTime(livestreamData.startTime)
+
+            // Calculate initial stream duration based on startTime
+            const startTimeDate = new Date(livestreamData.startTime)
+            const currentTime = new Date()
+            const durationInSeconds = Math.floor((currentTime.getTime() - startTimeDate.getTime()) / 1000)
+
+            // Only set if it's a positive value
+            if (durationInSeconds > 0) {
+              setStreamDuration(durationInSeconds)
+            }
+          }
         }
+
         const privilegeExpiredTs = Math.floor(Date.now() / 1000) + 3600
 
         // Fetch token
@@ -182,17 +283,7 @@ export default function LivestreamViewerScreen() {
   }, [livestreamId, getLivestreamById, getLivestreamToken])
 
   // Initialize the viewer stream hook with attachment for viewer count
-  const {
-    engine,
-    isInitialized,
-    joinChannelSuccess,
-    hostUid,
-    isHostVideoEnabled,
-    isHostAudioEnabled,
-    joinChannel,
-    leaveChannel,
-    viewerCount
-  } = useViewerStreamAttachment({
+  const { engine, isInitialized, hostUid, isHostVideoEnabled, leaveChannel, viewerCount } = useViewerStreamAttachment({
     appId: '00f5d43335cb4a19969ef78bb8955d2c', // Replace with your Agora App ID
     channel: livestreamId,
     token: currentToken,
@@ -244,21 +335,6 @@ export default function LivestreamViewerScreen() {
     }, 5000)
   }
 
-  // Refresh viewer count periodically
-  useEffect(() => {
-    if (joinChannelSuccess) {
-      // Initial refresh
-      // refreshViewerCount()
-      // Set up interval to refresh viewer count
-      // const intervalId = setInterval(() => {
-      //   refreshViewerCount()
-      // }, 10000) // Refresh every 10 seconds
-      // return () => {
-      //   clearInterval(intervalId)
-      // }
-    }
-  }, [joinChannelSuccess])
-
   useEffect(() => {
     // Start timer for stream duration
     timerRef.current = setInterval(() => {
@@ -287,22 +363,6 @@ export default function LivestreamViewerScreen() {
     }
   }, [])
 
-  // Toggle chat visibility
-  const toggleChat = () => {
-    if (isChatVisible) {
-      // Hide chat
-      chatWidth.value = withTiming(0, { duration: 300 })
-      chatOpacity.value = withTiming(0, { duration: 200 })
-      setTimeout(() => setIsChatVisible(false), 300)
-    } else {
-      // Show chat
-      setIsChatVisible(true)
-      chatWidth.value = withTiming(width * 0.85, { duration: 300 })
-      chatOpacity.value = withTiming(1, { duration: 300 })
-    }
-    resetControlsTimer()
-  }
-
   // Format duration as MM:SS
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
@@ -324,6 +384,22 @@ export default function LivestreamViewerScreen() {
     }
   }
 
+  // Check if scroll position is near the bottom
+  const isNearBottom = () => {
+    if (!chatListRef.current || chatMessages.length === 0) return true
+
+    // If we're within 20 pixels of the bottom, consider it "at bottom"
+    return lastScrollPosition > contentHeight - visibleHeight - 20
+  }
+
+  // Scroll to bottom of chat
+  const scrollToBottom = () => {
+    if (chatListRef.current && chatMessages.length > 0) {
+      chatListRef.current.scrollToEnd({ animated: true })
+      setIsAutoScrollEnabled(true)
+    }
+  }
+
   // Send a chat message
   const sendMessage = async () => {
     if (!newMessage.trim() || !isChatLoggedIn) {
@@ -336,6 +412,7 @@ export default function LivestreamViewerScreen() {
     try {
       await sendChatMessage(newMessage.trim())
       setNewMessage('')
+      Keyboard.dismiss() // Dismiss keyboard after sending message
 
       // Scroll to bottom
       if (chatListRef.current) {
@@ -346,6 +423,24 @@ export default function LivestreamViewerScreen() {
     } catch (error) {
       console.error('Error sending message:', error)
       Alert.alert('Error', 'Failed to send message. Please try again.')
+    }
+  }
+
+  // Handle scroll event to track scroll position
+  const handleScroll = (event: any) => {
+    const scrollY = event.nativeEvent.contentOffset.y
+    const contentHeight = event.nativeEvent.contentSize.height
+    const layoutHeight = event.nativeEvent.layoutMeasurement.height
+
+    setLastScrollPosition(scrollY)
+    setContentHeight(contentHeight)
+    setVisibleHeight(layoutHeight)
+
+    // If user manually scrolled away from bottom, disable auto-scroll
+    if (scrollY < contentHeight - layoutHeight - 20) {
+      setIsAutoScrollEnabled(false)
+    } else {
+      setIsAutoScrollEnabled(true)
     }
   }
 
@@ -366,33 +461,11 @@ export default function LivestreamViewerScreen() {
   }
 
   // Animated styles
-  const chatContainerStyle = useAnimatedStyle(() => {
-    return {
-      width: chatWidth.value,
-      opacity: chatOpacity.value
-    }
-  })
-
   const controlsStyle = useAnimatedStyle(() => {
     return {
       opacity: controlsOpacity.value
     }
   })
-
-  const chatButtonStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: fabScale.value }]
-    }
-  })
-
-  // Handle chat button press animation
-  const onChatButtonPressIn = () => {
-    fabScale.value = withSpring(0.9)
-  }
-
-  const onChatButtonPressOut = () => {
-    fabScale.value = withSpring(1)
-  }
 
   // Manual token refresh button handler
   const onManualTokenRefresh = () => {
@@ -426,172 +499,84 @@ export default function LivestreamViewerScreen() {
     openProductsModal()
   }
 
-  // Handle adding product to cart
-  const handleAddToCart = (product: IResponseProduct) => {
-    setCartItems((prev) => [...prev, product])
-    Alert.alert('Success', `${product.name} added to cart!`)
+  // Render a chat message item
+  const renderChatMessage = ({ item, index }: { item: any; index: number }) => (
+    <Animated.View style={[styles.tiktokChatMessage, { opacity: 1 }]} key={item.id}>
+      <View style={styles.tiktokAvatarContainer}>
+        <Text style={styles.tiktokAvatarText}>{item.avatar}</Text>
+      </View>
+      <View style={styles.tiktokMessageContent}>
+        <Text style={styles.tiktokMessageUser}>{item.user}</Text>
+        <Text style={styles.tiktokMessageText}>{item.message}</Text>
+      </View>
+    </Animated.View>
+  )
+
+  // Dismiss keyboard when tapping outside the input
+  const dismissKeyboard = () => {
+    Keyboard.dismiss()
   }
 
-  // Handle buying product now
-  const handleBuyNow = (product: IResponseProduct) => {
-    Alert.alert('Buy Now', `Proceed to checkout for ${product.name}?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Checkout',
-        onPress: () => {
-          Alert.alert('Success', `Order placed for ${product.name}!`)
-        }
-      }
-    ])
-  }
-  console.log('isHostVideoEnabled', isHostVideoEnabled, hostUid)
+  // Add this near the top of your component function
+  const insets = useSafeAreaInsets()
 
   return (
-    <View style={styles.container} onTouchStart={resetControlsTimer}>
-      <StatusBar hidden />
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <SafeAreaView style={styles.container} onTouchStart={resetControlsTimer}>
+        <StatusBar hidden />
 
-      {/* Video Stream */}
-      <View style={styles.videoContainer}>
-        {isLoading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size='large' color={myTheme.primary} />
-            <Text style={styles.loadingText}>Loading stream...</Text>
-          </View>
-        ) : isInitialized ? (
-          isHostVideoEnabled ? (
-            <RtcSurfaceView style={styles.videoView} canvas={{ uid: hostUid || 0 }} />
-          ) : (
-            <View style={styles.hostOfflineContainer}>
-              <MaterialIcons name='videocam-off' size={48} color='#94a3b8' />
-              <Text style={styles.hostOfflineText}>Host camera is off</Text>
+        {/* Video Stream */}
+        <View style={styles.videoContainer}>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size='large' color={myTheme.primary} />
+              <Text style={styles.loadingText}>Loading stream...</Text>
             </View>
-          )
-        ) : (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>
-              {tokenError ? 'Session expired. Please exit and rejoin.' : 'Waiting for host...'}
-            </Text>
-            {tokenError && (
-              <TouchableOpacity
-                style={styles.refreshButton}
-                onPress={onManualTokenRefresh}
-                disabled={isRefreshingToken}
-              >
-                <Text style={styles.refreshButtonText}>Refresh Token</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-      </View>
-
-      {/* Cart Button */}
-      {/* <TouchableOpacity
-        style={styles.cartButton}
-        onPress={handleCartButtonPress}
-      >
-        <Feather name="shopping-cart" size={24} color="#fff" />
-        {cartItems.length > 0 && (
-          <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>{cartItems.length}</Text>
-          </View>
-        )}
-      </TouchableOpacity> */}
-
-      {/* Floating Chat Button (visible when chat is hidden) */}
-      {/* {!isChatVisible && (
-        <Animated.View style={[styles.chatButton, chatButtonStyle]}>
-          <TouchableOpacity
-            onPressIn={onChatButtonPressIn}
-            onPressOut={onChatButtonPressOut}
-            onPress={toggleChat}
-            style={styles.chatButtonInner}
-          >
-            <Feather name="message-circle" size={24} color="#fff" />
-            <View style={styles.chatBadge}>
-              <Text style={styles.chatBadgeText}>{chatMessages.length}</Text>
-            </View>
-          </TouchableOpacity>
-        </Animated.View>
-      )} */}
-
-      {/* Overlay Controls */}
-      <Animated.View style={[styles.overlayControls, controlsStyle]}>
-        {/* Top Row: Header with info */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={confirmLeaveStream} style={styles.backButton}>
-            <Feather name='arrow-left' size={24} color='#fff' />
-          </TouchableOpacity>
-
-          <View style={styles.headerInfo}>
-            <View style={styles.liveIndicator}>
-              <Text style={styles.liveText}>LIVE</Text>
-            </View>
-            <Text style={styles.durationText}>{formatDuration(streamDuration)}</Text>
-          </View>
-
-          <View style={styles.viewerContainer}>
-            <Feather name='eye' size={14} color='#fff' />
-            <Text style={styles.viewerCount}>{viewerCount}</Text>
-          </View>
-        </View>
-
-        {/* Host Info */}
-        <View style={styles.hostInfoContainer}>
-          <View style={styles.hostAvatarContainer}>
-            {streamInfo.hostAvatar ? (
-              <Image source={{ uri: streamInfo.hostAvatar }} style={styles.hostAvatar} />
+          ) : isInitialized ? (
+            isHostVideoEnabled ? (
+              <RtcSurfaceView style={styles.videoView} canvas={{ uid: hostUid || 0 }} />
             ) : (
-              <Text style={styles.hostAvatarText}>{streamInfo.hostName.charAt(0)}</Text>
-            )}
-          </View>
-          <View style={styles.hostTextContainer}>
-            <Text style={styles.hostName}>{streamInfo.hostName}</Text>
-            <Text style={styles.streamTitle} numberOfLines={1}>
-              {streamInfo.title}
-            </Text>
-          </View>
-        </View>
-
-        {/* Bottom Controls */}
-        <View style={styles.bottomControls}>
-          <TouchableOpacity
-            style={[styles.controlButton, !isChatVisible && styles.controlButtonActive]}
-            onPressIn={onChatButtonPressIn}
-            onPressOut={onChatButtonPressOut}
-            onPress={toggleChat}
-          >
-            <Feather name='message-circle' size={22} color='#fff' />
-            <Text style={styles.controlButtonText}>Chat</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.controlButton} onPress={handleCartButtonPress}>
-            <Feather name='shopping-cart' size={22} color='#fff' />
-            <Text style={styles.controlButtonText}>Shop</Text>
-          </TouchableOpacity>
-        </View>
-      </Animated.View>
-
-      {/* Chat Section */}
-      {isChatVisible && (
-        <Animated.View style={[styles.chatContainer, chatContainerStyle]}>
-          <View style={styles.chatHeader}>
-            <Text style={styles.chatTitle}>Live Chat</Text>
-            <View style={styles.chatStatusContainer}>
-              {isChatInitialized ? (
-                isChatLoggedIn ? (
-                  <Text style={styles.chatStatusText}>Connected</Text>
-                ) : (
-                  <Text style={[styles.chatStatusText, styles.chatStatusError]}>Not logged in</Text>
-                )
-              ) : (
-                <Text style={styles.chatStatusText}>Initializing...</Text>
+              <View style={styles.hostOfflineContainer}>
+                <MaterialIcons name='videocam-off' size={48} color='#94a3b8' />
+                <Text style={styles.hostOfflineText}>Host camera is off</Text>
+              </View>
+            )
+          ) : (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>
+                {tokenError ? 'Session expired. Please exit and rejoin.' : 'Waiting for host...'}
+              </Text>
+              {tokenError && (
+                <TouchableOpacity
+                  style={styles.refreshButton}
+                  onPress={onManualTokenRefresh}
+                  disabled={isRefreshingToken}
+                >
+                  <Text style={styles.refreshButtonText}>Refresh Token</Text>
+                </TouchableOpacity>
               )}
             </View>
-            <TouchableOpacity onPress={toggleChat} style={styles.chatCloseButton}>
-              <Feather name='x' size={24} color='#fff' />
-            </TouchableOpacity>
-          </View>
+          )}
+        </View>
 
+        {/* Settings button in top left */}
+        <TouchableOpacity style={styles.backButton} onPress={confirmLeaveStream}>
+          <View style={styles.actionButtonInner}>
+            <Feather name='arrow-left' size={24} color='#fff' />
+          </View>
+        </TouchableOpacity>
+
+        {/* Chat container with gesture support */}
+        <View
+          style={[
+            styles.tiktokChatContainer,
+            {
+              bottom: 80 + (insets.bottom > 0 ? insets.bottom : 20),
+              ...(isKeyboardVisible && { bottom: Platform.OS === 'ios' ? 120 : 100 })
+            }
+          ]}
+          {...panResponder.panHandlers}
+        >
           {chatError && (
             <View style={styles.errorContainer}>
               <Text style={styles.errorText}>{chatError}</Text>
@@ -610,10 +595,14 @@ export default function LivestreamViewerScreen() {
             ref={chatListRef}
             data={chatMessages}
             keyExtractor={(item) => item.id}
-            style={styles.chatList}
-            inverted={false}
+            renderItem={renderChatMessage}
+            style={styles.tiktokChatList}
+            contentContainerStyle={styles.tiktokChatListContent}
             onEndReached={hasMoreMessages ? loadMoreMessages : undefined}
             onEndReachedThreshold={0.3}
+            showsVerticalScrollIndicator={false}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
             ListHeaderComponent={
               isLoadingMore ? (
                 <View style={styles.loadingMoreContainer}>
@@ -622,21 +611,12 @@ export default function LivestreamViewerScreen() {
                 </View>
               ) : null
             }
-            renderItem={({ item }) => (
-              <View style={styles.chatMessage}>
-                <View style={styles.avatarContainer}>
-                  <Text style={styles.avatarText}>{item.avatar}</Text>
-                </View>
-                <View style={styles.messageContent}>
-                  <View style={styles.messageHeader}>
-                    <Text style={styles.messageUser}>{item.user}</Text>
-                    <Text style={styles.messageTime}>{formatTimestamp(item.timestamp)}</Text>
-                  </View>
-                  <Text style={styles.messageText}>{item.message}</Text>
-                </View>
-              </View>
-            )}
-            onContentSizeChange={() => chatListRef.current?.scrollToEnd({ animated: true })}
+            onContentSizeChange={() => {
+              // Only auto-scroll to bottom for new messages if we're already at the bottom
+              if (chatListRef.current && chatMessages.length > 0 && isAutoScrollEnabled) {
+                chatListRef.current.scrollToEnd({ animated: false })
+              }
+            }}
             ListEmptyComponent={
               <View style={styles.emptyChat}>
                 <Text style={styles.emptyChatText}>No messages yet. Be the first to say something!</Text>
@@ -644,39 +624,106 @@ export default function LivestreamViewerScreen() {
             }
           />
 
-          <View style={styles.chatInputContainer}>
-            <TextInput
-              style={styles.chatInput}
-              value={newMessage}
-              onChangeText={setNewMessage}
-              placeholder='Type a message...'
-              placeholderTextColor='#94a3b8'
-              returnKeyType='send'
-              onSubmitEditing={sendMessage}
-              editable={isChatLoggedIn}
-            />
-            <TouchableOpacity
-              style={[
-                styles.sendButton,
-                (!newMessage.trim() || !isChatLoggedIn || isChatSending) && styles.sendButtonDisabled
-              ]}
-              onPress={sendMessage}
-              disabled={!newMessage.trim() || !isChatLoggedIn || isChatSending}
-            >
-              <Feather name='send' size={18} color='#fff' />
+          {/* Show return to bottom button only when needed */}
+          {!isAutoScrollEnabled && (
+            <TouchableOpacity style={styles.autoScrollButton} onPress={scrollToBottom}>
+              <Feather name='arrow-down-circle' size={20} color='#fff' />
             </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Replace the View with KeyboardAvoidingView */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 20 + insets.bottom : 10 + insets.bottom}
+          style={[styles.keyboardAvoidingView, { paddingBottom: insets.bottom > 0 ? insets.bottom : 20 }]}
+        >
+          <View style={[styles.inputRowContainer, { paddingBottom: insets.bottom > 0 ? 10 : 24 }]}>
+            {/* Cart button on the left */}
+            <TouchableOpacity style={styles.inputSideButton} onPress={handleCartButtonPress}>
+              <Feather name='shopping-cart' size={22} color='#fff' />
+            </TouchableOpacity>
+
+            {/* Chat input in the middle */}
+            <View style={styles.persistentChatInputContainer}>
+              <TouchableOpacity style={styles.chatInputWrapper} activeOpacity={0.8} onPress={focusInput}>
+                <TextInput
+                  ref={inputRef}
+                  value={newMessage}
+                  onChangeText={setNewMessage}
+                  placeholder='Type a message...'
+                  placeholderTextColor='#94a3b8'
+                  returnKeyType='send'
+                  onSubmitEditing={sendMessage}
+                  style={styles.chatInput}
+                  autoCapitalize='none'
+                  autoCorrect={false}
+                  editable={isChatLoggedIn}
+                />
+              </TouchableOpacity>
+
+              {/* Send button */}
+              <TouchableOpacity
+                style={[
+                  styles.sendButton,
+                  (!newMessage.trim() || !isChatLoggedIn || isChatSending) && styles.sendButtonDisabled
+                ]}
+                onPress={sendMessage}
+                disabled={!newMessage.trim() || !isChatLoggedIn || isChatSending}
+              >
+                <Feather name='send' size={18} color='#fff' />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+
+        {/* Overlay Controls - Now only shown when needed */}
+        <Animated.View style={[styles.overlayControls, controlsStyle]}>
+          {/* Top Row: Header with info */}
+          <View style={styles.header}>
+            <View style={styles.headerLeft}>
+              <View style={styles.liveIndicator}>
+                <Text style={styles.liveText}>LIVE</Text>
+              </View>
+              <Text style={styles.durationText}>{formatDuration(streamDuration)}</Text>
+            </View>
+
+            <Text style={styles.titleText} numberOfLines={1}>
+              {streamInfo.title}
+            </Text>
+
+            <View style={styles.headerRight}>
+              <View style={styles.viewerContainer}>
+                <Feather name='eye' size={14} color='#fff' />
+                <Text style={styles.viewerCount}>{viewerCount}</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Host Info */}
+          <View style={styles.hostInfoContainer}>
+            <View style={styles.hostAvatarContainer}>
+              {streamInfo.hostAvatar ? (
+                <Image source={{ uri: streamInfo.hostAvatar }} style={styles.hostAvatar} />
+              ) : (
+                <Text style={styles.hostAvatarText}>{streamInfo.hostName.charAt(0)}</Text>
+              )}
+            </View>
+            <View style={styles.hostTextContainer}>
+              <Text style={styles.hostName}>{streamInfo.hostName}</Text>
+            </View>
           </View>
         </Animated.View>
-      )}
 
-      {/* Products Modal */}
-      <ProductsBottomSheet
-        visible={isProductsModalVisible}
-        onClose={closeProductsModal}
-        products={listProduct}
-        livestreamId={livestreamId}
-      />
-    </View>
+        {/* Products Modal */}
+        <ProductsBottomSheet
+          visible={isProductsModalVisible}
+          onClose={closeProductsModal}
+          products={listProduct}
+          livestreamId={livestreamId}
+        />
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   )
 }
 
@@ -729,7 +776,8 @@ const styles = StyleSheet.create({
   overlayControls: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)'
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    pointerEvents: 'box-none' // Allow touches to pass through to elements below
   },
   header: {
     flexDirection: 'row',
@@ -739,12 +787,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
-  backButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)'
-  },
-  headerInfo: {
+  headerLeft: {
     flexDirection: 'row',
     alignItems: 'center'
   },
@@ -763,6 +806,18 @@ const styles = StyleSheet.create({
   durationText: {
     color: '#ffffff',
     fontSize: 14
+  },
+  titleText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    flex: 1,
+    textAlign: 'center',
+    marginHorizontal: 8
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   viewerContainer: {
     flexDirection: 'row',
@@ -815,41 +870,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600'
   },
-  streamTitle: {
-    color: '#e2e8f0',
-    fontSize: 12
-  },
-  bottomControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)'
-  },
-  controlButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 8
-  },
-  controlButtonActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 8
-  },
-  controlButtonText: {
-    color: '#ffffff',
-    fontSize: 12,
-    marginTop: 4
-  },
-  chatButton: {
+  backButton: {
     position: 'absolute',
-    right: 16,
-    bottom: 80,
+    top: 16,
+    left: 16,
     zIndex: 10
   },
-  chatButtonInner: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: myTheme.primary,
+  actionButtonInner: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -864,116 +895,105 @@ const styles = StyleSheet.create({
       }
     })
   },
-  chatBadge: {
+  // TikTok-style chat container
+  tiktokChatContainer: {
     position: 'absolute',
-    top: 0,
+    bottom: 80, // Leave space for the chat input
+    left: 0,
     right: 0,
-    backgroundColor: '#ef4444',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4
+    maxHeight: height * 0.5, // Take up to half the screen height
+    paddingHorizontal: 16,
+    pointerEvents: 'box-none' // Allow touches to pass through to elements below
   },
-  chatBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold'
+  tiktokChatList: {
+    flex: 1
   },
-  chatContainer: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(15, 23, 42, 0.95)',
-    display: 'flex',
-    flexDirection: 'column',
-    borderTopLeftRadius: 16,
-    borderBottomLeftRadius: 16
+  tiktokChatListContent: {
+    paddingBottom: 8
   },
-  chatHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)'
-  },
-  chatStatusContainer: {
+  tiktokChatMessage: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 8
+    marginBottom: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    maxWidth: '85%',
+    alignSelf: 'flex-start'
   },
-  chatStatusText: {
-    color: '#4ade80',
-    fontSize: 12
-  },
-  chatStatusError: {
-    color: '#ef4444'
-  },
-  chatList: {
-    flex: 1,
-    padding: 16
-  },
-  chatMessage: {
-    flexDirection: 'row',
-    marginBottom: 16,
-    maxWidth: '100%'
-  },
-  avatarContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+  tiktokAvatarContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: myTheme.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8
   },
-  avatarText: {
+  tiktokAvatarText: {
     color: '#ffffff',
     fontSize: 12,
     fontWeight: '600'
   },
-  messageContent: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    padding: 8,
-    borderTopLeftRadius: 4
+  tiktokMessageContent: {
+    flex: 1
   },
-  messageHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 2
-  },
-  messageUser: {
+  tiktokMessageUser: {
     color: '#e2e8f0',
     fontSize: 12,
     fontWeight: '600'
   },
-  messageTime: {
-    color: 'rgba(255, 255, 255, 0.5)',
-    fontSize: 10
-  },
-  messageText: {
+  tiktokMessageText: {
     color: '#f8fafc',
     fontSize: 14
   },
-  chatInputContainer: {
+  keyboardAvoidingView: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100
+  },
+  inputRowContainer: {
     flexDirection: 'row',
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)'
+    alignItems: 'center',
+    paddingHorizontal: 16
+  },
+  inputSideButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 4
+  },
+  persistentChatInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    borderRadius: 24,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    marginHorizontal: 8,
+    zIndex: 100,
+    pointerEvents: 'auto'
+  },
+  chatInputWrapper: {
+    flex: 1,
+    height: 36,
+    justifyContent: 'center',
+    pointerEvents: 'auto' // Ensure it can receive touch events
   },
   chatInput: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    color: '#ffffff'
+    color: '#ffffff',
+    fontSize: 14,
+    height: 36,
+    paddingVertical: 4,
+    paddingHorizontal: 12
   },
   sendButton: {
     width: 36,
@@ -987,24 +1007,10 @@ const styles = StyleSheet.create({
   sendButtonDisabled: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)'
   },
-  chatCloseButton: {
-    padding: 8,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 20,
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  chatTitle: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: '600'
-  },
   errorContainer: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+    backgroundColor: 'rgba(239, 68, 68, 0.7)',
     padding: 12,
-    margin: 12,
+    marginBottom: 12,
     borderRadius: 8,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1029,10 +1035,8 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   emptyChat: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20
+    padding: 20,
+    alignItems: 'center'
   },
   emptyChatText: {
     color: 'rgba(255, 255, 255, 0.5)',
@@ -1049,44 +1053,17 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 12
   },
-  cartButton: {
+  // Style for auto-scroll button
+  autoScrollButton: {
     position: 'absolute',
-    left: 16,
-    top: 80,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    right: 16,
+    bottom: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: myTheme.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4
-      },
-      android: {
-        elevation: 5
-      }
-    })
-  },
-  cartBadge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: '#ef4444',
-    borderRadius: 10,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4
-  },
-  cartBadgeText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold'
+    zIndex: 10
   }
 })

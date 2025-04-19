@@ -35,8 +35,8 @@ const ShopHeader = ({
     mutationKey: [getProductFilterMutationApi.mutationKey],
     mutationFn: getProductFilterMutationApi.fn
   })
-
   const router = useRouter()
+
   const [searchModalVisible, setSearchModalVisible] = useState(false)
 
   // Add state for search and pagination
