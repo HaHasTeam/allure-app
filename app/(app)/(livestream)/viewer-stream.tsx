@@ -5,7 +5,7 @@
 import { Feather, MaterialIcons } from '@expo/vector-icons'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter, useLocalSearchParams } from 'expo-router'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
   View,
   StyleSheet,
@@ -37,7 +37,6 @@ import { getCustomTokenLivestreamApi, getLiveStreamByIdMutation, type LiveSteamD
 import useUser from '@/hooks/api/useUser'
 import { useFirebaseChat } from '@/hooks/useFirebaseChat'
 import { useViewerStreamAttachment } from '@/hooks/useViewerStreamAttachment'
-import type { IResponseProduct } from '@/types/product'
 import { log } from '@/utils/logger'
 
 const { width, height } = Dimensions.get('window')
@@ -117,69 +116,68 @@ export default function LivestreamViewerScreen() {
 
   // Add a ref for the text input
   const inputRef = useRef<any>(null)
+  // Check if scroll position is near the bottom
+  const isNearBottom = useCallback(() => {
+    if (!chatListRef.current || chatMessages.length === 0) return true
+
+    // If we're within 20 pixels of the bottom, consider it "at bottom"
+    return lastScrollPosition > contentHeight - visibleHeight - 20
+  }, [lastScrollPosition, contentHeight, visibleHeight, chatMessages.length])
 
   // Set up pan responder for gesture-based scrolling
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: (_, gestureState) => {
-        // Only respond to vertical gestures
-        return Math.abs(gestureState.dy) > Math.abs(gestureState.dx)
-      },
-      onPanResponderGrant: () => {
-        setIsScrolling(true)
-        setIsAutoScrollEnabled(false)
-      },
-      onPanResponderMove: (_, gestureState) => {
-        if (chatListRef.current) {
-          // Calculate new scroll position based on gesture
-          const newPosition = lastScrollPosition - gestureState.dy
-          chatListRef.current.scrollToOffset({ offset: newPosition, animated: false })
-        }
-      },
-      onPanResponderRelease: (_, gestureState) => {
-        // Update last scroll position
-        if (chatListRef.current) {
-          setLastScrollPosition(lastScrollPosition - gestureState.dy)
-        }
-
-        // If user flicked quickly, add momentum scrolling
-        if (Math.abs(gestureState.vy) > 0.5) {
-          const distance = gestureState.vy * 300 // Adjust multiplier for momentum
+  const panResponder = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: (_, gestureState) => {
+          // Only respond to vertical gestures
+          return Math.abs(gestureState.dy) > Math.abs(gestureState.dx)
+        },
+        onPanResponderGrant: () => {
+          setIsScrolling(true)
+          setIsAutoScrollEnabled(false)
+        },
+        onPanResponderMove: (_, gestureState) => {
           if (chatListRef.current) {
-            chatListRef.current.scrollToOffset({
-              offset: lastScrollPosition - gestureState.dy - distance,
-              animated: true
-            })
-            // Update last position after momentum scroll
-            setLastScrollPosition(lastScrollPosition - gestureState.dy - distance)
+            // Calculate new scroll position based on gesture
+            const newPosition = lastScrollPosition - gestureState.dy
+            chatListRef.current.scrollToOffset({ offset: newPosition, animated: false })
           }
+        },
+        onPanResponderRelease: (_, gestureState) => {
+          // Update last scroll position
+          if (chatListRef.current) {
+            setLastScrollPosition(lastScrollPosition - gestureState.dy)
+          }
+
+          // If user flicked quickly, add momentum scrolling
+          if (Math.abs(gestureState.vy) > 0.5) {
+            const distance = gestureState.vy * 300 // Adjust multiplier for momentum
+            if (chatListRef.current) {
+              chatListRef.current.scrollToOffset({
+                offset: lastScrollPosition - gestureState.dy - distance,
+                animated: true
+              })
+              // Update last position after momentum scroll
+              setLastScrollPosition(lastScrollPosition - gestureState.dy - distance)
+            }
+          }
+
+          setIsScrolling(false)
+
+          // After a short delay, re-enable auto-scroll if at bottom
+          setTimeout(() => {
+            if (chatListRef.current && isNearBottom()) {
+              setIsAutoScrollEnabled(true)
+            }
+          }, 1000)
         }
-
-        setIsScrolling(false)
-
-        // After a short delay, re-enable auto-scroll if at bottom
-        setTimeout(() => {
-          if (chatListRef.current && isNearBottom()) {
-            setIsAutoScrollEnabled(true)
-          }
-        }, 1000)
-      }
-    })
-  ).current
+      }),
+    [lastScrollPosition, isNearBottom]
+  )
 
   // Animation values
   const controlsOpacity = useSharedValue(1)
-  const fabScale = useSharedValue(1)
-
-  // Function to refresh the token
-  const handleTokenRefresh = useCallback(() => {
-    Alert.alert('Token Expired', 'Your viewing session has expired. Please exit and rejoin the stream.', [
-      { text: 'OK' }
-    ])
-    setTokenError(true)
-    setIsRefreshingToken(false)
-  }, [])
 
   // Fetch user profile
   useEffect(() => {
@@ -216,11 +214,11 @@ export default function LivestreamViewerScreen() {
   }, [])
 
   // Function to focus the input
-  const focusInput = () => {
+  const focusInput = useCallback(() => {
     if (inputRef.current) {
       inputRef.current.focus()
     }
-  }
+  }, [])
 
   // Fetch livestream info and token
   useEffect(() => {
@@ -290,40 +288,13 @@ export default function LivestreamViewerScreen() {
     userId: account?.id || 'viewer'
   })
 
-  // Handle token errors from Agora
-  useEffect(() => {
-    if (isInitialized && engine) {
-      const handleError = (errorCode: number, msg: string) => {
-        log.error(`Agora error: ${errorCode}, ${msg}`)
-
-        // Error codes related to token expiration
-        // 109: token expired
-        // 110: token invalid
-        if (errorCode === 109 || errorCode === 110) {
-          log.warn('Token expired or invalid')
-          Alert.alert('Connection Error', 'Your viewing session has expired. Please exit and rejoin the stream.', [
-            { text: 'OK' }
-          ])
-          setTokenError(true)
-        }
-      }
-
-      //   Add error listener
-      engine.addListener('onError', handleError)
-
-      return () => {
-        engine.removeListener('onError', handleError)
-      }
-    }
-  }, [isInitialized, engine])
-
   // Timer for stream duration
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Auto-hide controls after inactivity
   const controlsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const resetControlsTimer = () => {
+  const resetControlsTimer = useCallback(() => {
     if (controlsTimerRef.current) {
       clearTimeout(controlsTimerRef.current)
     }
@@ -333,75 +304,40 @@ export default function LivestreamViewerScreen() {
     controlsTimerRef.current = setTimeout(() => {
       controlsOpacity.value = withTiming(0, { duration: 500 })
     }, 5000)
-  }
-
-  useEffect(() => {
-    // Start timer for stream duration
-    timerRef.current = setInterval(() => {
-      setStreamDuration((prev) => prev + 1)
-    }, 1000)
-
-    // Handle back button press
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      // Prevent going back with hardware button
-      confirmLeaveStream()
-      return true
-    })
-
-    // Initialize controls timer
-    resetControlsTimer()
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
-      if (controlsTimerRef.current) {
-        clearTimeout(controlsTimerRef.current)
-      }
-
-      backHandler.remove()
+  }, [controlsOpacity])
+  // Leave the livestream
+  const leaveStream = useCallback(() => {
+    if (isInitialized) {
+      leaveChannel()
     }
-  }, [])
+    router.back()
+  }, [isInitialized, leaveChannel, router])
+
+  // Confirm leaving the stream
+  const confirmLeaveStream = useCallback(() => {
+    Alert.alert('Leave Stream', 'Are you sure you want to leave this livestream?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Leave', style: 'destructive', onPress: leaveStream }
+    ])
+  }, [leaveStream])
 
   // Format duration as MM:SS
-  const formatDuration = (seconds: number) => {
+  const formatDuration = useCallback((seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
-
-  // Format timestamp
-  const formatTimestamp = (timestamp: number) => {
-    const now = Date.now()
-    const diff = now - timestamp
-
-    if (diff < 60000) {
-      return 'just now'
-    } else if (diff < 3600000) {
-      return `${Math.floor(diff / 60000)}m ago`
-    } else {
-      return `${Math.floor(diff / 3600000)}h ago`
-    }
-  }
-
-  // Check if scroll position is near the bottom
-  const isNearBottom = () => {
-    if (!chatListRef.current || chatMessages.length === 0) return true
-
-    // If we're within 20 pixels of the bottom, consider it "at bottom"
-    return lastScrollPosition > contentHeight - visibleHeight - 20
-  }
+  }, [])
 
   // Scroll to bottom of chat
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (chatListRef.current && chatMessages.length > 0) {
       chatListRef.current.scrollToEnd({ animated: true })
       setIsAutoScrollEnabled(true)
     }
-  }
+  }, [chatMessages.length])
 
   // Send a chat message
-  const sendMessage = async () => {
+  const sendMessage = useCallback(async () => {
     if (!newMessage.trim() || !isChatLoggedIn) {
       if (!isChatLoggedIn) {
         Alert.alert('Not Logged In', 'You need to be logged in to chat.')
@@ -424,10 +360,10 @@ export default function LivestreamViewerScreen() {
       console.error('Error sending message:', error)
       Alert.alert('Error', 'Failed to send message. Please try again.')
     }
-  }
+  }, [newMessage, isChatLoggedIn, sendChatMessage, resetControlsTimer])
 
   // Handle scroll event to track scroll position
-  const handleScroll = (event: any) => {
+  const handleScroll = useCallback((event: any) => {
     const scrollY = event.nativeEvent.contentOffset.y
     const contentHeight = event.nativeEvent.contentSize.height
     const layoutHeight = event.nativeEvent.layoutMeasurement.height
@@ -442,23 +378,7 @@ export default function LivestreamViewerScreen() {
     } else {
       setIsAutoScrollEnabled(true)
     }
-  }
-
-  // Confirm leaving the stream
-  const confirmLeaveStream = () => {
-    Alert.alert('Leave Stream', 'Are you sure you want to leave this livestream?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Leave', style: 'destructive', onPress: leaveStream }
-    ])
-  }
-
-  // Leave the livestream
-  const leaveStream = () => {
-    if (isInitialized) {
-      leaveChannel()
-    }
-    router.back()
-  }
+  }, [])
 
   // Animated styles
   const controlsStyle = useAnimatedStyle(() => {
@@ -500,25 +420,128 @@ export default function LivestreamViewerScreen() {
   }
 
   // Render a chat message item
-  const renderChatMessage = ({ item, index }: { item: any; index: number }) => (
-    <Animated.View style={[styles.tiktokChatMessage, { opacity: 1 }]} key={item.id}>
-      <View style={styles.tiktokAvatarContainer}>
-        <Text style={styles.tiktokAvatarText}>{item.avatar}</Text>
-      </View>
-      <View style={styles.tiktokMessageContent}>
-        <Text style={styles.tiktokMessageUser}>{item.user}</Text>
-        <Text style={styles.tiktokMessageText}>{item.message}</Text>
-      </View>
-    </Animated.View>
+  const renderChatMessage = useCallback(
+    ({ item }: { item: any; index: number }) => (
+      <Animated.View style={[styles.tiktokChatMessage, { opacity: 1 }]} key={item.id}>
+        <View style={styles.tiktokAvatarContainer}>
+          <Text style={styles.tiktokAvatarText}>{item.avatar}</Text>
+        </View>
+        <View style={styles.tiktokMessageContent}>
+          <Text style={styles.tiktokMessageUser}>{item.user}</Text>
+          <Text style={styles.tiktokMessageText}>{item.message}</Text>
+        </View>
+      </Animated.View>
+    ),
+    []
   )
 
   // Dismiss keyboard when tapping outside the input
-  const dismissKeyboard = () => {
+  const dismissKeyboard = useCallback(() => {
     Keyboard.dismiss()
-  }
+  }, [])
 
   // Add this near the top of your component function
   const insets = useSafeAreaInsets()
+
+  const MemoizedFlatList = useMemo(
+    () => (
+      <FlatList
+        ref={chatListRef}
+        data={chatMessages}
+        keyExtractor={(item) => item.id}
+        renderItem={renderChatMessage}
+        style={styles.tiktokChatList}
+        contentContainerStyle={styles.tiktokChatListContent}
+        onEndReached={hasMoreMessages ? loadMoreMessages : undefined}
+        onEndReachedThreshold={0.3}
+        showsVerticalScrollIndicator={false}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        ListHeaderComponent={
+          isLoadingMore ? (
+            <View style={styles.loadingMoreContainer}>
+              <ActivityIndicator size='small' color='#ffffff' />
+              <Text style={styles.loadingMoreText}>Loading more messages...</Text>
+            </View>
+          ) : null
+        }
+        onContentSizeChange={() => {
+          // Only auto-scroll to bottom for new messages if we're already at the bottom
+          if (chatListRef.current && chatMessages.length > 0 && isAutoScrollEnabled) {
+            chatListRef.current.scrollToEnd({ animated: false })
+          }
+        }}
+        ListEmptyComponent={
+          <View style={styles.emptyChat}>
+            <Text style={styles.emptyChatText}>No messages yet. Be the first to say something!</Text>
+          </View>
+        }
+      />
+    ),
+    [
+      chatMessages,
+      renderChatMessage,
+      hasMoreMessages,
+      loadMoreMessages,
+      handleScroll,
+      isLoadingMore,
+      isAutoScrollEnabled
+    ]
+  )
+  // Handle token errors from Agora
+  useEffect(() => {
+    if (isInitialized && engine) {
+      const handleError = (errorCode: number, msg: string) => {
+        log.error(`Agora error: ${errorCode}, ${msg}`)
+
+        // Error codes related to token expiration
+        // 109: token expired
+        // 110: token invalid
+        if (errorCode === 109 || errorCode === 110) {
+          log.warn('Token expired or invalid')
+          Alert.alert('Connection Error', 'Your viewing session has expired. Please exit and rejoin the stream.', [
+            { text: 'OK' }
+          ])
+          setTokenError(true)
+        }
+      }
+
+      //   Add error listener
+      engine.addListener('onError', handleError)
+
+      return () => {
+        engine.removeListener('onError', handleError)
+      }
+    }
+  }, [isInitialized, engine])
+
+  useEffect(() => {
+    // Start timer for stream duration
+    timerRef.current = setInterval(() => {
+      setStreamDuration((prev) => prev + 1)
+    }, 1000)
+
+    // Handle back button press
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // Prevent going back with hardware button
+      confirmLeaveStream()
+      return true
+    })
+
+    // Initialize controls timer
+    resetControlsTimer()
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+      if (controlsTimerRef.current) {
+        clearTimeout(controlsTimerRef.current)
+      }
+
+      backHandler.remove()
+    }
+  }, [confirmLeaveStream, resetControlsTimer])
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
@@ -591,38 +614,7 @@ export default function LivestreamViewerScreen() {
             </View>
           )}
 
-          <FlatList
-            ref={chatListRef}
-            data={chatMessages}
-            keyExtractor={(item) => item.id}
-            renderItem={renderChatMessage}
-            style={styles.tiktokChatList}
-            contentContainerStyle={styles.tiktokChatListContent}
-            onEndReached={hasMoreMessages ? loadMoreMessages : undefined}
-            onEndReachedThreshold={0.3}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            ListHeaderComponent={
-              isLoadingMore ? (
-                <View style={styles.loadingMoreContainer}>
-                  <ActivityIndicator size='small' color='#ffffff' />
-                  <Text style={styles.loadingMoreText}>Loading more messages...</Text>
-                </View>
-              ) : null
-            }
-            onContentSizeChange={() => {
-              // Only auto-scroll to bottom for new messages if we're already at the bottom
-              if (chatListRef.current && chatMessages.length > 0 && isAutoScrollEnabled) {
-                chatListRef.current.scrollToEnd({ animated: false })
-              }
-            }}
-            ListEmptyComponent={
-              <View style={styles.emptyChat}>
-                <Text style={styles.emptyChatText}>No messages yet. Be the first to say something!</Text>
-              </View>
-            }
-          />
+          {MemoizedFlatList}
 
           {/* Show return to bottom button only when needed */}
           {!isAutoScrollEnabled && (

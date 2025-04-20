@@ -25,7 +25,7 @@ export interface ICartItem {
 
 export type ICreateCartItem = Omit<
   ICartItem,
-  'createdAt' | 'updatedAt' | 'status' | 'id' | 'productClassification' | 'groupBuying'
+  'createdAt' | 'updatedAt' | 'status' | 'id' | 'productClassification' | 'groupBuying' | 'livestream'
 > & {
   productClassification: string
   groupBuying?: string

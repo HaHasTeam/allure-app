@@ -35,7 +35,7 @@ function PreOrderProductSections() {
 
       {!isLoading && !hasProducts && (
         <View style={styles.loadingContainer}>
-          <Empty title={t('empty.preOrder.title')} description={t('empty.preOrder.description')} />{' '}
+          <Empty title={t('empty.preOrder.title')} description={t('empty.preOrder.description')} />
         </View>
       )}
 

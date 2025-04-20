@@ -138,7 +138,7 @@ const ProductSelectionBottomSheet = ({
           quantity: 1,
           productClassification: defaultClassification.id,
           classification: defaultClassification.title ?? '',
-          livestream: livestreamId || livestreamDetail.id, // Use provided livestreamId or from detail
+          livestream: livestreamId,
           livestreamDiscount: livestreamDetail.discount // Use actual discount from livestream
         })
       } catch (error) {
@@ -207,7 +207,7 @@ const ProductSelectionBottomSheet = ({
         quantity,
         productClassification: classificationId,
         classification: title ?? '',
-        livestream: livestreamId || selectedLivestream.id, // Use provided livestreamId or from selected livestream
+        livestream: livestreamId, // Use provided livestreamId or from selected livestream
         livestreamDiscount: selectedLivestream.discount // Use actual discount from selected livestream
       })
     } catch (error) {
@@ -368,7 +368,7 @@ const ProductSelectionBottomSheet = ({
                   brand: item.product.brand
                 }
 
-                console.log('mockProduct', item)
+                console.log('mockProduct', mockProduct)
 
                 return (
                   <ProductItem
