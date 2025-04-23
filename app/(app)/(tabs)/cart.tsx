@@ -17,7 +17,7 @@ import { getBestPlatformVouchersApi, getBestShopVouchersApi } from '@/hooks/api/
 import useCartStore from '@/store/cart'
 import { ICartByBrand } from '@/types/cart'
 import { IBrandBestVoucher, ICheckoutItem, IPlatformBestVoucher, TVoucher } from '@/types/voucher'
-import { createCheckoutItem, createCheckoutItems } from '@/utils/cart'
+import { checkPreventAction, createCheckoutItem, createCheckoutItems, findCartItemById } from '@/utils/cart'
 import {
   calculateCartTotals,
   calculatePlatformVoucherDiscount,
@@ -126,38 +126,66 @@ const CartScreen = () => {
     }))
     setChosenBrandVouchers({ ...chosenVouchersByBrand, [brandId]: voucher })
   }
-
-  useEffect(() => {
-    // handle show best voucher for each brand
-    async function handleShowBestBrandVoucher() {
-      try {
-        if (cartItems) {
-          const checkoutItems = createCheckoutItems(cartItems, selectedCartItems)
-          await callBestBrandVouchersFn({
-            checkoutItems
-          })
-        }
-      } catch (error) {
-        console.error(error)
-      }
-    }
-    async function handleShowBestPlatformVoucher() {
-      try {
-        let checkoutItems: ICheckoutItem[] = []
-        if (cartItems) {
-          checkoutItems = Object.entries(cartItems)
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            .map(([_brandName, cartItems]) => createCheckoutItem(cartItems, selectedCartItems))
-            .flat()
-        }
-
-        await callBestPlatformVouchersFn({
+  // handle show best voucher for each brand
+  async function handleShowBestBrandVoucher() {
+    try {
+      if (cartItems) {
+        const checkoutItems = createCheckoutItems(cartItems, selectedCartItems)
+        await callBestBrandVouchersFn({
           checkoutItems
         })
-      } catch (error) {
-        console.error(error)
       }
+    } catch (error) {
+      console.error(error)
     }
+  }
+  async function handleShowBestPlatformVoucher() {
+    try {
+      let checkoutItems: ICheckoutItem[] = []
+      if (cartItems) {
+        checkoutItems = Object.entries(cartItems)
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          .flatMap(([_brandName, cartItems]) => createCheckoutItem(cartItems, selectedCartItems))
+      }
+
+      await callBestPlatformVouchersFn({
+        checkoutItems
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  useEffect(() => {
+    // // handle show best voucher for each brand
+    // async function handleShowBestBrandVoucher() {
+    //   try {
+    //     if (cartItems) {
+    //       const checkoutItems = createCheckoutItems(cartItems, selectedCartItems)
+    //       await callBestBrandVouchersFn({
+    //         checkoutItems
+    //       })
+    //     }
+    //   } catch (error) {
+    //     console.error(error)
+    //   }
+    // }
+    // async function handleShowBestPlatformVoucher() {
+    //   try {
+    //     let checkoutItems: ICheckoutItem[] = []
+    //     if (cartItems) {
+    //       checkoutItems = Object.entries(cartItems)
+    //         // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    //         .map(([_brandName, cartItems]) => createCheckoutItem(cartItems, selectedCartItems))
+    //         .flat()
+    //     }
+
+    //     await callBestPlatformVouchersFn({
+    //       checkoutItems
+    //     })
+    //   } catch (error) {
+    //     console.error(error)
+    //   }
+    // }
     if (cartItems) {
       setCartByBrand(cartItems)
 
@@ -195,36 +223,6 @@ const CartScreen = () => {
 
       if (validSelectedCartItems.length !== selectedCartItems.length) {
         setSelectedCartItems(validSelectedCartItems)
-      }
-
-      // handle show best voucher for each brand
-      async function handleShowBestBrandVoucher() {
-        try {
-          if (cartItems) {
-            const checkoutItems = createCheckoutItems(cartItems, selectedCartItems)
-            await callBestBrandVouchersFn({
-              checkoutItems
-            })
-          }
-        } catch (error) {
-          console.error(error)
-        }
-      }
-      async function handleShowBestPlatformVoucher() {
-        try {
-          let checkoutItems: ICheckoutItem[] = []
-          if (cartItems) {
-            checkoutItems = Object.entries(cartItems)
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              .flatMap(([_brandName, cartItems]) => createCheckoutItem(cartItems, selectedCartItems))
-          }
-
-          await callBestPlatformVouchersFn({
-            checkoutItems
-          })
-        } catch (error) {
-          console.error(error)
-        }
       }
 
       handleShowBestBrandVoucher()
