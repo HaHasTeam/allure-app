@@ -17,6 +17,7 @@ import { myTheme } from '@/constants'
 import { filterOrdersParentApi, filterRequestApi, getMyOrdersApi, getMyRequestsApi } from '@/hooks/api/order'
 import { OrderRequestTypeEnum, RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
 import { IOrderFilter, IOrderItem, IRequest, IRequestFilter } from '@/types/order'
+import APIPagination from '@/components/pagination'
 
 export default function ProfileOrder() {
   const { t } = useTranslation()
@@ -26,6 +27,8 @@ export default function ProfileOrder() {
   const [activeTab, setActiveTab] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isTrigger, setIsTrigger] = useState<boolean>(false)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [totalPages, setTotalPages] = useState<number>(1)
   const queryClient = useQueryClient()
 
   const [requestTypes, setRequestTypes] = useState<OrderRequestTypeEnum[]>([])
@@ -86,8 +89,8 @@ export default function ProfileOrder() {
     queryKey: [
       filterOrdersParentApi.queryKey,
       {
-        page: 1,
-        limit: 100,
+        page: currentPage,
+        limit: 10,
         order: 'DESC',
         statuses: simplifiedTriggers.find((trigger) => trigger.value === activeTab)?.statuses
           ? simplifiedTriggers.find((trigger) => trigger.value === activeTab)?.statuses
@@ -103,11 +106,11 @@ export default function ProfileOrder() {
     queryKey: [
       filterRequestApi.queryKey,
       {
-        page: 1,
-        limit: 100,
+        page: currentPage,
+        limit: 10,
         order: 'DESC',
-        statuses: requestStatuses.length > 0 ? requestStatuses : undefined,
-        types: requestTypes.length > 0 ? requestTypes : undefined
+        statuses: requestStatuses.length > 0 ? requestStatuses : [],
+        types: requestTypes.length > 0 ? requestTypes : []
       }
     ],
     queryFn: filterRequestApi.fn
@@ -134,6 +137,20 @@ export default function ProfileOrder() {
     queryClient.invalidateQueries({ queryKey: [filterRequestApi.queryKey] })
   }, [isTrigger, queryClient])
 
+  const handlePageChange = (index: number) => {
+    setCurrentPage(index)
+    // Refetch data with the new page
+    queryClient.invalidateQueries({
+      queryKey: [activeTab === 'request' ? filterRequestApi.queryKey : filterOrdersParentApi.queryKey]
+    })
+  }
+  useEffect(() => {
+    if (activeTab === 'request' && filterRequestsData?.data) {
+      setTotalPages(filterRequestsData.data.totalPages)
+    } else if (filterOrdersData?.data) {
+      setTotalPages(filterOrdersData.data.totalPages)
+    }
+  }, [filterOrdersData, filterRequestsData, activeTab])
   const renderOrderItem = ({ item }: { item: IOrderItem }) => {
     return (
       <View style={styles.orderItemContainer}>
@@ -187,7 +204,10 @@ export default function ProfileOrder() {
   const renderItem = ({ item }: { item: any }) => (
     <TouchableOpacity
       style={[styles.triggerButton, activeTab === item.value && styles.activeTrigger]}
-      onPress={() => setActiveTab(item.value)}
+      onPress={() => {
+        setActiveTab(item.value)
+        setCurrentPage(1)
+      }}
     >
       <Text style={[styles.triggerText, activeTab === item.value && styles.activeText]}>{item.text}</Text>
     </TouchableOpacity>
@@ -223,23 +243,7 @@ export default function ProfileOrder() {
       {isLoading && <LoadingContentLayer />}
       <View style={styles.container}>
         <View style={styles.contentContainer}>
-          {/* Dropdown for mobile */}
-          {/* <View style={styles.pickerContainer}>
-            <Picker
-              value={activeTab}
-              onChange={(value) => setActiveTab((value as string) ?? "all")}
-              placeholder={
-                simplifiedTriggers.find(
-                  (trigger) => trigger.value === activeTab
-                )?.text || t("order.all")
-              }
-              containerStyle={styles.picker}
-            >
-              {renderOptions()}
-            </Picker>
-          </View> */}
           <TriggerList renderItem={renderItem} simplifiedTriggers={simplifiedTriggers} />
-
           <View style={styles.contentWrapper}>
             <View style={styles.searchContainer}>
               {activeTab === 'request' ? (
@@ -258,34 +262,62 @@ export default function ProfileOrder() {
               !isLoadingRequest &&
               filterRequestsData?.data &&
               filterRequestsData?.data?.total > 0 ? (
-              <FlatList
-                data={filterRequestsData?.data?.items}
-                showsHorizontalScrollIndicator={false}
-                renderItem={renderRequestItem}
-                keyExtractor={(item) => item?.id.toString()}
-                contentContainerStyle={styles.listContainer}
-                ItemSeparatorComponent={() => <View style={styles.separator} />}
-              />
-            ) : activeTab !== 'request' && !isLoading && filterOrdersData?.data && filterOrdersData?.data?.total > 0 ? (
-              filterOrdersData?.data?.items?.map((order) => (
-                <View>
-                  {order?.status === ShippingStatusEnum.TO_PAY ? (
-                    <OrderParentItem setIsTrigger={setIsTrigger} order={order} />
-                  ) : (
-                    <View style={styles.orderContainer}>
-                      <FlatList
-                        key={order?.id}
-                        data={order?.children}
-                        showsHorizontalScrollIndicator={false}
-                        renderItem={renderOrderItem}
-                        keyExtractor={(item) => item?.id.toString()}
-                        contentContainerStyle={styles.listContainer}
-                        ItemSeparatorComponent={() => <View style={styles.separator} />}
+              <>
+                <FlatList
+                  data={filterRequestsData?.data?.items}
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={renderRequestItem}
+                  keyExtractor={(item) => item?.id.toString()}
+                  contentContainerStyle={styles.listContainer}
+                  ItemSeparatorComponent={() => <View style={styles.separator} />}
+                />
+                {activeTab === 'request' &&
+                  filterRequestsData?.data.items &&
+                  filterRequestsData?.data.items.length > 0 && (
+                    <div className='mb-2'>
+                      <APIPagination
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                        totalPages={totalPages}
                       />
-                    </View>
+                    </div>
                   )}
+              </>
+            ) : activeTab !== 'request' && !isLoading && filterOrdersData?.data && filterOrdersData?.data?.total > 0 ? (
+              <>
+                {filterOrdersData?.data?.items?.map((order) => (
+                  <View>
+                    {order?.status === ShippingStatusEnum.TO_PAY ? (
+                      <OrderParentItem setIsTrigger={setIsTrigger} order={order} />
+                    ) : (
+                      <View style={styles.orderContainer}>
+                        <FlatList
+                          key={order?.id}
+                          data={order?.children}
+                          showsHorizontalScrollIndicator={false}
+                          renderItem={renderOrderItem}
+                          keyExtractor={(item) => item?.id.toString()}
+                          contentContainerStyle={styles.listContainer}
+                          ItemSeparatorComponent={() => <View style={styles.separator} />}
+                        />
+                      </View>
+                    )}
+                  </View>
+                ))}
+                <View>
+                  {activeTab !== 'request' &&
+                    filterOrdersData?.data.items &&
+                    filterOrdersData?.data.items.length > 0 && (
+                      <div className='mb-2'>
+                        <APIPagination
+                          currentPage={currentPage}
+                          onPageChange={handlePageChange}
+                          totalPages={totalPages}
+                        />
+                      </div>
+                    )}
                 </View>
-              ))
+              </>
             ) : null}
           </View>
         </View>
