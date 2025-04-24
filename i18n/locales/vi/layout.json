@@ -16,6 +16,13 @@
     "shoppingCart": "Giỏ hàng",
     "notification": "Thông báo"
   },
+  "walletTerm": {
+    "balance": "Số dư",
+    "availableBalance": "Số dư khả dụng",
+    "topUp": "Nạp tiền",
+    "withdraw": "Rút tiền",
+    "createWallet": "Tạo ví"
+  },
   "profile": {
     "myProfile": "Hồ Sơ Của Tôi",
     "profileDescription": "Quản lý thông tin hồ sơ để bảo mật tài khoản",

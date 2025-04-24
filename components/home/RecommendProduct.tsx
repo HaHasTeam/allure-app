@@ -23,7 +23,7 @@ const RecommendProduct = () => {
       getProductFilterApi.queryKey,
       {
         page: 1,
-        limit: 3
+        limit: 10
       }
     ],
     queryFn: getProductFilterApi.fn
@@ -107,10 +107,7 @@ const RecommendProduct = () => {
 
       {!isLoading && !hasProducts && (
         <View style={styles.loader}>
-          <Empty
-            title={t('empty.recommendProducts.title')}
-            description={t('empty.recommendProducts.description')}
-          />{' '}
+          <Empty title={t('empty.recommendProducts.title')} description={t('empty.recommendProducts.description')} />
         </View>
       )}
 

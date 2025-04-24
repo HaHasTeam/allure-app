@@ -72,6 +72,13 @@
       "LIVE_STREAM": "Livestream"
     }
   },
+  "walletTerm": {
+    "balance": "Balance",
+    "availableBalance": "Available balance",
+    "topUp": "Top Up",
+    "withdraw": "Withdraw",
+    "createWallet": "Create Wallet"
+  },
   "productTag": {
     "bestSeller": "Best Seller",
     "limitedEdition": "Limited Edition",

@@ -1,16 +1,18 @@
 import { Feather } from '@expo/vector-icons'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import * as Linking from 'expo-linking'
 import React, { useEffect, useRef, useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { View, Text, StyleSheet, ScrollView, TextInput, Image } from 'react-native'
-import { Button, Colors, RadioButton, RadioGroup, Badge } from 'react-native-ui-lib'
+import { Button, RadioButton, RadioGroup, Badge } from 'react-native-ui-lib'
 import WebView from 'react-native-webview'
 import { z } from 'zod'
 
 import SuccessContent from './SuccessContent'
 
+import { myTheme } from '@/constants'
 import { generatePaymentLinkApi } from '@/hooks/api/payment'
 import { filterTransactions } from '@/hooks/api/transaction'
 import { depositToWallet, getMyWalletApi } from '@/hooks/api/wallet'
@@ -23,11 +25,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export default function TopUpModal() {
+interface TopUpModalProps {
+  onClose?: () => void
+}
+
+export default function TopUpModal({ onClose }: TopUpModalProps) {
   const { t } = useTranslation()
   const [webViewVisible, setWebViewVisible] = useState(false)
   const scrollViewRef = useRef<ScrollView>(null)
-
+  const url = Linking.createURL('/(app)/(checkout)/result')
   const { mutateAsync: generatePaymentLink, data: paymentLinkRes } = useMutation({
     mutationKey: [generatePaymentLinkApi.mutationKey],
     mutationFn: generatePaymentLinkApi.fn
@@ -123,6 +129,12 @@ export default function TopUpModal() {
     }
   }
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose()
+    }
+  }
+
   return (
     <ScrollView ref={scrollViewRef} style={styles.container} contentContainerStyle={styles.contentContainer}>
       {!depositRes && (
@@ -131,7 +143,7 @@ export default function TopUpModal() {
             <View style={styles.amountHeader}>
               <View style={styles.amountLabelContainer}>
                 <Text style={styles.amountLabel}>{t('wallet.amount', 'Amount')}</Text>
-                <Badge label={t('wallet.topUp', 'Top Up')} backgroundColor={Colors.primary} />
+                <Badge label={t('wallet.topUp', 'Top Up')} backgroundColor={myTheme.primary} />
               </View>
               <View style={styles.currencyContainer}>
                 <Text style={styles.currencyCode}>VND</Text>
@@ -150,7 +162,7 @@ export default function TopUpModal() {
                   onChangeText={(text) => onChange(text ? parseInt(text, 10) : 0)}
                   keyboardType='numeric'
                   placeholder='0'
-                  placeholderTextColor={Colors.grey40}
+                  placeholderTextColor={myTheme.mutedForeground}
                   editable={!readOnlyForm}
                 />
               )}
@@ -161,8 +173,8 @@ export default function TopUpModal() {
                 <Button
                   key={amt.value.toString()}
                   label={amt.label}
-                  backgroundColor={amount === amt.value ? Colors.primary : Colors.white}
-                  outlineColor={Colors.grey30}
+                  backgroundColor={amount === amt.value ? myTheme.primary : myTheme.white}
+                  outlineColor={myTheme.border}
                   outline={amount !== amt.value}
                   style={styles.amountButton}
                   labelStyle={[styles.amountButtonLabel, amount === amt.value && styles.amountButtonLabelSelected]}
@@ -195,7 +207,7 @@ export default function TopUpModal() {
                       <RadioButton
                         value={PaymentMethodEnum.BANK_TRANSFER}
                         selected={value === PaymentMethodEnum.BANK_TRANSFER}
-                        color={Colors.primary}
+                        color={myTheme.primary}
                         disabled={readOnlyForm}
                       />
                       <View style={styles.methodLabelContainer}>
@@ -242,7 +254,7 @@ export default function TopUpModal() {
                         )}
                       </View>
                     </View>
-                    <Feather name='chevron-right' size={16} color={Colors.grey40} />
+                    <Feather name='chevron-right' size={16} color={myTheme.mutedForeground} />
                   </View>
                 </RadioGroup>
               </View>
@@ -271,14 +283,26 @@ export default function TopUpModal() {
       )}
 
       {!depositRes && !webViewVisible && (
-        <Button
-          label={t('common.continue', 'Continue')}
-          style={styles.continueButton}
-          backgroundColor={Colors.secondary}
-          onPress={handleSubmit(onSubmit)}
-          disabled={formState.isSubmitting}
-          loading={formState.isSubmitting}
-        />
+        <View style={styles.buttonContainer}>
+          <Button
+            label={t('common.continue', 'Continue')}
+            style={styles.continueButton}
+            backgroundColor={myTheme.secondary}
+            labelStyle={styles.continueButtonLabel}
+            onPress={handleSubmit(onSubmit)}
+            disabled={formState.isSubmitting}
+            loading={formState.isSubmitting}
+          />
+          <Button
+            label={t('button.cancel', 'Cancel')}
+            style={styles.cancelButton}
+            backgroundColor={myTheme.white}
+            outlineColor={myTheme.border}
+            labelStyle={styles.cancelButtonLabel}
+            outline
+            onPress={handleClose}
+          />
+        </View>
       )}
 
       {!!depositRes && (
@@ -287,10 +311,9 @@ export default function TopUpModal() {
           <Button
             label={t('wallet.close', 'Close')}
             style={styles.closeButton}
-            backgroundColor={Colors.secondary}
-            onPress={() => {
-              // Handle close action - this would be passed as a prop in a real implementation
-            }}
+            backgroundColor={myTheme.secondary}
+            labelStyle={styles.closeButtonLabel}
+            onPress={handleClose}
           />
         </View>
       )}
@@ -300,17 +323,18 @@ export default function TopUpModal() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: myTheme.white
   },
   contentContainer: {
     padding: 16
   },
   amountContainer: {
-    backgroundColor: Colors.grey10,
+    backgroundColor: myTheme.lightGrey || myTheme.background,
     padding: 16,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: Colors.grey30,
+    borderColor: myTheme.border,
     marginBottom: 24
   },
   amountHeader: {
@@ -324,7 +348,7 @@ const styles = StyleSheet.create({
   },
   amountLabel: {
     fontSize: 14,
-    color: Colors.grey40,
+    color: myTheme.mutedForeground,
     marginRight: 8
   },
   currencyContainer: {
@@ -333,15 +357,16 @@ const styles = StyleSheet.create({
   },
   currencyCode: {
     fontSize: 18,
-    fontWeight: '600'
+    fontWeight: '600',
+    color: myTheme.foreground
   },
   currencySeparator: {
     marginHorizontal: 4,
-    color: Colors.grey40
+    color: myTheme.mutedForeground
   },
   currencyName: {
     fontSize: 14,
-    color: Colors.grey40,
+    color: myTheme.mutedForeground,
     fontWeight: '300'
   },
   amountInput: {
@@ -349,7 +374,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: 16,
     padding: 0,
-    color: Colors.textColor
+    color: myTheme.foreground
   },
   predefinedAmountsContainer: {
     flexDirection: 'row',
@@ -362,10 +387,10 @@ const styles = StyleSheet.create({
     minWidth: 80
   },
   amountButtonLabel: {
-    color: Colors.textColor
+    color: myTheme.foreground
   },
   amountButtonLabelSelected: {
-    color: Colors.white
+    color: myTheme.white
   },
   methodsContainer: {
     marginBottom: 24
@@ -376,7 +401,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.grey30
+    borderBottomColor: myTheme.border
   },
   methodItemLeft: {
     flexDirection: 'row',
@@ -391,7 +416,8 @@ const styles = StyleSheet.create({
   },
   methodLabel: {
     fontSize: 16,
-    marginRight: 8
+    marginRight: 8,
+    color: myTheme.foreground
   },
   bankLogosContainer: {
     flexDirection: 'row'
@@ -414,28 +440,47 @@ const styles = StyleSheet.create({
   paymentProviderText: {
     flex: 1,
     fontSize: 14,
-    color: Colors.grey40,
+    color: myTheme.mutedForeground,
     fontWeight: '300'
   },
   webViewContainer: {
     height: 500,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: Colors.grey30,
+    borderColor: myTheme.border,
     borderRadius: 8,
     overflow: 'hidden'
   },
   webView: {
     flex: 1
   },
-  continueButton: {
+  buttonContainer: {
     marginTop: 16
+  },
+  continueButton: {
+    marginBottom: 8,
+    backgroundColor: myTheme.primary
+  },
+  continueButtonLabel: {
+    color: myTheme.white,
+    fontWeight: '500'
+  },
+  cancelButton: {
+    marginTop: 8
+  },
+  cancelButtonLabel: {
+    color: myTheme.foreground
   },
   successContainer: {
     alignItems: 'center'
   },
   closeButton: {
     marginTop: 16,
-    width: '100%'
+    width: '100%',
+    backgroundColor: myTheme.primary
+  },
+  closeButtonLabel: {
+    color: myTheme.white,
+    fontWeight: '500'
   }
 })

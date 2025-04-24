@@ -40,6 +40,8 @@ import {
   calculateTotalBrandVoucherDiscount,
   calculateTotalCheckoutBrandVoucherDiscount
 } from '@/utils/price'
+import PaymentSelection from '@/components/payment/PaymentSelection'
+import { flattenObject, hasPreOrderProduct } from '@/utils/product'
 
 const Checkout = () => {
   const { t } = useTranslation()
@@ -240,6 +242,7 @@ const Checkout = () => {
           orders,
           platformVoucherId: chosenPlatformVoucher?.id ?? '' // Optional
         }
+        console.log('formData', formData)
 
         await createOrderFn(formData)
       }
@@ -381,7 +384,7 @@ const Checkout = () => {
                                 <Text style={styles.link}>
                                   {t('voucher.discountAmount', {
                                     amount: platformVoucherDiscount
-                                  })}{' '}
+                                  })}
                                 </Text>
                                 <MaterialCommunityIcons name='pencil' size={16} color={myTheme.blue[500]} />
                               </View>
@@ -418,6 +421,16 @@ const Checkout = () => {
                     />
                   </View>
                 )}
+
+                <View style={{ width: '100%' }}>
+                  <PaymentSelection
+                    register={register}
+                    setValue={setValue}
+                    watch={watch}
+                    hasPreOrderProduct={hasPreOrderProduct(flattenObject(selectedCartItem))}
+                    totalPayment={totalPayment}
+                  />
+                </View>
 
                 <CheckoutTotal
                   formId={formId}
