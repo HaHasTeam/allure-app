@@ -14,6 +14,7 @@ import {
   IRequestFilter,
   IRequestFilterFilter
 } from '@/types/order'
+import { PaymentMethodEnum } from '@/types/payment'
 import { TServerResponse, TServerResponseWithPagination } from '@/types/request'
 import { IStatusTracking } from '@/types/status-tracking'
 import { toMutationFetcher, toQueryFetcher } from '@/utils/query'
@@ -243,5 +244,14 @@ export const requestReturnOrderApi = toMutationFetcher<
   return privateRequest(`/orders/request-refund/${orderId}`, {
     method: 'POST',
     data: { reason, mediaFiles }
+  })
+})
+export const updateOrderPaymentMethod = toMutationFetcher<
+  { id: string; paymentMethod: PaymentMethodEnum },
+  TServerResponse<IOrder>
+>('updateOrderPaymentMethod', async ({ id, paymentMethod }) => {
+  return privateRequest(`/orders/update-payment-method/${id}`, {
+    method: 'POST',
+    data: { paymentMethod }
   })
 })

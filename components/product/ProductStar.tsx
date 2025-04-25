@@ -13,7 +13,6 @@ const ProductStar = ({ rating, ratingAmount }: ProductStarProps) => {
     <View>
       <View style={styles.container}>
         <Rating showRating={false} fractions={2} startingValue={rating} imageSize={12} readonly />
-        {/* <Rating ratingCount={rating} imageSize={12} readonly /> */}
         <MaterialIcons name='keyboard-arrow-down' size={11} color='black' />
         <Text style={styles.text}>({ratingAmount})</Text>
       </View>

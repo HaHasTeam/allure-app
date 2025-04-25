@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
@@ -35,7 +35,7 @@ function PreOrderProductSections() {
 
       {!isLoading && !hasProducts && (
         <View style={styles.loadingContainer}>
-          <Empty title={t('empty.preOrder.title')} description={t('empty.preOrder.description')} />{' '}
+          <Empty title={t('empty.preOrder.title')} description={t('empty.preOrder.description')} />
         </View>
       )}
 

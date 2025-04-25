@@ -1,6 +1,8 @@
-import { BottomSheetModal } from '@gorhom/bottom-sheet'
+'use client'
+
+import type { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { useRouter } from 'expo-router'
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 
@@ -10,7 +12,7 @@ import ImageWithFallback from '../image/ImageWithFallBack'
 
 import ProductDetailScreen from '@/app/(app)/(products)/[id]'
 import { myTheme } from '@/constants'
-import { IProduct } from '@/types/product'
+import type { IProduct } from '@/types/product'
 
 interface ProductCardProps {
   product: IProduct
@@ -44,14 +46,16 @@ const ProductCard = ({ product, isProductDiscount = false, isInGroupBuying = fal
           }
         }}
       >
-        <View style={styles.tagContainer}>{product?.tag && <ProductTag tag={product?.tag} />}</View>
+        <View style={styles.tagContainer}>{product?.tag ? <ProductTag tag={product.tag} /> : null}</View>
         <View style={styles.imageContainer}>
           <ImageWithFallback source={{ uri: product?.images[0]?.fileUrl }} style={styles.image} resizeMode='cover' />
         </View>
         <View style={styles.contentContainer}>
-          {isProductDiscount && product?.deal && product?.deal > 0 && (
-            <ProductTag tag='DealPercent' text={`-${(product?.deal * 100).toFixed(0)}%`} />
-          )}
+          <Text>
+            {isProductDiscount && product?.deal && product?.deal > 0 && (
+              <ProductTag tag='DealPercent' text={`-${(product?.deal * 100).toFixed(0)}%`} />
+            )}
+          </Text>
           <Text numberOfLines={2} style={styles.productName}>
             {product?.name}
           </Text>
@@ -80,12 +84,14 @@ const ProductCard = ({ product, isProductDiscount = false, isInGroupBuying = fal
         </View>
       </TouchableOpacity>
 
-      <ProductDetailScreen
-        initProductId={product.id ?? ''}
-        isInGroupBuying
-        bottomSheetModalRef={bottomSheetModalRef}
-        setIsModalVisible={setIsModalVisible}
-      />
+      {isInGroupBuying && (
+        <ProductDetailScreen
+          initProductId={product.id ?? ''}
+          isInGroupBuying
+          bottomSheetModalRef={bottomSheetModalRef}
+          setIsModalVisible={setIsModalVisible}
+        />
+      )}
     </>
   )
 }

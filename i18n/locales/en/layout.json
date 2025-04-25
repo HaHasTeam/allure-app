@@ -72,6 +72,13 @@
       "LIVE_STREAM": "Livestream"
     }
   },
+  "walletTerm": {
+    "balance": "Balance",
+    "availableBalance": "Available balance",
+    "topUp": "Top Up",
+    "withdraw": "Withdraw",
+    "createWallet": "Create Wallet"
+  },
   "productTag": {
     "bestSeller": "Best Seller",
     "limitedEdition": "Limited Edition",
@@ -685,7 +692,150 @@
     "CARD": "Credit Card/Debit Card",
     "WALLET": "Wallet",
     "CASH": "Cash on Delivery",
-    "BANK_TRANSFER": "Credit Card/Debit Card"
+    "BANK_TRANSFER": "Credit Card/Debit Card",
+
+    "tabs": {
+      "transactions": "Transactions",
+      "withdrawalRequests": "Withdrawal Requests"
+    },
+
+    "balanceOverview": "Balance Overview",
+
+    "availableBalance": "Available Balance",
+    "availableBalanceHint": "Available balance is the amount you can currently withdraw, excluding any pending transactions.",
+    "myBankAccount": "My Bank Account",
+    "topUp": "Top Up",
+    "payByBank": "Pay by bank",
+    "paymentProviderInfo": "We collaborate with PayOS to provide you with the best payment experience with free fee.",
+    "button": "Add payment method",
+
+    "description": "Your wallet is empty. Please add payment methods first.",
+
+    "amount": "Amount",
+    "scanAndPay": "Scan & Pay",
+    "scanToPayDescription": "Scan this QR code with your banking app to complete the payment",
+    "close": "Close",
+    "paymentSuccessful": "Payment Successful!",
+    "transactionCompleted": "Your transaction has been completed successfully",
+    "transactionId": "Transaction ID",
+    "paymentError": "Payment Failed",
+    "paymentFailed": "We couldn't process your payment. Please try again or choose another payment method.",
+    "tryAgain": "Try Again",
+    "cancel": "Cancel",
+    "noWalletFound": "No Wallet Found!",
+    "noWalletDescription": "You haven't created any wallet yet. Start managing your finances by creating a new wallet.",
+    "bankAccounts": {
+      "default": "Default",
+      "noDefaultAccount": "No default account set",
+      "manage": "Manage Bank Accounts",
+      "title": "Bank Accounts",
+      "deleteSuccess": "Bank account deleted successfully",
+      "deleteSuccessDescription": "Your bank account has been removed from your profile",
+      "deleteError": "Failed to delete bank account",
+      "deleteErrorDescription": "There was a problem deleting your bank account. Please try again.",
+      "defaultSuccess": "Default bank account updated",
+      "defaultSuccessDescription": "Your default bank account has been updated successfully",
+      "defaultError": "Failed to update default bank account",
+      "defaultErrorDescription": "There was a problem updating your default bank account. Please try again.",
+      "noAccounts": "No Bank Accounts Found",
+      "addYourFirst": "Add your first bank account to withdraw funds",
+      "addAccount": "Add Bank Account",
+      "yourAccounts": "Your Bank Accounts",
+      "accountName": "Account Name",
+      "refresh": "Refresh",
+      "viewAccounts": "View Accounts",
+      "bankName": "Bank Name",
+      "enterBankName": "Select your bank",
+      "accountNumber": "Account Number",
+      "enterAccountNumber": "Enter your account number",
+      "enterAccountName": "Enter your account name",
+      "setAsDefault": "Set as Default Bank Account"
+    },
+    "transaction": {
+      "history": "Transaction History",
+      "balance": "Current Balance",
+      "summary": "Financial Summary",
+      "recentTransactions": "Recent Transactions",
+      "totalDeposits": "Total Deposits",
+      "totalWithdrawals": "Total Withdrawals",
+      "currentBalance": "Current Balance",
+      "balanceAfter": "Balance After Transaction",
+      "paymentMethod": "Payment Method",
+      "description": "Description",
+      "relatedOrder": "Related Order",
+      "viewOrder": "View Order",
+      "noTransactions": "No transactions found",
+      "allStatuses": "All Statuses",
+      "allTypes": "All Types",
+      "tabs": {
+        "all": "All",
+        "deposit": "Deposits",
+        "withdraw": "Withdrawals",
+        "orderPurchase": "Purchases",
+        "bookingPurchase": "Bookings",
+        "orderRefund": "Refunds",
+        "bookingRefund": "Booking Refunds",
+        "orderCancel": "Cancelled Orders",
+        "bookingCancel": "Cancelled Bookings"
+      },
+      "filter": {
+        "title": "Filter Transactions",
+        "type": "Transaction Type",
+        "status": "Status",
+        "date": "Date Range",
+        "apply": "Apply Filters",
+        "reset": "Reset Filters",
+        "from": "From",
+        "to": "To"
+      }
+    },
+    "withdraw": {
+      "title": "Withdraw Funds",
+      "description": "Transfer money from your wallet to your bank account",
+      "availableBalance": "Available Balance",
+      "amount": "Withdrawal Amount",
+      "amountDescription": "Minimum withdrawal amount is ₫10,000",
+      "selectBankAccount": "Select Bank Account",
+      "noBankAccount": "No Bank Account Found",
+      "addBankAccountFirst": "Please add a bank account before making a withdrawal",
+      "submitButton": "Request Withdrawal",
+      "success": "Withdrawal Requested",
+      "successMessage": "Your withdrawal request has been submitted successfully",
+      "error": "Withdrawal Failed",
+      "errorMessage": "There was an error processing your withdrawal request",
+      "insufficientBalance": "Insufficient balance in your wallet",
+      "withdrawalNote": "Note: Withdrawal requests are typically processed within 1-3 business days."
+    },
+    "withdrawalRequests": {
+      "title": "Withdrawal Requests",
+      "empty": {
+        "title": "No withdrawal requests found",
+        "description": "You haven't made any withdrawal requests that match the current filters."
+      },
+      "loading": "Loading requests...",
+      "cancel": "Cancel",
+      "cancelSuccess": "Request cancelled successfully",
+      "cancelSuccessDescription": "Your withdrawal request has been cancelled",
+      "cancelError": "Failed to cancel request",
+      "cancelErrorDescription": "There was a problem cancelling your withdrawal request",
+      "filterByStatus": "Filter by status",
+      "filters": {
+        "all": "All"
+      },
+      "bank": "Bank",
+      "accountNumber": "Account",
+      "accountName": "Name",
+      "processedBy": "Processed by",
+      "rejected": "Rejected",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "processing": "Processing",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
+    }
   },
   "order": {
     "paymentTitle": "Payment Incomplete",

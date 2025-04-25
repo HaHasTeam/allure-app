@@ -53,14 +53,13 @@ const ProductItem = ({
   const displayOriginalPrice = originalPrice ?? product.price
   const displayDiscountedPrice = discountedPrice ?? product.currentPrice
   const hasDiscount = (product.deal ?? 0) > 0 || discount > 0 || product.currentPrice < product.price
+  console.log('discount', discount)
 
   // Calculate discount percentage if not provided
   const discountPercentage =
     discount > 0
-      ? discount * 100
-      : product.deal
-        ? product.deal
-        : Math.round(((displayOriginalPrice - displayDiscountedPrice) / displayOriginalPrice) * 100)
+      ? (discount * 100).toFixed(0)
+      : Math.round(((displayOriginalPrice - displayDiscountedPrice) / displayOriginalPrice) * 100)
 
   // Format numbers for display
   const formatNumber = (num: number) => {
@@ -73,7 +72,7 @@ const ProductItem = ({
   return (
     <View style={styles.container}>
       {/* Discount Badge */}
-      {hasDiscount && discountPercentage > 0 && (
+      {hasDiscount && (
         <View style={styles.discountBadge}>
           <Text style={styles.discountText}>-{discountPercentage}%</Text>
         </View>

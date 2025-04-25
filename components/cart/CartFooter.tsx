@@ -218,7 +218,7 @@ export default function CartFooter({
                       <Text style={styles.link}>
                         {t('voucher.discountAmount', {
                           amount: platformVoucherDiscount
-                        })}{' '}
+                        })}
                       </Text>
                       <MaterialCommunityIcons name='pencil' size={16} color={myTheme.blue[500]} />
                     </View>

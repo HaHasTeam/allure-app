@@ -15,7 +15,6 @@ const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   ...props
 }) => {
   const [imgSource, setImgSource] = useState<ImageSourcePropType>(source)
-  console.log('imgSource', imgSource)
 
   const handleError = () => {
     // Only update the source if it's different from the fallback

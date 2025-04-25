@@ -64,7 +64,7 @@ export default function OrderSummary({
           {/* Payment Method */}
           <View style={[styles.row, styles.borderTop]}>
             <Text style={styles.totalLabel}>{t('wallet.paymentMethod')}</Text>
-            <Text style={[styles.totalValue, { color: myTheme.primary }]}>{t(`wallet.${paymentMethod}`)}</Text>
+            <Text style={[styles.totalValue, { color: myTheme.primary }]}>{paymentMethod}</Text>
           </View>
         </View>
       </View>

@@ -55,6 +55,8 @@ export default function ProductTag({ tag, text, size = 'small' }: ProductTagProp
     case 'DealPercent':
       textStyle = styles.dealPercentText
       tagStyle = styles.dealPercent
+      tagText = text ?? ''
+
       break
     case ProductCartStatusEnum.HIDDEN: // use for product in cart
       tagStyle = styles.productHidden

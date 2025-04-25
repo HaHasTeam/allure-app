@@ -121,7 +121,7 @@ const VoucherPlatformItem = ({
               </View>
             </View>
             <Text style={styles.expiryText}>
-              {t('date.exp')}:{' '}
+              {t('date.exp')}:
               {t('date.toLocaleDateTimeString', {
                 val: new Date(voucher?.endTime)
               })}
