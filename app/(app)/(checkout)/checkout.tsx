@@ -4,7 +4,7 @@ import type { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Stack, useRouter } from 'expo-router'
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native'
@@ -16,6 +16,8 @@ import CheckoutTotal from '@/components/checkout/CheckoutTotal'
 import { OrderItemCreation } from '@/components/checkout/OrderItemsCreation'
 import Empty from '@/components/empty'
 import LoadingContentLayer from '@/components/loading/LoadingContentLayer'
+import PaymentSelection from '@/components/payment/PaymentSelection'
+import { QRCodeAlertDialog } from '@/components/payment/QRCodeAlertDialog'
 import VoucherPlatformList from '@/components/voucher/VoucherPlatformList'
 import { myTheme } from '@/constants'
 import { useToast } from '@/contexts/ToastContext'
@@ -23,6 +25,7 @@ import { getMyAddressesApi } from '@/hooks/api/address'
 import { getMyCartApi } from '@/hooks/api/cart'
 import { updateOrderGroupBuyingApi } from '@/hooks/api/group-buying'
 import { createGroupOderApi, createOderApi } from '@/hooks/api/order'
+import { PAY_TYPE } from '@/hooks/api/transaction/type'
 import useUser from '@/hooks/api/useUser'
 import { getBestPlatformVouchersApi, getBestShopVouchersApi } from '@/hooks/api/voucher'
 import useHandleServerError from '@/hooks/useHandleServerError'
@@ -30,7 +33,7 @@ import { getCreateOrderSchema } from '@/schema/order.schema'
 import useCartStore from '@/store/cart'
 import type { IAddress } from '@/types/address'
 import { DiscountTypeEnum, PaymentMethod, ResultEnum } from '@/types/enum'
-import type { ICreateGroupOrder, ICreateOrder, IUpdateGroupOrder } from '@/types/order'
+import type { ICreateGroupOrder, ICreateOrder, IOrder, IUpdateGroupOrder } from '@/types/order'
 import { ProjectInformationEnum } from '@/types/project'
 import type { IBrandBestVoucher, ICheckoutItem, IPlatformBestVoucher, TVoucher } from '@/types/voucher'
 import { createCheckoutItem, createCheckoutItems } from '@/utils/cart'
@@ -40,7 +43,6 @@ import {
   calculateTotalBrandVoucherDiscount,
   calculateTotalCheckoutBrandVoucherDiscount
 } from '@/utils/price'
-import PaymentSelection from '@/components/payment/PaymentSelection'
 import { flattenObject, hasPreOrderProduct } from '@/utils/product'
 
 const Checkout = () => {
@@ -68,6 +70,9 @@ const Checkout = () => {
   const queryClient = useQueryClient()
   const { getProfile } = useUser()
   const CreateOrderSchema = getCreateOrderSchema()
+  const [isOpenQRCodePayment, setIsOpenQRCodePayment] = useState(false)
+  const [paymentId, setPaymentId] = useState<string | undefined>(undefined)
+  const [orderData, setOrderData] = useState<string | undefined>(undefined)
 
   const selectedCartItems = useMemo(() => {
     return selectedCartItem
@@ -139,9 +144,9 @@ const Checkout = () => {
     resolver: zodResolver(CreateOrderSchema),
     defaultValues: defaultOrderValues
   })
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     reset()
-  }
+  }, [reset])
 
   const { data: useMyAddressesData, isFetching: isGettingAddress } = useQuery({
     queryKey: [getMyAddressesApi.queryKey],
@@ -168,12 +173,18 @@ const Checkout = () => {
     mutationKey: [createOderApi.mutationKey],
     mutationFn: createOderApi.fn,
     onSuccess: (orderData) => {
+      if (orderData.data.paymentMethod === PaymentMethod.BANK_TRANSFER) {
+        setIsOpenQRCodePayment(true)
+        setPaymentId(orderData.data.id)
+        setOrderData(orderData.data.id)
+        return
+      }
       showToast(t('order.success'), 'success', 4000)
       resetCart()
       handleReset()
-      router.push({
+      router.replace({
         pathname: '/result',
-        params: { status: ResultEnum.SUCCESS }
+        params: { status: ResultEnum.SUCCESS, orderDataId: orderData.data.id }
       })
     }
   })
@@ -181,16 +192,16 @@ const Checkout = () => {
   const { mutateAsync: createGroupOrderFn } = useMutation({
     mutationKey: [createGroupOderApi.mutationKey],
     mutationFn: createGroupOderApi.fn,
-    onSuccess: () => {
+    onSuccess: (orderData) => {
       showToast(t('order.success'), 'success', 4000)
       queryClient.invalidateQueries({
         queryKey: [getMyCartApi.queryKey]
       })
 
       handleReset()
-      router.push({
+      router.replace({
         pathname: '/result',
-        params: { status: ResultEnum.SUCCESS }
+        params: { status: ResultEnum.SUCCESS, orderDataId: orderData.data.id }
       })
     }
   })
@@ -198,19 +209,40 @@ const Checkout = () => {
   const { mutateAsync: updateGroupOrder } = useMutation({
     mutationKey: [updateOrderGroupBuyingApi.mutationKey],
     mutationFn: updateOrderGroupBuyingApi.fn,
-    onSuccess: () => {
+    onSuccess: (orderData) => {
       showToast(t('order.success'), 'success', 4000)
       queryClient.invalidateQueries({
         queryKey: [getMyCartApi.queryKey]
       })
 
       handleReset()
-      router.push({
+      router.replace({
         pathname: '/result',
-        params: { status: ResultEnum.SUCCESS }
+        params: { status: ResultEnum.SUCCESS, orderDataId: orderData.data.id }
       })
     }
   })
+
+  const onPaymentSuccess = useCallback(() => {
+    showToast(t('order.success'), 'success', 4000)
+
+    resetCart()
+    handleReset()
+    console.log('payment success')
+    router.replace({
+      pathname: '/result',
+      params: { status: ResultEnum.SUCCESS, orderDataId: orderData }
+    })
+  }, [handleReset, orderData, resetCart, router, showToast, t])
+  const onClose = useCallback(() => {
+    showToast(t('order.success'), 'info', 4000)
+    resetCart()
+    handleReset()
+    router.replace({
+      pathname: '/result',
+      params: { status: ResultEnum.SUCCESS, orderDataId: orderData }
+    })
+  }, [handleReset, orderData, resetCart, router, showToast, t])
   async function onSubmit(values: z.infer<typeof CreateOrderSchema>) {
     try {
       console.log(values)
@@ -316,6 +348,15 @@ const Checkout = () => {
       }
     >
       <Stack.Screen options={{ title: t('cart.checkout') }} />
+      <QRCodeAlertDialog
+        amount={totalPayment}
+        open={isOpenQRCodePayment}
+        onOpenChange={setIsOpenQRCodePayment}
+        type={PAY_TYPE.ORDER}
+        paymentId={paymentId}
+        onSuccess={onPaymentSuccess}
+        onClose={onClose}
+      />
       {isGettingAddress && <LoadingContentLayer />}
       {selectedCartItem && Object.keys(selectedCartItem)?.length > 0 && (
         <ScrollView style={styles.contentContainer}>

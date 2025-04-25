@@ -1,10 +1,12 @@
+'use client'
+
 import { Header, HeaderBackButton } from '@react-navigation/elements'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Stack, useRouter } from 'expo-router'
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { Picker } from 'react-native-ui-lib'
+import { FlatList, StyleSheet, View, RefreshControl } from 'react-native'
+import { Card, Text, TouchableOpacity } from 'react-native-ui-lib'
 
 import Empty from '@/components/empty'
 import LoadingContentLayer from '@/components/loading/LoadingContentLayer'
@@ -12,23 +14,21 @@ import OrderItem from '@/components/order/OrderItem'
 import OrderParentItem from '@/components/order/OrderParentItem'
 import { OrderRequestFilter } from '@/components/order/OrderRequestFilter'
 import SearchOrders from '@/components/order/SearchOrders'
-import TriggerList from '@/components/ui/tabs'
-import { myTheme } from '@/constants'
-import { filterOrdersParentApi, filterRequestApi, getMyOrdersApi, getMyRequestsApi } from '@/hooks/api/order'
-import { OrderRequestTypeEnum, RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
-import { IOrderFilter, IOrderItem, IRequest, IRequestFilter } from '@/types/order'
 import APIPagination from '@/components/pagination'
+import { myTheme } from '@/constants'
+import { filterOrdersParentApi, filterRequestApi } from '@/hooks/api/order'
+import { type OrderRequestTypeEnum, type RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
+import type { IOrderItem, IRequest } from '@/types/order'
 
-export default function ProfileOrder() {
+export default function OrderHistory() {
   const { t } = useTranslation()
   const router = useRouter()
-  // const [orders, setOrders] = useState<IOrderItem[]>([]);
-  // const [requests, setRequests] = useState<IRequest[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isTrigger, setIsTrigger] = useState<boolean>(false)
   const [currentPage, setCurrentPage] = useState<number>(1)
   const [totalPages, setTotalPages] = useState<number>(1)
+  const [refreshing, setRefreshing] = useState(false)
   const queryClient = useQueryClient()
 
   const [requestTypes, setRequestTypes] = useState<OrderRequestTypeEnum[]>([])
@@ -85,6 +85,7 @@ export default function ProfileOrder() {
     ],
     [t]
   )
+
   const { data: filterOrdersData, isFetching: isLoading } = useQuery({
     queryKey: [
       filterOrdersParentApi.queryKey,
@@ -102,6 +103,7 @@ export default function ProfileOrder() {
     ],
     queryFn: filterOrdersParentApi.fn
   })
+
   const { data: filterRequestsData, isFetching: isLoadingRequest } = useQuery({
     queryKey: [
       filterRequestApi.queryKey,
@@ -119,6 +121,7 @@ export default function ProfileOrder() {
   const handleSearch = (query: string) => {
     setSearchQuery(query)
   }
+
   const handleRequestFilterChange = async (types: OrderRequestTypeEnum[], statuses: RequestStatusEnum[]) => {
     setRequestTypes(types)
     setRequestStatuses(statuses)
@@ -130,6 +133,7 @@ export default function ProfileOrder() {
       queryClient.invalidateQueries({ queryKey: [filterRequestApi.queryKey] })
     ])
   }
+
   useEffect(() => {
     queryClient.invalidateQueries({
       queryKey: [filterOrdersParentApi.queryKey]
@@ -144,6 +148,7 @@ export default function ProfileOrder() {
       queryKey: [activeTab === 'request' ? filterRequestApi.queryKey : filterOrdersParentApi.queryKey]
     })
   }
+
   useEffect(() => {
     if (activeTab === 'request' && filterRequestsData?.data) {
       setTotalPages(filterRequestsData.data.totalPages)
@@ -151,25 +156,21 @@ export default function ProfileOrder() {
       setTotalPages(filterOrdersData.data.totalPages)
     }
   }, [filterOrdersData, filterRequestsData, activeTab])
-  const renderOrderItem = ({ item }: { item: IOrderItem }) => {
-    return (
-      <View style={styles.orderItemContainer}>
-        <OrderItem
-          brand={
-            item?.orderDetails?.[0]?.productClassification?.preOrderProduct?.product?.brand ??
-            item?.orderDetails?.[0]?.productClassification?.productDiscount?.product?.brand ??
-            item?.orderDetails?.[0]?.productClassification?.product?.brand ??
-            null
-          }
-          orderItem={item}
-          setIsTrigger={setIsTrigger}
-        />
-      </View>
-    )
-  }
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: [filterOrdersParentApi.queryKey]
+      }),
+      queryClient.invalidateQueries({ queryKey: [filterRequestApi.queryKey] })
+    ])
+    setRefreshing(false)
+  }, [queryClient])
+
   const renderRequestItem = ({ item }: { item: IRequest }) => {
     return (
-      <View style={styles.orderItemContainer}>
+      <Card style={styles.orderCard} marginB-12>
         <OrderItem
           brand={
             item?.order?.orderDetails[0]?.productClassification?.preOrderProduct?.product?.brand ??
@@ -180,7 +181,7 @@ export default function ProfileOrder() {
           orderItem={item?.order}
           setIsTrigger={setIsTrigger}
         />
-      </View>
+      </Card>
     )
   }
 
@@ -195,214 +196,206 @@ export default function ProfileOrder() {
     )
   }
 
-  const renderOptions = () => {
-    return simplifiedTriggers.map((trigger) => (
-      <Picker.Item key={trigger.value} value={trigger.value} label={trigger.text} />
-    ))
-  }
-
-  const renderItem = ({ item }: { item: any }) => (
+  const renderTabItem = ({ item }: { item: any }) => (
     <TouchableOpacity
-      style={[styles.triggerButton, activeTab === item.value && styles.activeTrigger]}
+      style={[styles.tabButton, activeTab === item.value && styles.activeTabButton]}
       onPress={() => {
         setActiveTab(item.value)
         setCurrentPage(1)
       }}
     >
-      <Text style={[styles.triggerText, activeTab === item.value && styles.activeText]}>{item.text}</Text>
+      <Text style={[styles.tabText, activeTab === item.value && styles.activeTabText]}>{item.text}</Text>
     </TouchableOpacity>
   )
 
   return (
-    <>
+    <View style={styles.container}>
       <Stack.Screen
         options={{
           header: () => (
             <Header
               headerLeft={() => (
-                <HeaderBackButton
-                  label='Quay lại'
-                  tintColor={myTheme.primary}
-                  labelStyle={{
-                    fontWeight: 'bold',
-                    color: myTheme.primary,
-                    backgroundColor: myTheme.primary
-                  }}
-                  onPress={() => router.back()}
-                />
+                <HeaderBackButton label={t('button.back')} tintColor={myTheme.primary} onPress={() => router.back()} />
               )}
               title={t('order.myOrder')}
-              headerTitleStyle={{
-                fontWeight: 'bold',
-                color: myTheme.primary
-              }}
+              headerTitleStyle={styles.headerTitle}
+              headerStyle={styles.header}
             />
           )
         }}
       />
-      {isLoading && <LoadingContentLayer />}
-      <View style={styles.container}>
-        <View style={styles.contentContainer}>
-          <TriggerList renderItem={renderItem} simplifiedTriggers={simplifiedTriggers} />
-          <View style={styles.contentWrapper}>
-            <View style={styles.searchContainer}>
-              {activeTab === 'request' ? (
-                <View style={styles.filterContainer}>
-                  <OrderRequestFilter onFilterChange={handleRequestFilterChange} />
-                </View>
-              ) : (
-                <SearchOrders onSearch={handleSearch} />
-              )}
-            </View>
 
-            {(activeTab === 'request' && !isLoadingRequest && filterRequestsData?.data?.total === 0) ||
-            (activeTab !== 'request' && !isLoading && filterOrdersData?.data?.total === 0) ? (
-              renderEmpty()
-            ) : activeTab === 'request' &&
-              !isLoadingRequest &&
-              filterRequestsData?.data &&
-              filterRequestsData?.data?.total > 0 ? (
-              <>
-                <FlatList
-                  data={filterRequestsData?.data?.items}
-                  showsHorizontalScrollIndicator={false}
-                  renderItem={renderRequestItem}
-                  keyExtractor={(item) => item?.id.toString()}
-                  contentContainerStyle={styles.listContainer}
-                  ItemSeparatorComponent={() => <View style={styles.separator} />}
-                />
-                {activeTab === 'request' &&
-                  filterRequestsData?.data.items &&
-                  filterRequestsData?.data.items.length > 0 && (
-                    <div className='mb-2'>
-                      <APIPagination
-                        currentPage={currentPage}
-                        onPageChange={handlePageChange}
-                        totalPages={totalPages}
-                      />
-                    </div>
-                  )}
-              </>
-            ) : activeTab !== 'request' && !isLoading && filterOrdersData?.data && filterOrdersData?.data?.total > 0 ? (
-              <>
-                {filterOrdersData?.data?.items?.map((order) => (
-                  <View>
-                    {order?.status === ShippingStatusEnum.TO_PAY ? (
-                      <OrderParentItem setIsTrigger={setIsTrigger} order={order} />
-                    ) : (
-                      <View style={styles.orderContainer}>
-                        <FlatList
-                          key={order?.id}
-                          data={order?.children}
-                          showsHorizontalScrollIndicator={false}
-                          renderItem={renderOrderItem}
-                          keyExtractor={(item) => item?.id.toString()}
-                          contentContainerStyle={styles.listContainer}
-                          ItemSeparatorComponent={() => <View style={styles.separator} />}
-                        />
-                      </View>
-                    )}
-                  </View>
-                ))}
-                <View>
-                  {activeTab !== 'request' &&
-                    filterOrdersData?.data.items &&
-                    filterOrdersData?.data.items.length > 0 && (
-                      <div className='mb-2'>
-                        <APIPagination
-                          currentPage={currentPage}
-                          onPageChange={handlePageChange}
-                          totalPages={totalPages}
-                        />
-                      </div>
-                    )}
-                </View>
-              </>
-            ) : null}
-          </View>
-        </View>
+      {/* Tab Navigation */}
+      <View style={styles.tabsContainer}>
+        <FlatList
+          data={simplifiedTriggers}
+          renderItem={renderTabItem}
+          keyExtractor={(item) => item.value}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsContent}
+        />
       </View>
-    </>
+
+      {/* Search and Filter */}
+      <View style={styles.searchContainer}>
+        {activeTab === 'request' ? (
+          <OrderRequestFilter onFilterChange={handleRequestFilterChange} />
+        ) : (
+          <SearchOrders onSearch={handleSearch} />
+        )}
+      </View>
+
+      {/* Loading State */}
+      {(isLoading || isLoadingRequest) && !refreshing && <LoadingContentLayer />}
+
+      {/* Content */}
+      <View style={styles.contentContainer}>
+        {/* Request Items */}
+        {activeTab === 'request' && !isLoadingRequest && filterRequestsData?.data ? (
+          filterRequestsData.data.total > 0 ? (
+            <FlatList
+              data={filterRequestsData.data.items}
+              renderItem={renderRequestItem}
+              keyExtractor={(item) => item?.id.toString()}
+              contentContainerStyle={styles.listContainer}
+              showsVerticalScrollIndicator={false}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              ListFooterComponent={
+                <View style={styles.paginationContainer}>
+                  <APIPagination currentPage={currentPage} onPageChange={handlePageChange} totalPages={totalPages} />
+                </View>
+              }
+            />
+          ) : (
+            renderEmpty()
+          )
+        ) : null}
+
+        {/* Order Items */}
+        {activeTab !== 'request' && !isLoading && filterOrdersData?.data ? (
+          filterOrdersData.data.total > 0 ? (
+            <FlatList
+              data={filterOrdersData.data.items}
+              keyExtractor={(item) => item?.id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.orderItemWrapper}>
+                  {item?.status === ShippingStatusEnum.TO_PAY ? (
+                    <OrderParentItem setIsTrigger={setIsTrigger} order={item} />
+                  ) : (
+                    <Card style={styles.orderCard}>
+                      {item?.children?.map((childOrder: IOrderItem) => (
+                        <OrderItem
+                          key={childOrder.id}
+                          brand={
+                            childOrder?.orderDetails?.[0]?.productClassification?.preOrderProduct?.product?.brand ??
+                            childOrder?.orderDetails?.[0]?.productClassification?.productDiscount?.product?.brand ??
+                            childOrder?.orderDetails?.[0]?.productClassification?.product?.brand ??
+                            null
+                          }
+                          orderItem={childOrder}
+                          setIsTrigger={setIsTrigger}
+                        />
+                      ))}
+                    </Card>
+                  )}
+                </View>
+              )}
+              contentContainerStyle={styles.listContainer}
+              showsVerticalScrollIndicator={false}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              ListFooterComponent={
+                <View style={styles.paginationContainer}>
+                  <APIPagination currentPage={currentPage} onPageChange={handlePageChange} totalPages={totalPages} />
+                </View>
+              }
+            />
+          ) : (
+            renderEmpty()
+          )
+        ) : null}
+      </View>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  orderContainer: {
-    flexDirection: 'column',
-    gap: 4
-  },
-  triggerButton: {
-    paddingHorizontal: 2,
-    paddingVertical: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-    marginRight: 16
-  },
-  activeTrigger: {
-    borderBottomColor: myTheme.primary
-  },
-  triggerText: {
-    fontSize: 16,
-    color: myTheme.gray[500]
-  },
-  activeText: {
-    color: myTheme.primary,
-    fontWeight: 600
-  },
   container: {
-    width: '100%',
-    alignItems: 'center',
     flex: 1,
     backgroundColor: myTheme.background
   },
-  contentContainer: {
-    width: '100%',
-    padding: 10,
-    maxWidth: Dimensions.get('window').width,
-    flex: 1
+  header: {
+    backgroundColor: myTheme.white,
+    borderBottomWidth: 1,
+    borderBottomColor: myTheme.border
   },
-  pickerContainer: {
-    marginBottom: 16
+  headerTitle: {
+    fontWeight: '600',
+    color: myTheme.foreground,
+    fontSize: 18
   },
-  picker: {
-    borderWidth: 1,
-    borderColor: myTheme.primary,
-    borderRadius: 8
+  tabsContainer: {
+    backgroundColor: myTheme.white,
+    borderBottomWidth: 1,
+    borderBottomColor: myTheme.border
   },
-  contentWrapper: {
-    marginTop: 8,
-    flex: 1
+  tabsContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 8
+  },
+  tabButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent'
+  },
+  activeTabButton: {
+    borderBottomColor: myTheme.primary
+  },
+  tabText: {
+    fontSize: 14,
+    color: myTheme.mutedForeground
+  },
+  activeTabText: {
+    color: myTheme.primary,
+    fontWeight: '600'
   },
   searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8
+    padding: 16,
+    backgroundColor: myTheme.white,
+    borderBottomWidth: 1,
+    borderBottomColor: myTheme.border
   },
-  filterContainer: {
-    width: '100%',
-    alignItems: 'flex-end'
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 16
   },
   listContainer: {
-    paddingBottom: 20
+    paddingTop: 16,
+    paddingBottom: 24
   },
-  separator: {
-    height: 10
+  orderItemWrapper: {
+    marginBottom: 16
   },
-  orderItemContainer: {
+  orderCard: {
+    padding: 0,
+    marginBottom: 16,
     backgroundColor: myTheme.white,
+    borderRadius: 8,
+    overflow: 'hidden',
     borderWidth: 1,
-    borderColor: myTheme.gray[200],
-    borderRadius: 8
+    borderColor: myTheme.border
   },
   emptyContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    margin: 'auto',
-    backgroundColor: myTheme.white,
-    padding: 10,
-    borderRadius: 10
+    alignItems: 'center',
+    padding: 24
+  },
+  paginationContainer: {
+    marginTop: 16,
+    marginBottom: 24,
+    alignItems: 'center'
   }
 })

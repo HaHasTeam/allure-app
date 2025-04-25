@@ -38,5 +38,5 @@ export const calculatePaymentCountdown = (order: IOrder, masterConfigData: IMast
   const minutes = Math.floor((remainingTime % 3600) / 60)
   const seconds = remainingTime % 60
 
-  return { hours, minutes, seconds }
+  return { timeLeft: { hours, minutes, seconds }, remainingTime }
 }

@@ -121,12 +121,7 @@ function AppLayout() {
               )
             }}
           />
-          <Stack.Screen
-            name='(profile)/orders/orderhistory'
-            options={{
-              headerShown: false
-            }}
-          />
+
           <Stack.Screen
             name='(language)/languageswitcher'
             options={{

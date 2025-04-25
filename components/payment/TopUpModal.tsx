@@ -112,7 +112,9 @@ export default function TopUpModal({ onClose }: TopUpModalProps) {
     if (data.method === PaymentMethodEnum.BANK_TRANSFER) {
       await generatePaymentLink({
         amount: data.amount,
-        description: 'TOP UP ACTION'
+        description: 'TOP UP ACTION',
+        returnUrl: url,
+        cancelUrl: url
       })
     }
   }
