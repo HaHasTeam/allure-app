@@ -1,6 +1,9 @@
+'use client'
+
+import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
-import { StyleSheet, TouchableOpacity, FlatList } from 'react-native'
+import { StyleSheet, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { View, Text, Card, Chip, LoaderScreen } from 'react-native-ui-lib'
 
@@ -133,38 +136,34 @@ const LiveStreamItem = ({ item }: { item: LivestreamResponse }) => {
           </Text>
         </View>
 
-        <TouchableOpacity
-          onPress={() => {
-            if (item.status === LiveStreamEnum.LIVE) {
-              goToLivestream(item)
-            } else {
-              // Keep existing behavior for non-live streams
-              // You can add navigation to details page here if needed
-            }
-          }}
-        >
-          <View
-            style={styles.watchButton}
-            backgroundColor={item.status === LiveStreamEnum.LIVE ? myTheme.primary : myTheme.secondary}
-          >
-            <Text
-              style={styles.watchButtonText}
-              color={item.status === LiveStreamEnum.LIVE ? myTheme.white : myTheme.secondaryForeground}
-            >
-              {item.status === LiveStreamEnum.LIVE ? 'Xem Ngay' : 'Xem Chi Tiết'}
-            </Text>
-          </View>
-        </TouchableOpacity>
+        {item.status === LiveStreamEnum.LIVE && (
+          <TouchableOpacity onPress={() => goToLivestream(item)}>
+            <View style={styles.watchButton} backgroundColor={myTheme.primary}>
+              <Text style={styles.watchButtonText} color={myTheme.white}>
+                Xem Ngay
+              </Text>
+            </View>
+          </TouchableOpacity>
+        )}
       </View>
     </Card>
   )
 }
 
 const LiveStreamList = () => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: [getActiveLiveStreamApi.queryKey],
-    queryFn: getActiveLiveStreamApi.fn
+    queryFn: getActiveLiveStreamApi.fn,
+    staleTime: 60
   })
+
+  const [refreshing, setRefreshing] = useState(false)
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true)
+    await refetch()
+    setRefreshing(false)
+  }, [refetch])
 
   const livestreams = data?.data || []
 
@@ -184,7 +183,7 @@ const LiveStreamList = () => {
         />
       </View>
 
-      {isLoading ? (
+      {isLoading && !refreshing ? (
         <LoaderScreen color={myTheme.primary} message='Đang tải dữ liệu...' />
       ) : error ? (
         <View flex center>
@@ -205,6 +204,16 @@ const LiveStreamList = () => {
           renderItem={({ item }) => <LiveStreamItem item={item} />}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[myTheme.primary]}
+              tintColor={myTheme.primary}
+              title='Đang tải...'
+              titleColor={myTheme.mutedForeground}
+            />
+          }
         />
       )}
     </GestureHandlerRootView>

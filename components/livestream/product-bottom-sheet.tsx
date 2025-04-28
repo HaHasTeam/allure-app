@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router'
 import React, { useRef, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import ProductClassificationBottomSheet from './product-classification-bottom-sheet'
 import ProductItem from './product-item'
@@ -49,6 +50,7 @@ const ProductSelectionBottomSheet = ({
   const queryClient = useQueryClient()
   const handleServerError = useHandleServerError()
   const { setSelectedCartItem } = useCartStore()
+  const insets = useSafeAreaInsets() // Get safe area insets
 
   // Bottom sheet reference
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -171,10 +173,7 @@ const ProductSelectionBottomSheet = ({
           product as IProduct,
           1, // quantity
           defaultClassification as IClassification,
-          {
-            id: livestreamId || livestreamDetail.id, // Use provided livestreamId or from detail
-            discount: livestreamDetail.discount // Use actual discount from livestream
-          }
+          livestreamDetail
         )
 
         // Set the selected cart item in the store
@@ -234,10 +233,7 @@ const ProductSelectionBottomSheet = ({
         selectedProduct as IProduct,
         quantity,
         selectedClassification as IClassification,
-        {
-          id: livestreamId || selectedLivestream.id, // Use provided livestreamId or from selected livestream
-          discount: selectedLivestream.discount // Use actual discount from selected livestream
-        }
+        selectedLivestream
       )
 
       // Set the selected cart item in the store
@@ -285,7 +281,7 @@ const ProductSelectionBottomSheet = ({
         enablePanDownToClose
         handleIndicatorStyle={styles.indicator}
       >
-        <BottomSheetView style={styles.contentContainer}>
+        <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom }]}>
           <View style={styles.header}>
             <Text style={styles.headerTitle}>PRODUCTS</Text>
             <View style={styles.headerRight}>
@@ -381,7 +377,7 @@ const ProductSelectionBottomSheet = ({
                   />
                 )
               }}
-              contentContainerStyle={styles.productsList}
+              contentContainerStyle={[styles.productsList, { paddingBottom: insets.bottom }]}
               showsVerticalScrollIndicator={false}
             />
           )}

@@ -480,6 +480,11 @@
     "viewNotification": "View Notifications"
   },
   "cart": {
+    "noClassificationError": "Product has no classification",
+    "buyNowError": "Failed to process buy now",
+    "selectVariant": "Select Variant",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
     "result": "Result",
     "brannedAllMessage": "This product is banned.",
     "unPublishAllMessage": "This product is not available for purchase.",
@@ -548,6 +553,12 @@
     "voucherNote": "*Please add vouchers at the checkout step to receive the price mentioned above",
     "buyToDiscountCurrency": "Spend {{minOrder, currency}} to get a discount of {{discount, currency}}. Limited number of vouchers available",
     "buyToDiscountPercentage": "Spend {{minOrder, currency}} to get a discount of {{discount}}%. Limited number of vouchers available"
+  },
+
+  "livestream": {
+    "products": "PRODUCTS",
+    "noProducts": "No products available",
+    "noProductsSubtext": "There are no products to display at this time"
   },
   "address": {
     "title": "Address",

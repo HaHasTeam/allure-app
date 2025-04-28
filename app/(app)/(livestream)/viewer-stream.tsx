@@ -13,7 +13,6 @@ import {
   Text,
   Alert,
   FlatList,
-  TextInput,
   BackHandler,
   Dimensions,
   Platform,
@@ -23,13 +22,13 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   KeyboardAvoidingView,
-  PanResponder,
-  SafeAreaView
+  PanResponder
 } from 'react-native'
 import type { FlatList as FlatListType } from 'react-native'
 import { RtcSurfaceView, ClientRoleType } from 'react-native-agora'
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { TextField } from 'react-native-ui-lib' // Import TextField instead of TextInput
 
 import ProductsBottomSheet from '@/components/livestream/product-bottom-sheet'
 import { myTheme } from '@/constants/index'
@@ -52,7 +51,6 @@ export default function LivestreamViewerScreen() {
   const [listProduct, setListProduct] = useState<LiveSteamDetail[]>([])
   const [tokenError, setTokenError] = useState(false)
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false)
-  const [streamStartTime, setStreamStartTime] = useState<string | null>(null)
   const [streamInfo, setStreamInfo] = useState<{
     title: string
     hostName: string
@@ -215,8 +213,25 @@ export default function LivestreamViewerScreen() {
 
   // Function to focus the input
   const focusInput = useCallback(() => {
+    console.log('Attempting to focus input')
     if (inputRef.current) {
-      inputRef.current.focus()
+      // For TextField, we need to access the inner TextInput
+      setTimeout(() => {
+        if (inputRef.current) {
+          if (inputRef.current.focus) {
+            inputRef.current.focus()
+            console.log('Focus called on input ref')
+          } else if (inputRef.current.getTextField && inputRef.current.getTextField().focus) {
+            // Some UI lib components have a getTextField method
+            inputRef.current.getTextField().focus()
+            console.log('Focus called on getTextField')
+          } else {
+            console.log('Input ref exists but no focus method found', inputRef.current)
+          }
+        }
+      }, 100)
+    } else {
+      console.log('Input ref is null')
     }
   }, [])
 
@@ -238,8 +253,6 @@ export default function LivestreamViewerScreen() {
 
           // Store the stream start time
           if (livestreamData.startTime) {
-            setStreamStartTime(livestreamData.startTime)
-
             // Calculate initial stream duration based on startTime
             const startTimeDate = new Date(livestreamData.startTime)
             const currentTime = new Date()
@@ -628,7 +641,7 @@ export default function LivestreamViewerScreen() {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 20 + insets.bottom : 10 + insets.bottom}
-          style={[styles.keyboardAvoidingView, { paddingBottom: insets.bottom > 0 ? insets.bottom : 20 }]}
+          style={[styles.keyboardAvoidingView, { paddingBottom: insets.bottom > 0 ? insets.bottom : 20, zIndex: 10 }]}
         >
           <View style={[styles.inputRowContainer, { paddingBottom: insets.bottom > 0 ? 10 : 24 }]}>
             {/* Cart button on the left */}
@@ -639,7 +652,7 @@ export default function LivestreamViewerScreen() {
             {/* Chat input in the middle */}
             <View style={styles.persistentChatInputContainer}>
               <TouchableOpacity style={styles.chatInputWrapper} activeOpacity={0.8} onPress={focusInput}>
-                <TextInput
+                <TextField
                   ref={inputRef}
                   value={newMessage}
                   onChangeText={setNewMessage}
@@ -647,10 +660,16 @@ export default function LivestreamViewerScreen() {
                   placeholderTextColor='#94a3b8'
                   returnKeyType='send'
                   onSubmitEditing={sendMessage}
-                  style={styles.chatInput}
+                  enableErrors={false}
+                  fieldStyle={styles.uiLibInputField}
+                  style={styles.uiLibInputText}
+                  containerStyle={styles.uiLibInputContainer}
                   autoCapitalize='none'
                   autoCorrect={false}
-                  editable={isChatLoggedIn}
+                  showCharCounter={false}
+                  hideUnderline
+                  onFocus={() => setIsKeyboardVisible(true)}
+                  onBlur={() => setIsKeyboardVisible(false)}
                 />
               </TouchableOpacity>
 
@@ -708,12 +727,24 @@ export default function LivestreamViewerScreen() {
         </Animated.View>
 
         {/* Products Modal */}
-        <ProductsBottomSheet
-          visible={isProductsModalVisible}
-          onClose={closeProductsModal}
-          products={listProduct}
-          livestreamId={livestreamId}
-        />
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1000,
+            pointerEvents: isProductsModalVisible ? 'auto' : 'none'
+          }}
+        >
+          <ProductsBottomSheet
+            visible={isProductsModalVisible}
+            onClose={closeProductsModal}
+            products={listProduct}
+            livestreamId={livestreamId}
+          />
+        </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>
   )
@@ -945,7 +976,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 100
+    zIndex: 10 // Lower zIndex so bottom sheets can appear above it
   },
   inputRowContainer: {
     flexDirection: 'row',
@@ -979,8 +1010,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     pointerEvents: 'auto' // Ensure it can receive touch events
   },
-  chatInput: {
+  // Styles for react-native-ui-lib TextField
+  uiLibInputContainer: {
     flex: 1,
+    height: 36,
+    backgroundColor: 'transparent',
+    pointerEvents: 'auto' // Ensure it can receive touch events
+  },
+  uiLibInputField: {
+    backgroundColor: 'transparent',
+    paddingVertical: 0,
+    paddingHorizontal: 0
+  },
+  uiLibInputText: {
     color: '#ffffff',
     fontSize: 14,
     height: 36,

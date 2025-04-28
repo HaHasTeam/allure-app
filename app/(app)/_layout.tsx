@@ -128,12 +128,7 @@ function AppLayout() {
               headerShown: false
             }}
           />
-          <Stack.Screen
-            name='(checkout)/checkout'
-            options={{
-              headerShown: false
-            }}
-          />
+
           <Stack.Screen
             name='(home)/notifications'
             options={{

@@ -485,6 +485,12 @@
     "viewNotification": "Xem thông báo"
   },
   "cart": {
+    "noClassificationError": "Sản phẩm không có phân loại",
+    "buyNowError": "Không thể xử lý mua ngay",
+    "selectVariant": "Chọn Phân Loại",
+
+    "addToCart": "Thêm Vào Giỏ",
+    "buyNow": "Mua Ngay",
     "result": "Kết quả",
     "brannedAllMessage": "Sản phẩm này bị cấm.",
     "unPublishAllMessage": "Sản phẩm này không có sẵn để mua.",
@@ -553,6 +559,12 @@
     "voucherNote": "*Vui lòng thêm Voucher khi đặt hàng ở bước thanh toán để được giá như trên",
     "buyToDiscountCurrency": "Mua từ {{minOrder, currency}} để được giảm {{discount, currency}}. Số lượng Voucher có hạn",
     "buyToDiscountPercentage": "Mua từ {{minOrder, currency}} để được giảm {{discount}}%. Số lượng Voucher có hạn"
+  },
+
+  "livestream": {
+    "products": "SẢN PHẨM",
+    "noProducts": "Không có sản phẩm nào",
+    "noProductsSubtext": "Hiện tại không có sản phẩm nào để hiển thị"
   },
   "address": {
     "title": "Địa chỉ",

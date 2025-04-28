@@ -5,6 +5,7 @@ import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/botto
 import { useRef, useCallback, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import type { IClassification } from '@/types/classification'
 import { DiscountTypeEnum } from '@/types/enum'
@@ -36,6 +37,7 @@ const ProductClassificationBottomSheet = ({
   const [selectedClassification, setSelectedClassification] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState<IClassification | null>(null)
+  const insets = useSafeAreaInsets() // Get safe area insets
 
   // Effect to open/close the bottom sheet based on visible prop
   useEffect(() => {
@@ -141,14 +143,14 @@ const ProductClassificationBottomSheet = ({
       enablePanDownToClose
       handleIndicatorStyle={styles.indicator}
     >
-      <BottomSheetView style={styles.contentContainer}>
+      <BottomSheetView style={[styles.contentContainer, { paddingBottom: insets.bottom }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Feather name='x' size={24} color='#000' />
           </TouchableOpacity>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom }}>
           {/* Product Summary */}
           <View style={styles.productSummary}>
             <Image source={{ uri: getVariantImage() }} style={styles.productImage} resizeMode='cover' />
@@ -259,7 +261,7 @@ const ProductClassificationBottomSheet = ({
         </ScrollView>
 
         {/* Bottom Action Bar */}
-        <View style={styles.bottomBar}>
+        <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           {selectedVariant && (
             <View style={styles.totalPriceContainer}>
               <Text style={styles.totalPriceLabel}>{t('cart.totalPrice')}</Text>

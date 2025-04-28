@@ -49,7 +49,6 @@ export const useViewerStream = ({
       // Initialize the engine
       engine.current.initialize({
         appId,
-        // Should use ChannelProfileLiveBroadcasting for livestreaming
         channelProfile: 1 // ChannelProfileLiveBroadcasting
       })
 
@@ -215,7 +214,7 @@ export const useViewerStream = ({
         log.error('Error during cleanup:', error)
       }
     }
-  }, [initializeEngine])
+  }, [])
 
   // Register event handlers
   useEffect(() => {

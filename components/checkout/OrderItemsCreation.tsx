@@ -22,7 +22,7 @@ export const OrderItemCreation = ({ values, selectedCartItem, chosenBrandVoucher
           cartBrandItems?.map((item) => ({
             productClassificationId: item?.productClassification?.id ?? '',
             quantity: item?.quantity,
-            livestreamId: item?.livestream || undefined
+            livestreamId: item?.livestream?.id || undefined
           })) ?? []
         console.log('checkItems', items)
 
