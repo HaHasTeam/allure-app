@@ -30,8 +30,8 @@ export const useViewerStream = ({
   const [isInitialized, setIsInitialized] = useState(false)
   const [joinChannelSuccess, setJoinChannelSuccess] = useState(false)
   const [hostUid, setHostUid] = useState<number | null>(null)
-  const [isHostVideoEnabled, setIsHostVideoEnabled] = useState(false)
-  const [isHostAudioEnabled, setIsHostAudioEnabled] = useState(false)
+  const [isHostVideoEnabled, setIsHostVideoEnabled] = useState(true)
+  const [isHostAudioEnabled, setIsHostAudioEnabled] = useState(true)
 
   // Create the engine instance
   const engine = useRef<IRtcEngineEx>(createAgoraRtcEngine() as IRtcEngineEx)
