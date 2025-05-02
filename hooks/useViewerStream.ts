@@ -30,8 +30,8 @@ export const useViewerStream = ({
   const [isInitialized, setIsInitialized] = useState(false)
   const [joinChannelSuccess, setJoinChannelSuccess] = useState(false)
   const [hostUid, setHostUid] = useState<number | null>(null)
-  const [isHostVideoEnabled, setIsHostVideoEnabled] = useState(false)
-  const [isHostAudioEnabled, setIsHostAudioEnabled] = useState(false)
+  const [isHostVideoEnabled, setIsHostVideoEnabled] = useState(true)
+  const [isHostAudioEnabled, setIsHostAudioEnabled] = useState(true)
 
   // Create the engine instance
   const engine = useRef<IRtcEngineEx>(createAgoraRtcEngine() as IRtcEngineEx)
@@ -49,7 +49,6 @@ export const useViewerStream = ({
       // Initialize the engine
       engine.current.initialize({
         appId,
-        // Should use ChannelProfileLiveBroadcasting for livestreaming
         channelProfile: 1 // ChannelProfileLiveBroadcasting
       })
 
@@ -215,7 +214,7 @@ export const useViewerStream = ({
         log.error('Error during cleanup:', error)
       }
     }
-  }, [initializeEngine])
+  }, [])
 
   // Register event handlers
   useEffect(() => {

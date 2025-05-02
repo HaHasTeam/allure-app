@@ -245,7 +245,7 @@ const Checkout = () => {
   }, [handleReset, orderData, resetCart, router, showToast, t])
   async function onSubmit(values: z.infer<typeof CreateOrderSchema>) {
     try {
-      console.log(values)
+      console.log('248: ', values)
       setIsLoading(true)
       const orders = OrderItemCreation({
         values,
@@ -281,6 +281,8 @@ const Checkout = () => {
 
       setIsLoading(false)
     } catch (error) {
+      console.log('error 284:', error)
+
       setIsLoading(false)
       handleServerError({
         error
@@ -311,6 +313,8 @@ const Checkout = () => {
       try {
         if (selectedCartItem) {
           const checkoutItems = createCheckoutItems(selectedCartItem, selectedCartItems)
+          console.log('checkoutItems 314', checkoutItems, selectedCartItem, '1234', selectedCartItems)
+
           await callBestBrandVouchersFn({
             checkoutItems
           })
