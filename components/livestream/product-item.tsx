@@ -53,7 +53,6 @@ const ProductItem = ({
   const displayOriginalPrice = originalPrice ?? product.price
   const displayDiscountedPrice = discountedPrice ?? product.currentPrice
   const hasDiscount = (product.deal ?? 0) > 0 || discount > 0 || product.currentPrice < product.price
-  console.log('discount', discount)
 
   // Calculate discount percentage if not provided
   const discountPercentage =

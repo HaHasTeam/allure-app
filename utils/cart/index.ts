@@ -87,7 +87,7 @@ export const createCartFromProduct = (
         productDiscounts: productDiscount ? [productDiscount] : []
       }
     },
-    livestream: productLivestream ? productLivestream.id : undefined,
+    livestream: productLivestream ? productLivestream : undefined,
     livestreamDiscount: productLivestream?.discount ?? undefined
   }
 

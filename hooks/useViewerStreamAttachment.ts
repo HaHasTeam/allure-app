@@ -227,27 +227,27 @@ export const useViewerStreamAttachment = ({
   ])
 
   // When we join successfully, set up a delayed check for the host
-  useEffect(() => {
-    if (viewerStream.joinChannelSuccess && !hasIdentifiedHostRef.current) {
-      // Check after a short delay to ensure we catch late-starting streams
-      const timeoutId = setTimeout(() => {
-        if (!hasIdentifiedHostRef.current && !viewerStream.hostUid) {
-          log.info('No host identified after delay, checking broadcasters')
+  // useEffect(() => {
+  //   if (viewerStream.joinChannelSuccess && !hasIdentifiedHostRef.current) {
+  //     // Check after a short delay to ensure we catch late-starting streams
+  //     const timeoutId = setTimeout(() => {
+  //       if (!hasIdentifiedHostRef.current && !viewerStream.hostUid) {
+  //         log.info('No host identified after delay, checking broadcasters')
 
-          // If we have any broadcasters, use the first one as host
-          if (videoBroadcastersRef.current.size > 0) {
-            const newHostUid = Array.from(videoBroadcastersRef.current)[0]
-            log.info(`Setting host to ${newHostUid} from video broadcasters after delay`)
-          } else if (audioBroadcastersRef.current.size > 0) {
-            const newHostUid = Array.from(audioBroadcastersRef.current)[0]
-            log.info(`Setting host to ${newHostUid} from audio broadcasters after delay`)
-          }
-        }
-      }, 3000)
+  //         // If we have any broadcasters, use the first one as host
+  //         if (videoBroadcastersRef.current.size > 0) {
+  //           const newHostUid = Array.from(videoBroadcastersRef.current)[0]
+  //           log.info(`Setting host to ${newHostUid} from video broadcasters after delay`)
+  //         } else if (audioBroadcastersRef.current.size > 0) {
+  //           const newHostUid = Array.from(audioBroadcastersRef.current)[0]
+  //           log.info(`Setting host to ${newHostUid} from audio broadcasters after delay`)
+  //         }
+  //       }
+  //     }, 3000)
 
-      return () => clearTimeout(timeoutId)
-    }
-  }, [viewerStream.joinChannelSuccess, viewerStream.hostUid])
+  //     return () => clearTimeout(timeoutId)
+  //   }
+  // }, [viewerStream.joinChannelSuccess, viewerStream.hostUid])
 
   // Function to manually refresh viewer count
   const refreshViewerCount = useCallback(() => {

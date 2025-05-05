@@ -5,6 +5,7 @@ import { FlatList, KeyboardAvoidingView, Platform } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import FlashSale from '@/components/home/FlashSale'
+import HomeBanner from '@/components/home/HomeBanner'
 import PreOrderProductSections from '@/components/home/PreOrderProductSection'
 import RecommendProduct from '@/components/home/RecommendProduct'
 
@@ -22,8 +23,8 @@ export default function HomeScreen() {
             renderItem={() => null}
             ListHeaderComponent={
               <>
-                {/* <HomeBanner />
-                <BeautyOffers /> */}
+                <HomeBanner />
+                {/* <BeautyOffers /> */}
                 <FlashSale />
                 <PreOrderProductSections />
                 <RecommendProduct />
