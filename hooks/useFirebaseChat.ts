@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
-import { log } from '@/utils/logger'
 import firestore from '@react-native-firebase/firestore'
+import { useState, useEffect, useCallback, useRef } from 'react'
+
 import { useSession } from '@/contexts/AuthContext'
+import { log } from '@/utils/logger'
 
 // Message type definition
 export interface ChatMessage {

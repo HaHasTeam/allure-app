@@ -1,10 +1,10 @@
 'use client'
 
 import { Feather } from '@expo/vector-icons'
-import { BottomSheetModal } from '@gorhom/bottom-sheet'
-import { useRoute } from '@react-navigation/native'
+import type { BottomSheetModal } from '@gorhom/bottom-sheet'
+import { Header, HeaderBackButton } from '@react-navigation/elements'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useLocalSearchParams } from 'expo-router'
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollView, StyleSheet, View } from 'react-native'
@@ -12,6 +12,7 @@ import { Button, Card, Text } from 'react-native-ui-lib'
 
 import AlertMessage from '@/components/alert/AlertMessage'
 import BrandOrderInformation from '@/components/brand/BrandOrderInformation'
+import MyText from '@/components/common/MyText'
 import Empty from '@/components/empty'
 import LoadingContentLayer from '@/components/loading/LoadingContentLayer'
 import CancelOrderDialog from '@/components/order/CancelOrderDialog'
@@ -34,6 +35,7 @@ import { calculatePaymentCountdown } from '@/utils/order'
 
 const OrderParentDetail = () => {
   const { id: orderId } = useLocalSearchParams()
+  const router = useRouter()
 
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -156,205 +158,238 @@ const OrderParentDetail = () => {
       />
     )
   }
+  console.log('useOrderData', useOrderData)
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>{t('orderDetail.title')}</Text>
-          <Text style={styles.orderId}>#{useOrderData?.data?.id?.substring(0, 8).toUpperCase()}</Text>
-        </View>
-        <View style={styles.headerStatusContainer}>
-          <Text style={styles.statusLabel}>{t('orderDetail.status')}: </Text>
-          <OrderStatus tag={useOrderData?.data?.status ?? ''} size='medium' />
-        </View>
-      </View>
-
-      {/* Content */}
-      <View style={styles.content}>
-        {/* Payment Alert */}
-        {(useOrderData.data.paymentMethod === PaymentMethod.WALLET ||
-          useOrderData.data.paymentMethod === PaymentMethod.BANK_TRANSFER) &&
-          useOrderData.data.status === ShippingStatusEnum.TO_PAY && (
-            <View style={styles.alertContainer}>
-              <AlertMessage
-                title={t('order.paymentTitle')}
-                message={t('payment.notifyPayment', {
-                  total: t('productCard.currentPrice', { price: useOrderData?.data.totalPrice }),
-                  val:
-                    String(timeLeft.hours).padStart(2, '0') +
-                    ':' +
-                    String(timeLeft.minutes).padStart(2, '0') +
-                    ':' +
-                    String(timeLeft.seconds).padStart(2, '0'),
-                  method:
-                    useOrderData?.data.paymentMethod === PaymentMethod.WALLET
-                      ? t('wallet.WALLET')
-                      : useOrderData?.data.paymentMethod === PaymentMethod.BANK_TRANSFER
-                        ? t('payment.methods.bank_transfer')
-                        : t('payment.methods.cash')
-                })}
-                isShowIcon={false}
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <Stack.Screen
+          options={{
+            header: () => (
+              <Header
+                headerLeft={() => (
+                  <HeaderBackButton
+                    label='Quay lại'
+                    tintColor={myTheme.primary}
+                    labelStyle={{
+                      fontWeight: 'bold',
+                      color: myTheme.primary,
+                      backgroundColor: myTheme.primary
+                    }}
+                    onPress={() => router.back()}
+                  />
+                )}
+                title={
+                  useOrderData?.data?.id
+                    ? t('orderDetail.title') + ' ' + `#${useOrderData?.data?.id?.substring(0, 8).toUpperCase()}`
+                    : t('orderDetail.title')
+                }
+                headerTitleStyle={{
+                  fontWeight: 'bold',
+                  color: myTheme.primary
+                }}
               />
-            </View>
-          )}
+            )
+          }}
+        />
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>{t('orderDetail.title')}</Text>
+            <Text style={styles.orderId}>#{useOrderData?.data?.id?.substring(0, 8).toUpperCase()}</Text>
+          </View>
+          <View style={styles.headerStatusContainer}>
+            <Text style={styles.statusLabel}>{t('orderDetail.status')}: </Text>
+            <OrderStatus tag={useOrderData?.data?.status ?? ''} size='medium' />
+          </View>
+        </View>
 
-        {/* Shipping Information */}
-        <Card style={styles.card}>
-          <OrderGeneral
-            title={t('orderDetail.shippingAddress')}
-            icon={<Feather name='truck' size={20} color={myTheme.foreground} />}
-            content={
-              <View style={styles.shippingInfo}>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>{t('orderDetail.recipientName')}:</Text>
-                  <Text style={styles.infoValue}>{useOrderData?.data?.recipientName}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>{t('orderDetail.address')}:</Text>
-                  <Text style={styles.infoValue}>{useOrderData?.data?.shippingAddress}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>{t('orderDetail.phone')}:</Text>
-                  <Text style={styles.infoValue}>{useOrderData?.data?.phone}</Text>
-                </View>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>{t('orderDetail.notes')}:</Text>
-                  <Text style={styles.infoValue}>{useOrderData?.data?.notes ?? t('orderDetail.no')}</Text>
-                </View>
+        {/* Content */}
+        <View style={styles.content}>
+          {/* Payment Alert */}
+          {(useOrderData.data.paymentMethod === PaymentMethod.WALLET ||
+            useOrderData.data.paymentMethod === PaymentMethod.BANK_TRANSFER) &&
+            useOrderData.data.status === ShippingStatusEnum.TO_PAY && (
+              <View style={styles.alertContainer}>
+                <AlertMessage
+                  title={t('order.paymentTitle')}
+                  message={t('payment.notifyPayment', {
+                    total: t('productCard.currentPrice', { price: useOrderData?.data.totalPrice }),
+                    val:
+                      String(timeLeft.hours).padStart(2, '0') +
+                      ':' +
+                      String(timeLeft.minutes).padStart(2, '0') +
+                      ':' +
+                      String(timeLeft.seconds).padStart(2, '0'),
+                    method:
+                      useOrderData?.data.paymentMethod === PaymentMethod.WALLET
+                        ? t('wallet.WALLET')
+                        : useOrderData?.data.paymentMethod === PaymentMethod.BANK_TRANSFER
+                          ? t('payment.methods.bank_transfer')
+                          : t('payment.methods.cash')
+                  })}
+                  isShowIcon={false}
+                />
               </View>
-            }
-          />
-        </Card>
+            )}
 
-        {/* Order Items */}
-        {useOrderData.data.children.length > 0 &&
-          useOrderData.data.children.map((orderItem, index) => (
-            <View key={orderItem.id || index} style={styles.orderItemContainer}>
-              {/* Brand Information */}
-              <BrandOrderInformation
-                brandId={
-                  (
-                    orderItem?.orderDetails?.[0]?.productClassification?.preOrderProduct ??
-                    orderItem?.orderDetails?.[0]?.productClassification?.productDiscount ??
-                    orderItem?.orderDetails?.[0]?.productClassification
-                  )?.product?.brand?.id ?? ''
-                }
-                brandName={
-                  (
-                    orderItem?.orderDetails?.[0]?.productClassification?.preOrderProduct ??
-                    orderItem?.orderDetails?.[0]?.productClassification?.productDiscount ??
-                    orderItem?.orderDetails?.[0]?.productClassification
-                  )?.product?.brand?.name ?? 'Brand'
-                }
-                brandLogo={
-                  (
-                    orderItem?.orderDetails?.[0]?.productClassification?.preOrderProduct ??
-                    orderItem?.orderDetails?.[0]?.productClassification?.productDiscount ??
-                    orderItem?.orderDetails?.[0]?.productClassification
-                  )?.product?.brand?.logo ?? 'Brand'
-                }
-              />
+          {/* Shipping Information */}
+          <View style={styles.addressSection}>
+            <OrderGeneral
+              title={t('orderDetail.shippingAddress')}
+              icon={<Feather name='truck' size={24} color={myTheme.muted} />}
+              content={
+                <View style={styles.addressContent}>
+                  <View style={styles.addressRow}>
+                    <MyText text={`${t('orderDetail.recipientName')}: `} styleProps={styles.addressLabel} />
+                    <MyText text={useOrderData?.data?.recipientName} styleProps={styles.addressText} />
+                  </View>
+                  <View style={styles.addressRow}>
+                    <MyText text={`${t('orderDetail.address')}: `} styleProps={styles.addressLabel} />
+                    <MyText text={useOrderData?.data?.shippingAddress} styleProps={styles.addressText} />
+                  </View>
+                  <View style={styles.addressRow}>
+                    <MyText text={`${t('orderDetail.phone')}: `} styleProps={styles.addressLabel} />
+                    <MyText text={useOrderData?.data?.phone} styleProps={styles.addressText} />
+                  </View>
+                  <View style={styles.addressRow}>
+                    <MyText text={`${t('orderDetail.notes')}: `} styleProps={styles.addressLabel} />
+                    <MyText text={useOrderData?.data?.notes ?? t('orderDetail.no')} styleProps={styles.addressText} />
+                  </View>
+                </View>
+              }
+            />
+          </View>
 
-              {/* Order Details */}
-              <Card style={styles.orderDetailsCard}>
-                <OrderDetailItems
-                  orderDetails={orderItem?.orderDetails}
-                  status={orderItem?.status}
-                  brand={
+          {/* Order Items */}
+          {useOrderData.data.children.length > 0 &&
+            useOrderData.data.children.map((orderItem, index) => (
+              <View key={orderItem.id || index} style={styles.orderItemContainer}>
+                {/* Brand Information */}
+                <BrandOrderInformation
+                  brandId={
                     (
                       orderItem?.orderDetails?.[0]?.productClassification?.preOrderProduct ??
                       orderItem?.orderDetails?.[0]?.productClassification?.productDiscount ??
                       orderItem?.orderDetails?.[0]?.productClassification
-                    )?.product?.brand ?? null
+                    )?.product?.brand?.id ?? ''
                   }
-                  accountAvatar={orderItem?.account?.avatar ?? ''}
-                  accountName={orderItem?.account?.username ?? ''}
-                  masterConfig={masterConfig?.data}
-                  statusTracking={useStatusTrackingData?.data}
-                />
-
-                {/* Order Summary */}
-                <OrderSummary
-                  totalProductCost={orderItem?.subTotal}
-                  totalBrandDiscount={orderItem?.shopVoucherDiscount}
-                  totalPlatformDiscount={orderItem?.platformVoucherDiscount}
-                  totalPayment={orderItem?.totalPrice}
-                  paymentMethod={orderItem?.paymentMethod}
-                />
-              </Card>
-
-              {/* Message */}
-              <Card style={styles.messageCard}>
-                <OrderGeneral
-                  title={t('orderDetail.message')}
-                  icon={<Feather name='message-square' size={20} color={myTheme.foreground} />}
-                  content={
-                    <Text style={styles.messageText}>
-                      <Text style={styles.messageLabel}>{t('orderDetail.message')}: </Text>
-                      {orderItem?.message && orderItem?.message !== '' ? orderItem?.message : t('orderDetail.no')}
-                    </Text>
+                  brandName={
+                    (
+                      orderItem?.orderDetails?.[0]?.productClassification?.preOrderProduct ??
+                      orderItem?.orderDetails?.[0]?.productClassification?.productDiscount ??
+                      orderItem?.orderDetails?.[0]?.productClassification
+                    )?.product?.brand?.name ?? 'Brand'
+                  }
+                  brandLogo={
+                    (
+                      orderItem?.orderDetails?.[0]?.productClassification?.preOrderProduct ??
+                      orderItem?.orderDetails?.[0]?.productClassification?.productDiscount ??
+                      orderItem?.orderDetails?.[0]?.productClassification
+                    )?.product?.brand?.logo ?? 'Brand'
                   }
                 />
-              </Card>
-            </View>
-          ))}
 
-        {/* Payment Actions */}
-        {(useOrderData.data.paymentMethod === PaymentMethod.WALLET ||
-          useOrderData.data.paymentMethod === PaymentMethod.BANK_TRANSFER) &&
-          useOrderData.data.status === ShippingStatusEnum.TO_PAY && (
-            <View style={styles.actionButtonsContainer}>
-              <Button
-                outline
-                outlineColor={myTheme.primary}
-                style={styles.cancelButton}
-                labelStyle={styles.cancelButtonLabel}
-                onPress={() => setOpenCancelParentOrderDialog(true)}
-                label={t('order.cancelOrder')}
-              />
-
-              {isShowPayment && (
-                <>
-                  {useOrderData?.data.type !== OrderEnum.GROUP_BUYING && !useOrderData?.data.isPaymentMethodUpdated && (
-                    <Button
-                      outline
-                      outlineColor={myTheme.primary}
-                      style={styles.changeMethodButton}
-                      labelStyle={styles.cancelButtonLabel}
-                      onPress={() => setOpenRepayment(true)}
-                      label={t('payment.changePaymentMethod')}
-                    />
-                  )}
-                  <Button
-                    backgroundColor={myTheme.primary}
-                    style={styles.payButton}
-                    loading={isLoading}
-                    onPress={() => {
-                      if (useOrderData.data.paymentMethod === PaymentMethod.BANK_TRANSFER) {
-                        setIsOpenQRCodePayment(true)
-                        setPaymentId(useOrderData?.data.id)
-                        return
-                      }
-                      if (useOrderData?.data.paymentMethod === PaymentMethod.WALLET) {
-                        if (useOrderData?.data && useOrderData?.data.id) {
-                          setIsLoading(true)
-                          payTransaction({
-                            orderId: useOrderData?.data.id,
-                            id: useOrderData?.data.id,
-                            type: PAY_TYPE.ORDER
-                          })
-                        }
-                      }
-                    }}
-                    label={t('order.payment')}
+                {/* Order Details */}
+                <Card style={styles.orderDetailsCard}>
+                  <OrderDetailItems
+                    orderDetails={orderItem?.orderDetails}
+                    status={orderItem?.status}
+                    brand={
+                      (
+                        orderItem?.orderDetails?.[0]?.productClassification?.preOrderProduct ??
+                        orderItem?.orderDetails?.[0]?.productClassification?.productDiscount ??
+                        orderItem?.orderDetails?.[0]?.productClassification
+                      )?.product?.brand ?? null
+                    }
+                    accountAvatar={orderItem?.account?.avatar ?? ''}
+                    accountName={orderItem?.account?.username ?? ''}
+                    masterConfig={masterConfig?.data}
+                    statusTracking={useStatusTrackingData?.data}
                   />
-                </>
-              )}
-            </View>
-          )}
-      </View>
+
+                  {/* Order Summary */}
+                  <OrderSummary
+                    totalProductCost={orderItem?.subTotal}
+                    totalBrandDiscount={orderItem?.shopVoucherDiscount}
+                    totalPlatformDiscount={orderItem?.platformVoucherDiscount}
+                    totalPayment={orderItem?.totalPrice}
+                    paymentMethod={orderItem?.paymentMethod}
+                  />
+                </Card>
+
+                {/* Message */}
+                <Card style={styles.messageCard}>
+                  <OrderGeneral
+                    title={t('orderDetail.message')}
+                    icon={<Feather name='message-square' size={20} color={myTheme.foreground} />}
+                    content={
+                      <Text style={styles.messageText}>
+                        <Text style={styles.messageLabel}>{t('orderDetail.message')}: </Text>
+                        {orderItem?.message && orderItem?.message !== '' ? orderItem?.message : t('orderDetail.no')}
+                      </Text>
+                    }
+                  />
+                </Card>
+              </View>
+            ))}
+
+          {/* Payment Actions */}
+          {(useOrderData.data.paymentMethod === PaymentMethod.WALLET ||
+            useOrderData.data.paymentMethod === PaymentMethod.BANK_TRANSFER) &&
+            useOrderData.data.status === ShippingStatusEnum.TO_PAY && (
+              <View style={styles.actionButtonsContainer}>
+                <Button
+                  outline
+                  outlineColor={myTheme.primary}
+                  style={styles.cancelButton}
+                  labelStyle={styles.cancelButtonLabel}
+                  onPress={() => setOpenCancelParentOrderDialog(true)}
+                  label={t('order.cancelOrder')}
+                />
+
+                {isShowPayment && (
+                  <>
+                    {useOrderData?.data.type !== OrderEnum.GROUP_BUYING &&
+                      !useOrderData?.data.isPaymentMethodUpdated && (
+                        <Button
+                          outline
+                          outlineColor={myTheme.primary}
+                          style={styles.changeMethodButton}
+                          labelStyle={styles.cancelButtonLabel}
+                          onPress={() => setOpenRepayment(true)}
+                          label={t('payment.changePaymentMethod')}
+                        />
+                      )}
+                    <Button
+                      backgroundColor={myTheme.primary}
+                      style={styles.payButton}
+                      loading={isLoading}
+                      onPress={() => {
+                        if (useOrderData.data.paymentMethod === PaymentMethod.BANK_TRANSFER) {
+                          setIsOpenQRCodePayment(true)
+                          setPaymentId(useOrderData?.data.id)
+                          return
+                        }
+                        if (useOrderData?.data.paymentMethod === PaymentMethod.WALLET) {
+                          if (useOrderData?.data && useOrderData?.data.id) {
+                            setIsLoading(true)
+                            payTransaction({
+                              orderId: useOrderData?.data.id,
+                              id: useOrderData?.data.id,
+                              type: PAY_TYPE.ORDER
+                            })
+                          }
+                        }
+                      }}
+                      label={t('order.payment')}
+                    />
+                  </>
+                )}
+              </View>
+            )}
+        </View>
+      </ScrollView>
 
       {/* Dialogs */}
       <CancelOrderDialog
@@ -387,7 +422,7 @@ const OrderParentDetail = () => {
         totalPayment={useOrderData?.data?.totalPrice}
         setIsChangePaymentMethod={setIsChangePaymentMethod}
       />
-    </ScrollView>
+    </View>
   )
 }
 
@@ -429,6 +464,27 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: myTheme.mutedForeground,
     marginRight: 8
+  },
+  addressSection: {
+    width: '100%'
+  },
+  addressContent: {
+    gap: 4
+  },
+  addressRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  },
+  messageRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  },
+  addressLabel: {
+    fontWeight: '500',
+    fontSize: 14
+  },
+  addressText: {
+    fontSize: 14
   },
   content: {
     padding: 16,

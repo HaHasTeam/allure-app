@@ -1,5 +1,3 @@
-'use client'
-
 import { Feather } from '@expo/vector-icons'
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
@@ -64,11 +62,12 @@ const ProductSelectionBottomSheet = ({
   const snapPoints = useMemo(() => ['70%'], [])
 
   // Get cart items count
-  const { data: cartData, isLoading: isLoadingCart } = useQuery({
+  const { data: cartData } = useQuery({
     queryKey: [getMyCartApi.queryKey],
     queryFn: getMyCartApi.fn,
     enabled: visible // Only fetch when the bottom sheet is visible
   })
+  console.log('cartData', cartData)
 
   const cartItemsCount = useMemo(() => {
     if (cartData?.data?.items) {
@@ -101,10 +100,12 @@ const ProductSelectionBottomSheet = ({
 
   // Navigate to cart
   const handleGoToCart = useCallback(() => {
+    console.log('checking cart items count:', cartItemsCount)
+
     handleClose()
     // Navigate to cart screen
     router.navigate('/(app)/cart')
-  }, [router, handleClose])
+  }, [cartItemsCount, handleClose, router])
 
   // Handle sheet changes
   const handleSheetChanges = useCallback(
@@ -175,6 +176,7 @@ const ProductSelectionBottomSheet = ({
           defaultClassification as IClassification,
           livestreamDetail
         )
+        console.log('cartItem 181', cartItem)
 
         // Set the selected cart item in the store
         setSelectedCartItem(cartItem)
@@ -288,7 +290,7 @@ const ProductSelectionBottomSheet = ({
               <TouchableOpacity
                 style={styles.cartButton}
                 onPress={handleGoToCart}
-                disabled={isLoadingCart || cartItemsCount === 0}
+                // disabled={isLoadingCart || cartItemsCount === 0}
               >
                 <Feather name='shopping-cart' size={22} color='#64748b' />
                 {cartItemsCount > 0 && (
@@ -363,8 +365,6 @@ const ProductSelectionBottomSheet = ({
                   certificates: item.product.certificates,
                   brand: item.product.brand
                 }
-
-                console.log('mockProduct', mockProduct)
 
                 return (
                   <ProductItem

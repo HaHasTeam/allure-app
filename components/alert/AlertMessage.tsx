@@ -198,6 +198,7 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   messageContainer: {
+    textOverflow: 'ellipsis',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8

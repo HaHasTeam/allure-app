@@ -90,7 +90,7 @@ export default function LivestreamViewerScreen() {
   // Use Firebase chat hook
   const {
     messages: chatMessages,
-    isInitialized: isChatInitialized,
+
     isLoggedIn: isChatLoggedIn,
     isSending: isChatSending,
     error: chatError,
@@ -164,11 +164,6 @@ export default function LivestreamViewerScreen() {
           setIsScrolling(false)
 
           // After a short delay, re-enable auto-scroll if at bottom
-          setTimeout(() => {
-            if (chatListRef.current && isNearBottom()) {
-              setIsAutoScrollEnabled(true)
-            }
-          }, 1000)
         }
       }),
     [lastScrollPosition, isNearBottom]
@@ -194,7 +189,7 @@ export default function LivestreamViewerScreen() {
     }
 
     fetchProfile()
-  }, [getProfile])
+  }, [])
 
   // Listen for keyboard events
   useEffect(() => {
@@ -212,28 +207,6 @@ export default function LivestreamViewerScreen() {
   }, [])
 
   // Function to focus the input
-  const focusInput = useCallback(() => {
-    console.log('Attempting to focus input')
-    if (inputRef.current) {
-      // For TextField, we need to access the inner TextInput
-      setTimeout(() => {
-        if (inputRef.current) {
-          if (inputRef.current.focus) {
-            inputRef.current.focus()
-            console.log('Focus called on input ref')
-          } else if (inputRef.current.getTextField && inputRef.current.getTextField().focus) {
-            // Some UI lib components have a getTextField method
-            inputRef.current.getTextField().focus()
-            console.log('Focus called on getTextField')
-          } else {
-            console.log('Input ref exists but no focus method found', inputRef.current)
-          }
-        }
-      }, 100)
-    } else {
-      console.log('Input ref is null')
-    }
-  }, [])
 
   // Fetch livestream info and token
   useEffect(() => {
@@ -291,11 +264,11 @@ export default function LivestreamViewerScreen() {
     }
 
     fetchLivestreamData()
-  }, [livestreamId, getLivestreamById, getLivestreamToken])
+  }, [])
 
   // Initialize the viewer stream hook with attachment for viewer count
   const { engine, isInitialized, hostUid, isHostVideoEnabled, leaveChannel, viewerCount } = useViewerStreamAttachment({
-    appId: '00f5d43335cb4a19969ef78bb8955d2c', // Replace with your Agora App ID
+    appId: '00f5d43335cb4a19969ef78bb8955d2c',
     channel: livestreamId,
     token: currentToken,
     userId: account?.id || 'viewer'
@@ -305,19 +278,7 @@ export default function LivestreamViewerScreen() {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Auto-hide controls after inactivity
-  const controlsTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  const resetControlsTimer = useCallback(() => {
-    if (controlsTimerRef.current) {
-      clearTimeout(controlsTimerRef.current)
-    }
-
-    controlsOpacity.value = withTiming(1, { duration: 200 })
-
-    controlsTimerRef.current = setTimeout(() => {
-      controlsOpacity.value = withTiming(0, { duration: 500 })
-    }, 5000)
-  }, [controlsOpacity])
   // Leave the livestream
   const leaveStream = useCallback(() => {
     if (isInitialized) {
@@ -367,13 +328,11 @@ export default function LivestreamViewerScreen() {
       if (chatListRef.current) {
         chatListRef.current?.scrollToEnd({ animated: true })
       }
-
-      resetControlsTimer()
     } catch (error) {
       console.error('Error sending message:', error)
       Alert.alert('Error', 'Failed to send message. Please try again.')
     }
-  }, [newMessage, isChatLoggedIn, sendChatMessage, resetControlsTimer])
+  }, [newMessage, isChatLoggedIn, sendChatMessage])
 
   // Handle scroll event to track scroll position
   const handleScroll = useCallback((event: any) => {
@@ -452,6 +411,7 @@ export default function LivestreamViewerScreen() {
   const dismissKeyboard = useCallback(() => {
     Keyboard.dismiss()
   }, [])
+  console.log('checkred rerender')
 
   // Add this near the top of your component function
   const insets = useSafeAreaInsets()
@@ -541,24 +501,18 @@ export default function LivestreamViewerScreen() {
       return true
     })
 
-    // Initialize controls timer
-    resetControlsTimer()
-
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current)
       }
-      if (controlsTimerRef.current) {
-        clearTimeout(controlsTimerRef.current)
-      }
 
       backHandler.remove()
     }
-  }, [confirmLeaveStream, resetControlsTimer])
+  }, [])
 
   return (
     <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <SafeAreaView style={styles.container} onTouchStart={resetControlsTimer}>
+      <SafeAreaView style={styles.container}>
         <StatusBar hidden />
 
         {/* Video Stream */}
@@ -651,7 +605,7 @@ export default function LivestreamViewerScreen() {
 
             {/* Chat input in the middle */}
             <View style={styles.persistentChatInputContainer}>
-              <TouchableOpacity style={styles.chatInputWrapper} activeOpacity={0.8} onPress={focusInput}>
+              <TouchableOpacity style={styles.chatInputWrapper} activeOpacity={0.8}>
                 <TextField
                   ref={inputRef}
                   value={newMessage}
@@ -664,12 +618,6 @@ export default function LivestreamViewerScreen() {
                   fieldStyle={styles.uiLibInputField}
                   style={styles.uiLibInputText}
                   containerStyle={styles.uiLibInputContainer}
-                  autoCapitalize='none'
-                  autoCorrect={false}
-                  showCharCounter={false}
-                  hideUnderline
-                  onFocus={() => setIsKeyboardVisible(true)}
-                  onBlur={() => setIsKeyboardVisible(false)}
                 />
               </TouchableOpacity>
 
@@ -738,12 +686,14 @@ export default function LivestreamViewerScreen() {
             pointerEvents: isProductsModalVisible ? 'auto' : 'none'
           }}
         >
-          <ProductsBottomSheet
-            visible={isProductsModalVisible}
-            onClose={closeProductsModal}
-            products={listProduct}
-            livestreamId={livestreamId}
-          />
+          {isProductsModalVisible && (
+            <ProductsBottomSheet
+              visible={isProductsModalVisible}
+              onClose={closeProductsModal}
+              products={listProduct}
+              livestreamId={livestreamId}
+            />
+          )}
         </View>
       </SafeAreaView>
     </TouchableWithoutFeedback>

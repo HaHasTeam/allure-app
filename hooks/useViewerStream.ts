@@ -203,39 +203,45 @@ export const useViewerStream = ({
 
   // Initialize the engine when the component mounts
   useEffect(() => {
+    // Capture the engine instance at the time this effect runs
+    const engineInstance = engine.current
+
     initializeEngine()
 
     // Cleanup when the component unmounts
     return () => {
       try {
-        engine.current.leaveChannel()
-        engine.current.release()
+        engineInstance.leaveChannel()
+        engineInstance.release()
       } catch (error) {
         log.error('Error during cleanup:', error)
       }
     }
-  }, [])
+  }, [initializeEngine])
 
   // Register event handlers
   useEffect(() => {
     if (!isInitialized) return
 
-    engine.current.addListener('onError', onError)
-    engine.current.addListener('onJoinChannelSuccess', onJoinChannelSuccess)
-    engine.current.addListener('onLeaveChannel', onLeaveChannel)
-    engine.current.addListener('onUserJoined', onUserJoined)
-    engine.current.addListener('onUserOffline', onUserOffline)
-    engine.current.addListener('onRemoteVideoStateChanged', onRemoteVideoStateChanged)
-    engine.current.addListener('onRemoteAudioStateChanged', onRemoteAudioStateChanged)
+    // Capture the engine instance at the time this effect runs
+    const engineInstance = engine.current
+
+    engineInstance.addListener('onError', onError)
+    engineInstance.addListener('onJoinChannelSuccess', onJoinChannelSuccess)
+    engineInstance.addListener('onLeaveChannel', onLeaveChannel)
+    engineInstance.addListener('onUserJoined', onUserJoined)
+    engineInstance.addListener('onUserOffline', onUserOffline)
+    engineInstance.addListener('onRemoteVideoStateChanged', onRemoteVideoStateChanged)
+    engineInstance.addListener('onRemoteAudioStateChanged', onRemoteAudioStateChanged)
 
     return () => {
-      engine.current.removeListener('onError', onError)
-      engine.current.removeListener('onJoinChannelSuccess', onJoinChannelSuccess)
-      engine.current.removeListener('onLeaveChannel', onLeaveChannel)
-      engine.current.removeListener('onUserJoined', onUserJoined)
-      engine.current.removeListener('onUserOffline', onUserOffline)
-      engine.current.removeListener('onRemoteVideoStateChanged', onRemoteVideoStateChanged)
-      engine.current.removeListener('onRemoteAudioStateChanged', onRemoteAudioStateChanged)
+      engineInstance.removeListener('onError', onError)
+      engineInstance.removeListener('onJoinChannelSuccess', onJoinChannelSuccess)
+      engineInstance.removeListener('onLeaveChannel', onLeaveChannel)
+      engineInstance.removeListener('onUserJoined', onUserJoined)
+      engineInstance.removeListener('onUserOffline', onUserOffline)
+      engineInstance.removeListener('onRemoteVideoStateChanged', onRemoteVideoStateChanged)
+      engineInstance.removeListener('onRemoteAudioStateChanged', onRemoteAudioStateChanged)
     }
   }, [
     isInitialized,

@@ -40,9 +40,11 @@ export const createCartFromProduct = (
   product: IProduct,
   quantity: number,
   productClassification: IClassification,
-  liveStream?: {
+  liveStream: {
     discount: number
     id: string
+    createdAt: string
+    updatedAt: string
   }
 ): ICartByBrand => {
   const brandName = product?.brand?.name ?? ''
@@ -62,6 +64,7 @@ export const createCartFromProduct = (
       return currentTime >= startTime && currentTime <= endTime && item.status === ProductDiscountEnum.ACTIVE
     }) ?? null
   const productLivestream = liveStream ?? null
+
   const cartItems: ICartItem = {
     id: product?.id,
     quantity,
@@ -87,7 +90,7 @@ export const createCartFromProduct = (
         productDiscounts: productDiscount ? [productDiscount] : []
       }
     },
-    livestream: productLivestream ? productLivestream.id : undefined,
+    livestream: productLivestream ? { ...productLivestream, status: LiveStreamEnum.LIVE } : undefined,
     livestreamDiscount: productLivestream?.discount ?? undefined
   }
 

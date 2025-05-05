@@ -1,13 +1,15 @@
+import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { StyleSheet } from 'react-native'
+import { StyleSheet, TouchableOpacity } from 'react-native'
 import { Button, Card, Text, View } from 'react-native-ui-lib'
 
 import CancelOrderDialog from './CancelOrderDialog'
 import OrderItem from './OrderItem'
 import AlertMessage from '../alert/AlertMessage'
+import MyText from '../common/MyText'
 import { QRCodeAlertDialog } from '../payment/QRCodeAlertDialog'
 import RePaymentDialog from '../payment/RePaymentDialog'
 
@@ -22,7 +24,6 @@ import useHandleServerError from '@/hooks/useHandleServerError'
 import { OrderEnum, PaymentMethod } from '@/types/enum'
 import type { IOrder } from '@/types/order'
 import { calculatePaymentCountdown } from '@/utils/order'
-import { BottomSheetModal } from '@gorhom/bottom-sheet'
 
 interface OrderParentItemProps {
   order: IOrder
@@ -180,7 +181,7 @@ const OrderParentItem = ({ order, setIsTrigger }: OrderParentItemProps) => {
               outlineColor={myTheme.primary}
               style={styles.outlineButton}
               labelStyle={styles.outlineButtonText}
-              onPress={() => setOpenCancelParentOrderDialog(true)}
+              onPress={() => toggleModalVisibility()}
               label={t('order.cancelOrder')}
             />
 
@@ -272,6 +273,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     width: '100%'
   },
+
   footerContainer: {
     paddingHorizontal: 16,
     paddingBottom: 12,
@@ -294,15 +296,23 @@ const styles = StyleSheet.create({
   outlineButton: {
     borderWidth: 1,
     borderColor: myTheme.primary,
-    backgroundColor: 'transparent',
-    marginVertical: 4
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    width: 'auto'
   },
   outlineButtonText: {
     color: myTheme.primary
   },
   primaryButton: {
     backgroundColor: myTheme.primary,
-    marginVertical: 4
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    width: 'auto'
+  },
+  primaryButtonText: {
+    color: 'white'
   }
 })
 

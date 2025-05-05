@@ -1,6 +1,7 @@
 import { FontAwesome5 } from '@expo/vector-icons'
 import Feather from '@expo/vector-icons/Feather'
 import { Header } from '@react-navigation/elements'
+import { useQueryClient } from '@tanstack/react-query'
 import { Tabs } from 'expo-router'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -13,10 +14,12 @@ import MyText from '@/components/common/MyText'
 import ShopHeader from '@/components/header/ShopHeader'
 import useUser from '@/hooks/api/useUser'
 import { TUserPa } from '@/types/user'
+import { getActiveLiveStreamApi } from '@/hooks/api/livestream'
 
 export default function TabLayout() {
   const { t } = useTranslation()
   const { getProfile } = useUser()
+  const queryClient = useQueryClient()
   const [user, setUser] = useState<TUserPa>({
     email: '',
     id: '',
@@ -92,6 +95,11 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name='live'
+        listeners={{
+          focus: async () => {
+            await queryClient.invalidateQueries({ queryKey: [getActiveLiveStreamApi.queryKey] })
+          }
+        }}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (

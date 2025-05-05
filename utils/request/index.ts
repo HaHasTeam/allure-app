@@ -5,7 +5,6 @@ import { getItem } from '@/utils/asyncStorage'
 
 export const privateRequest = async <R>(url: string, options?: AxiosRequestConfig): Promise<R> => {
   const accessToken = await getItem('accessToken')
-  console.log('go here')
 
   return axiosRequest({
     ...options,

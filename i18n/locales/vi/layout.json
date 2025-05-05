@@ -61,6 +61,7 @@
     "preOrderTitle": "Sản phẩm đặt trước"
   },
   "productCard": {
+    "outOfStock": "Hết hàng",
     "currentPrice": "{{price, currency}}",
     "price": "{{price, currency}}",
     "soldFlashSale": "Đã bán {{amount}}",
@@ -1659,7 +1660,7 @@
       "visa_card": "Visa/Mastercard",
       "none": "Không có"
     },
-    "notifyPayment": "Đơn hàng của bạn chưa được thanh toán. Vui lòng hoàn tất thanh toán bằng {{method}} trong {{val}}.",
+    "notifyPayment": "Đơn hàng của bạn chưa được thanh toán. Vui lòng hoàn tất thanh toán số tiền {{total}} bằng {{method}} trong {{val}}.",
     "changePaymentMethod": "Đổi phương thức thanh toán",
     "paymentSuccess": "Thanh toán thành công!",
     "methodMessage": "Đối với giao dịch mua nhóm, phương thức thanh toán mặc định là ví. Số tiền sẽ được tự động trừ khi đơn mua nhóm hoàn tất. Vui lòng đảm bảo số dư khả dụng trong ví để tránh gián đoạn giao dịch."

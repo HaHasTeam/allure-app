@@ -54,7 +54,7 @@ const OrderGeneral = ({ title, icon, content, status = 'normal' }: OrderGeneralP
   const handleExpand = () => {
     setExpanded(!expanded)
   }
-  console.log('overflow', isOverflowing)
+
   return (
     <View
       style={[
