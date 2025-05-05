@@ -185,7 +185,7 @@ const ProductSelectionBottomSheet = ({
         handleClose()
 
         // Navigate to checkout
-        // router.navigate('/(app)/checkout')
+        router.navigate('/(app)/checkout')
       } catch (error) {
         console.error('Failed to process buy now:', error)
         showToast(t('cart.buyNowError') || 'Failed to process buy now', 'error', 4000)
@@ -237,7 +237,6 @@ const ProductSelectionBottomSheet = ({
         selectedClassification as IClassification,
         selectedLivestream
       )
-      console.log('cartItem 242', cartItem)
 
       // Set the selected cart item in the store
       setSelectedCartItem(cartItem)
@@ -246,7 +245,7 @@ const ProductSelectionBottomSheet = ({
       handleClose()
 
       // Navigate to checkout
-      // router.navigate('/(app)/checkout')
+      router.navigate('/(app)/checkout')
     } catch (error) {
       console.error('Failed to process buy now:', error)
       showToast(t('cart.buyNowError') || 'Failed to process buy now', 'error', 4000)

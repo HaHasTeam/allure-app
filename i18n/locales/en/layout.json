@@ -54,11 +54,14 @@
     "preOrderTitle": "Pre-order products"
   },
   "productCard": {
+    "outOfStock": "Out of Stock",
+
     "currentPrice": "{{price, currency}}",
     "price": "{{price, currency}}",
     "soldFlashSale": "Sold {{amount}}",
     "soldInPastMonth": "{{amount}} bought in past month"
   },
+
   "price": {
     "slider": "Slider",
     "days": "Days",
@@ -1650,7 +1653,7 @@
       "visa_card": "Visa/Mastercard",
       "none": "None"
     },
-    "notifyPayment": "Your order hasn’t been paid yet. Please complete the payment via {{method}} by {{val}}.",
+    "notifyPayment": "Your order hasn’t been paid yet. Please complete the payment of {{total}} via {{method}} by {{val}}.",
     "changePaymentMethod": "Change payment method",
     "paymentSuccess": "Payment successful!",
     "methodMessage": "For group-buying purchases, the default payment method is wallet. The amount will be automatically deducted once the group order is successfully completed. Please ensure your wallet has sufficient available balance to avoid any transaction interruptions."

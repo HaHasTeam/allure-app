@@ -106,7 +106,7 @@ const CheckoutItem = ({
         {/* Product Cards */}
         <ScrollView>
           {cartBrandItem?.map((cartItem) => {
-            console.log('cartItem', cartItem)
+            console.log('cartItem 109', cartItem)
 
             const product =
               cartItem?.productClassification?.preOrderProduct?.product ??
