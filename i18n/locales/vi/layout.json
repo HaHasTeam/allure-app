@@ -486,10 +486,10 @@
     "viewNotification": "Xem thông báo"
   },
   "cart": {
+    "estimated": "Tạm tính",
     "noClassificationError": "Sản phẩm không có phân loại",
     "buyNowError": "Không thể xử lý mua ngay",
     "selectVariant": "Chọn Phân Loại",
-
     "addToCart": "Thêm Vào Giỏ",
     "buyNow": "Mua Ngay",
     "result": "Kết quả",

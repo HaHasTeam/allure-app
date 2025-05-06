@@ -483,6 +483,7 @@
     "viewNotification": "View Notifications"
   },
   "cart": {
+    "estimated": "Estimated",
     "noClassificationError": "Product has no classification",
     "buyNowError": "Failed to process buy now",
     "selectVariant": "Select Variant",

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { StyleSheet, View, Text } from 'react-native'
 
 import { myTheme } from '@/constants'
+import { ShippingStatusEnum } from '@/types/enum'
 
 interface OrderSummaryProps {
   totalProductCost: number
@@ -9,6 +10,7 @@ interface OrderSummaryProps {
   totalPlatformDiscount: number
   totalPayment: number
   paymentMethod: string
+  orderStatus: ShippingStatusEnum
 }
 
 export default function OrderSummary({
@@ -16,7 +18,8 @@ export default function OrderSummary({
   totalBrandDiscount,
   totalPlatformDiscount,
   totalPayment,
-  paymentMethod
+  paymentMethod,
+  orderStatus
 }: OrderSummaryProps) {
   const { t } = useTranslation()
 
@@ -32,7 +35,11 @@ export default function OrderSummary({
 
           {/* Brand Discount */}
           <View style={styles.row}>
-            <Text style={styles.label}>{t('cart.discountBrand')}</Text>
+            <Text style={styles.label}>
+              {t('cart.discountBrand') + orderStatus === ShippingStatusEnum.JOIN_GROUP_BUYING
+                ? ` (${t('cart.estimated')})`
+                : ''}{' '}
+            </Text>
             <Text style={[styles.value, { color: myTheme.green[700] }]}>
               {totalBrandDiscount && totalBrandDiscount > 0 ? '-' : ''}
               {t('productCard.price', { price: totalBrandDiscount })}
@@ -51,7 +58,11 @@ export default function OrderSummary({
           {/* Total Payment */}
           <View style={styles.totalSection}>
             <View style={[styles.row, styles.borderTop]}>
-              <Text style={styles.totalLabel}>{t('cart.totalPayment')}</Text>
+              <Text style={styles.totalLabel}>
+                {t('cart.totalPayment') + orderStatus === ShippingStatusEnum.JOIN_GROUP_BUYING
+                  ? ` (${t('cart.estimated')})`
+                  : ''}{' '}
+              </Text>
               <Text style={[styles.totalValue, { color: myTheme.red[500] }]}>
                 {t('productCard.price', { price: totalPayment })}
               </Text>

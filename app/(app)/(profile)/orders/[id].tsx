@@ -368,7 +368,10 @@ const OrderDetail = () => {
                   icon={<Octicons name='history' size={24} color={myTheme.muted} />}
                   content={
                     !isFetchingStatusTracking && useStatusTrackingData && useStatusTrackingData?.data ? (
-                      <OrderStatusTrackingDetail statusTrackingData={useStatusTrackingData?.data} />
+                      <OrderStatusTrackingDetail
+                        statusTrackingData={useStatusTrackingData?.data}
+                        orderCreatedAt={useOrderData?.data?.createdAt}
+                      />
                     ) : (
                       <MyText text='' />
                     )
@@ -474,6 +477,7 @@ const OrderDetail = () => {
                 totalPlatformDiscount={useOrderData?.data?.platformVoucherDiscount}
                 totalPayment={useOrderData?.data?.totalPrice}
                 paymentMethod={useOrderData?.data?.paymentMethod}
+                orderStatus={useOrderData?.data?.status}
               />
 
               {useOrderData?.data?.status === ShippingStatusEnum.WAIT_FOR_CONFIRMATION && (
