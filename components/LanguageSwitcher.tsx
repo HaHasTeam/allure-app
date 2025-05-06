@@ -1,7 +1,6 @@
-import { AntDesign } from '@expo/vector-icons'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 
 import { myTheme } from '@/constants'
 

@@ -1,6 +1,7 @@
-import { createContext } from 'react'
-import type { GetRoleByEnumResponse, TRoleResponse } from '@/types/role'
 import { FirebaseAuthTypes } from '@react-native-firebase/auth'
+import { createContext } from 'react'
+
+import type { GetRoleByEnumResponse, TRoleResponse } from '@/types/role'
 
 // Define the context type without any implementation
 const AuthContext = createContext<{

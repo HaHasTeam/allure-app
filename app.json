@@ -24,7 +24,10 @@
       },
       "package": "com.listkelvin.testappp",
       "googleServicesFile": "./google-services-2.json",
-      "permissions": ["ACCESS_NETWORK_STATE", "ACCESS_WIFI_STATE"]
+      "permissions": [
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -45,6 +48,14 @@
         "expo-document-picker",
         {
           "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "javascript-nextjs",
+          "organization": "edulight"
         }
       ]
     ],

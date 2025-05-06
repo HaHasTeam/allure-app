@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { View } from 'react-native'
 import { PageControl } from 'react-native-ui-lib'
 
 interface APIPaginationProps {
@@ -16,5 +16,3 @@ const APIPagination = ({ currentPage, totalPages, onPageChange }: APIPaginationP
 }
 
 export default APIPagination
-
-const styles = StyleSheet.create({})

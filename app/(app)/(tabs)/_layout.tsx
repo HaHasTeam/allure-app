@@ -12,9 +12,9 @@ import { myDeviceWidth, myFontWeight, myTheme, width } from '../../../constants/
 
 import MyText from '@/components/common/MyText'
 import ShopHeader from '@/components/header/ShopHeader'
+import { getActiveLiveStreamApi } from '@/hooks/api/livestream'
 import useUser from '@/hooks/api/useUser'
 import { TUserPa } from '@/types/user'
-import { getActiveLiveStreamApi } from '@/hooks/api/livestream'
 
 export default function TabLayout() {
   const { t } = useTranslation()

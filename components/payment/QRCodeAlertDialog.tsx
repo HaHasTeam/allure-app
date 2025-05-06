@@ -13,8 +13,8 @@ import { QRCodePayment } from './QRCodePayment'
 
 import { myTheme } from '@/constants'
 import { payTransactionApi } from '@/hooks/api/transaction'
-import { formatCurrency } from '@/utils/number'
 import type { PAY_TYPE } from '@/hooks/api/transaction/type'
+import { formatCurrency } from '@/utils/number'
 
 interface QRCodeAlertDialogProps {
   /**
@@ -56,10 +56,11 @@ export function QRCodeAlertDialog({
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'processing' | 'success' | 'error'>('pending')
   const [paymentId_result, setPaymentId_result] = useState<string | null>(null)
   const bottomSheetModalRef = useRef<BottomSheetModal>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [userDismissed, setUserDismissed] = useState(false)
   const [browserOpened, setBrowserOpened] = useState(false)
 
-  const { mutateAsync: payTransaction, isPending } = useMutation({
+  const { mutateAsync: payTransaction } = useMutation({
     mutationKey: [payTransactionApi.mutationKey],
     mutationFn: payTransactionApi.fn
   })
@@ -149,7 +150,7 @@ export function QRCodeAlertDialog({
       ref={bottomSheetModalRef}
       index={0}
       snapPoints={['85%']}
-      enablePanDownToClose={true}
+      enablePanDownToClose
       backdropComponent={renderBackdrop}
       handleIndicatorStyle={styles.handleIndicator}
       onChange={handleSheetChanges}

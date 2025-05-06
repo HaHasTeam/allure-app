@@ -1,7 +1,6 @@
 import { AntDesign, Feather, MaterialCommunityIcons } from '@expo/vector-icons'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { RadioButton } from 'react-native-ui-lib'
 
@@ -24,7 +23,6 @@ const AddressItem = ({
   isShowRadioItem = true,
   handleAddressSelection
 }: AddressItemProps) => {
-  const { t } = useTranslation()
   const [isModalVisible, setIsModalVisible] = useState(false)
   const bottomSheetModalRef = useRef<BottomSheetModal>(null)
   const toggleModalVisibility = () => {

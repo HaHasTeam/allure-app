@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-concat */
 'use client'
 
 import { Feather } from '@expo/vector-icons'

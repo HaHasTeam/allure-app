@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 import { IMasterConfig } from '@/types/master-config'
 import { IOrder } from '@/types/order'
 

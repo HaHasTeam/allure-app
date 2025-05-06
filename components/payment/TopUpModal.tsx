@@ -105,7 +105,6 @@ export default function TopUpModal({ onClose }: TopUpModalProps) {
   })
 
   const amount = watch('amount')
-  const method = watch('method')
   const readOnlyForm = !!paymentLinkRes?.data.url
 
   const onSubmit = async (data: FormValues) => {

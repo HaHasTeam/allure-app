@@ -1,7 +1,6 @@
 import { Feather } from '@expo/vector-icons'
 import * as DocumentPicker from 'expo-document-picker'
 import * as Linking from 'expo-linking'
-import { useRouter } from 'expo-router'
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { View, StyleSheet, TouchableOpacity } from 'react-native'
 
@@ -70,16 +69,8 @@ export const FileUploader = ({
   const [isFileTooBig, setIsFileTooBig] = useState(false)
   const [isLOF, setIsLOF] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
-  const router = useRouter()
 
-  const {
-    accept = {
-      'image/*': ['.jpg', '.jpeg', '.png', '.gif']
-    },
-    maxFiles = customMaxFiles,
-    maxSize = 4 * 1024 * 1024,
-    multiple = true
-  } = dropzoneOptions
+  const { maxFiles = customMaxFiles, maxSize = 4 * 1024 * 1024, multiple = true } = dropzoneOptions
 
   const reSelectAll = maxFiles === 1 ? true : reSelect
   const direction: DirectionOptions = dir === 'rtl' ? 'rtl' : 'ltr'
@@ -130,9 +121,13 @@ export const FileUploader = ({
 
           newValues.push({
             fileUrl: file.uri,
-            size: file?.size ? file?.size : 0,
-            ...file
-          })
+            size: file?.size || 0,
+            name: file.name || '',
+            uri: file.uri,
+            mimeType: file.mimeType || '',
+            lastModified: file.lastModified || 0,
+            file: file.file || null
+          } as unknown as CustomFile)
         }
       }
 

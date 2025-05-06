@@ -1,8 +1,6 @@
-'use client'
-
-import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
+import React, { useState } from 'react'
 import { StyleSheet, TouchableOpacity, FlatList, RefreshControl } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { View, Text, Card, Chip, LoaderScreen } from 'react-native-ui-lib'

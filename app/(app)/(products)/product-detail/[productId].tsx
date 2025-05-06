@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client'
 
@@ -176,12 +177,6 @@ const ProductDetailScreen = ({ initProductId, isInGroupBuying = false }: Product
     }
   }
 
-  const loadMoreReviews = () => {
-    if (currentPage < totalPages && !isLoadingReviews) {
-      loadReviews(currentPage + 1)
-    }
-  }
-
   const loadMoreModalReviews = () => {
     if (modalCurrentPage < modalTotalPages && !isLoadingModalReviews) {
       loadModalReviews(modalCurrentPage + 1)
@@ -320,7 +315,7 @@ const ProductDetailScreen = ({ initProductId, isInGroupBuying = false }: Product
   const detailObject = useMemo(() => {
     try {
       return product?.detail ? JSON.parse(product.detail) : {}
-    } catch (e) {
+    } catch {
       return {}
     }
   }, [product?.detail])

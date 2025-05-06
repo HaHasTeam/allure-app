@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMutation, useQuery } from '@tanstack/react-query'
 import React, { useEffect, useState, useMemo } from 'react'

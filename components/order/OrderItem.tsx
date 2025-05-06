@@ -1,5 +1,4 @@
 /* eslint-disable radix */
-import { Ionicons } from '@expo/vector-icons'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
@@ -29,7 +28,7 @@ import {
 } from '@/hooks/api/order'
 import useHandleServerError from '@/hooks/useHandleServerError'
 import { IBrand } from '@/types/brand'
-import { OrderEnum, RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
+import { RequestStatusEnum, ShippingStatusEnum } from '@/types/enum'
 import { IOrderItem } from '@/types/order'
 
 interface OrderItemProps {

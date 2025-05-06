@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-concat */
 /* eslint-disable radix */
 import { Feather, MaterialIcons, Octicons } from '@expo/vector-icons'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'

@@ -9,7 +9,7 @@ import ImageWithFallback from '../image/ImageWithFallBack'
 
 import { myTheme } from '@/constants'
 import type { IClassification } from '@/types/classification'
-import { ClassificationTypeEnum, DiscountTypeEnum } from '@/types/enum'
+import { ClassificationTypeEnum } from '@/types/enum'
 import type { DiscountType } from '@/types/product-discount'
 import { calculateDiscountPrice, calculateTotalPrice } from '@/utils/price'
 

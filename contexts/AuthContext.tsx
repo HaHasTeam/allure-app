@@ -140,9 +140,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
           } catch (error: any) {
             console.log('error 130', error)
 
-            if (error.message == 'Invalid email') {
+            if (error.message === 'Invalid email') {
               Alert.alert('Xin lỗi', 'Email không hợp lệ', [{ text: 'OK' }])
-            } else if (error.message == 'Invalid password') {
+            } else if (error.message === 'Invalid password') {
               Alert.alert('Xin lỗi', 'Mật khẩu không hợp lệ', [{ text: 'OK' }])
             }
             return resolveError(error)
