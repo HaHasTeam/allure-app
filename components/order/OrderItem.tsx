@@ -298,7 +298,12 @@ const OrderItem = ({ brand, orderItem, setIsTrigger, isShowAction = true, orderI
 
         {/* total price */}
         <View style={styles.totalPriceContainer}>
-          <MyText text={t('cart.totalPrice') + ': '} styleProps={styles.totalPriceLabel} />
+          <MyText
+            text={`${t('cart.totalPrice')}${
+              orderItem.status === ShippingStatusEnum.JOIN_GROUP_BUYING ? ` (${t('cart.estimated')})` : ''
+            }: `}
+            styleProps={styles.totalPriceLabel}
+          />
           <MyText text={t('productCard.price', { price: orderItem?.totalPrice })} styleProps={styles.totalPriceValue} />
         </View>
 
