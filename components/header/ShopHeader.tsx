@@ -31,21 +31,16 @@ const ShopHeader = ({
   defaultTag = ProductTagEnum.BEST_SELLER,
   defaultLimit = 10
 }: ShopHeaderProps) => {
-  const { mutateAsync: searchMutate } = useMutation({
-    mutationKey: [getProductFilterMutationApi.mutationKey],
-    mutationFn: getProductFilterMutationApi.fn
-  })
+  // const { mutateAsync: searchMutate } = useMutation({
+  //   mutationKey: [getProductFilterMutationApi.mutationKey],
+  //   mutationFn: getProductFilterMutationApi.fn
+  // })
   const router = useRouter()
 
   const [searchModalVisible, setSearchModalVisible] = useState(false)
 
   // Add state for search and pagination
   const [searchQuery, setSearchQuery] = useState('')
-  const [products, setProducts] = useState<IResponseProduct[]>([])
-  const [page, setPage] = useState(1)
-  const [isLoading, setIsLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
-  const [totalItems, setTotalItems] = useState(0)
 
   const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity)
 
@@ -83,76 +78,7 @@ const ShopHeader = ({
   }
 
   const handleSearchPress = () => {
-    setSearchModalVisible(true)
-  }
-
-  const handleSearchClose = () => {
-    setSearchModalVisible(false)
-  }
-
-  // Implement search function with pagination
-  const fetchProducts = useCallback(
-    async (reset = false) => {
-      if (isLoading || (!hasMore && !reset)) return
-
-      try {
-        setIsLoading(true)
-        const currentPage = reset ? 1 : page
-
-        const response = await searchMutate({
-          search: searchQuery,
-          page: currentPage,
-          limit: defaultLimit
-        })
-
-        if (response && response.data) {
-          const newProducts = response.data.items
-          const total = Number.parseInt(response.data.total || '0')
-
-          setTotalItems(total)
-
-          if (reset) {
-            setProducts(newProducts)
-          } else {
-            setProducts((prev) => [...prev, ...newProducts])
-          }
-
-          setHasMore(products.length + newProducts.length < total)
-
-          if (!reset) {
-            setPage(currentPage + 1)
-          } else {
-            setPage(2)
-          }
-
-          // Notify parent component if needed
-          if (onProductsLoaded) {
-            onProductsLoaded(reset ? newProducts : [...products, ...newProducts])
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    [searchQuery, page, hasMore, isLoading, products, defaultLimit, searchMutate, onProductsLoaded]
-  )
-
-  // Handle search input change
-  const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    setHasMore(true)
-
-    // Reset and fetch new results
-    fetchProducts(true)
-  }
-
-  // Handle infinite scroll
-  const handleLoadMore = () => {
-    if (!isLoading && hasMore) {
-      fetchProducts()
-    }
+    router.push({ pathname: '/(app)/(tabs)/explore' })
   }
 
   return (
@@ -221,7 +147,7 @@ const ShopHeader = ({
       </View>
 
       {/* Search Modal with Results */}
-      <SearchModal
+      {/* <SearchModal
         visible={searchModalVisible}
         onClose={handleSearchClose}
         onSearch={handleSearch}
@@ -230,7 +156,7 @@ const ShopHeader = ({
         isLoading={isLoading}
         onLoadMore={handleLoadMore}
         hasMore={hasMore}
-      />
+      /> */}
     </View>
   )
 }

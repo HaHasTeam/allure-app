@@ -4,7 +4,6 @@ import { Header } from '@react-navigation/elements'
 import { useQueryClient } from '@tanstack/react-query'
 import { Tabs } from 'expo-router'
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { ImageBackground, StyleSheet } from 'react-native'
 import { Avatar, View } from 'react-native-ui-lib'
 
@@ -17,7 +16,6 @@ import useUser from '@/hooks/api/useUser'
 import { TUserPa } from '@/types/user'
 
 export default function TabLayout() {
-  const { t } = useTranslation()
   const { getProfile } = useUser()
   const queryClient = useQueryClient()
   const [user, setUser] = useState<TUserPa>({
@@ -114,7 +112,7 @@ export default function TabLayout() {
         options={{
           header: () => (
             <Header
-              title={t('cart.title')}
+              title='Giỏ hàng'
               headerTitleStyle={{
                 color: myTheme.primary,
                 fontFamily: myFontWeight.bold,

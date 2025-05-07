@@ -83,7 +83,7 @@ function PreOrderProductCard({ preOrderProduct }: ProductCardProps) {
     if (timeStatus === 'upcoming') {
       return (
         <View style={styles.buttonContainer}>
-          <Countdown targetDate={releaseDay.toISOString()} language='vi' />
+          {/* <Countdown targetDate={releaseDay.toISOString()} language='vi' /> */}
           <TouchableOpacity style={styles.button}>
             <Entypo name='chevron-right' size={16} color='#fff' style={styles.icon} />
             <Text style={styles.buttonText}>Tìm Hiểu thêm</Text>

@@ -1,9 +1,12 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 import { Header, HeaderBackButton } from '@react-navigation/elements'
 import * as Sentry from '@sentry/react-native'
-import { Stack, useRouter } from 'expo-router'
+import { isRunningInExpoGo } from 'expo'
+import { Stack, useNavigationContainerRef, useRouter } from 'expo-router'
+import { useEffect } from 'react'
 import { Appearance, Platform, StatusBar, StyleSheet } from 'react-native'
 import { View } from 'react-native-ui-lib'
+import '@/i18n/i18n'
 
 import { myFontWeight } from '@/constants'
 import { SessionProvider } from '@/contexts/AuthContext'
@@ -13,26 +16,37 @@ import QueryProvider from '@/provider/QueryProvider'
 // import QueryProvider from "@/provider/QueryProvider";
 // import { myFontWeight } from "@/contracts/constants";
 // import { firebaseCloudMessaging } from "@/utils/firebase";
-
+const navigationIntegration = Sentry.reactNavigationIntegration({
+  enableTimeToInitialDisplay: !isRunningInExpoGo()
+})
 Sentry.init({
   dsn: 'https://ddf8cf26516f110dc974cd51e850ccd3@o4507213250166784.ingest.us.sentry.io/4507213253115904',
 
   // Configure Session Replay
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1,
-  integrations: [Sentry.mobileReplayIntegration()],
+  integrations: [Sentry.mobileReplayIntegration(), navigationIntegration],
   // We recommend adjusting this value in production.
   // Learn more at
   // https://docs.sentry.io/platforms/react-native/configuration/options/#traces-sample-rate
   tracesSampleRate: 1.0,
   // profilesSampleRate is relative to tracesSampleRate.
   // Here, we'll capture profiles for 100% of transactions.
-  profilesSampleRate: 1.0
+  profilesSampleRate: 1.0,
+  enableNativeFramesTracking: !isRunningInExpoGo()
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: __DEV__,
 })
 // SplashScreen.preventAutoHideAsync();
 export default Sentry.wrap(function Root() {
+  const ref = useNavigationContainerRef()
+
+  useEffect(() => {
+    if (ref?.current) {
+      navigationIntegration.registerNavigationContainer(ref)
+    }
+  }, [ref])
+
   const router = useRouter()
 
   const styles = StyleSheet.create({

@@ -1,4 +1,4 @@
-import * as Localization from 'expo-localization'
+// import * as Localization from 'expo-localization'
 import i18n from 'i18next'
 import moment from 'moment'
 import { initReactI18next } from 'react-i18next'
@@ -10,8 +10,8 @@ import viTranslation from './locales/vi/layout.json'
 export const supportedLngs = ['en', 'vi']
 
 // Get device language
-const deviceLanguage = Localization.locale.split('-')[0]
-const fallbackLng = supportedLngs.includes(deviceLanguage) ? deviceLanguage : 'vi'
+// const deviceLanguage = Localization.locale.split('-')[0]
+// const fallbackLng = supportedLngs.includes(deviceLanguage) ? deviceLanguage : 'vi'
 
 const resources = {
   en: {
@@ -28,7 +28,7 @@ i18n.use(initReactI18next).init({
   ns: ['layout'],
   defaultNS: 'layout',
   fallbackLng: ['vi'],
-  lng: fallbackLng,
+  lng: 'vi',
   interpolation: {
     escapeValue: false,
     format: (value, format, lng) => {

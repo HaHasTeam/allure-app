@@ -9,7 +9,8 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://allure-api.kelvinpham.online/allure",
-        "EXPO_PUBLIC_FIREBASE_VAPID_KEY": "BGBB6QUpBsaiSnu4s_sOTYx25D5V4QqtDUB13RwdFl0axib2Q1JRQyg1HD93QbVZgo4tLDHD62usgmQT-lWLWDA"
+        "EXPO_PUBLIC_FIREBASE_VAPID_KEY": "BGBB6QUpBsaiSnu4s_sOTYx25D5V4QqtDUB13RwdFl0axib2Q1JRQyg1HD93QbVZgo4tLDHD62usgmQT-lWLWDA",
+        "SENTRY_AUTH_TOKEN": "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"
       }
     },
     "preview": {
@@ -19,7 +20,8 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://allure-api.kelvinpham.online/allure",
-        "EXPO_PUBLIC_FIREBASE_VAPID_KEY": "BGBB6QUpBsaiSnu4s_sOTYx25D5V4QqtDUB13RwdFl0axib2Q1JRQyg1HD93QbVZgo4tLDHD62usgmQT-lWLWDA"
+        "EXPO_PUBLIC_FIREBASE_VAPID_KEY": "BGBB6QUpBsaiSnu4s_sOTYx25D5V4QqtDUB13RwdFl0axib2Q1JRQyg1HD93QbVZgo4tLDHD62usgmQT-lWLWDA",
+        "SENTRY_AUTH_TOKEN": "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"
       }
     },
     "production": {
@@ -28,7 +30,8 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://allure-api.kelvinpham.online/allure",
-        "EXPO_PUBLIC_FIREBASE_VAPID_KEY": "BGBB6QUpBsaiSnu4s_sOTYx25D5V4QqtDUB13RwdFl0axib2Q1JRQyg1HD93QbVZgo4tLDHD62usgmQT-lWLWDA"
+        "EXPO_PUBLIC_FIREBASE_VAPID_KEY": "BGBB6QUpBsaiSnu4s_sOTYx25D5V4QqtDUB13RwdFl0axib2Q1JRQyg1HD93QbVZgo4tLDHD62usgmQT-lWLWDA",
+        "SENTRY_AUTH_TOKEN": "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"
       },
       "autoIncrement": true
     }

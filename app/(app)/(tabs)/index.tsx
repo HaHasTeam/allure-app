@@ -1,5 +1,3 @@
-import '@/i18n/i18n'
-
 import React from 'react'
 import { FlatList, KeyboardAvoidingView, Platform } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'

@@ -3,6 +3,8 @@ import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { Rating } from 'react-native-ratings'
 
+import { myTheme } from '@/constants'
+
 interface ProductStarProps {
   rating: number
   ratingAmount: number
@@ -26,6 +28,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     width: '100%'
+  },
+  rating: {
+    color: myTheme.primary
   },
   text: {
     fontSize: 14,

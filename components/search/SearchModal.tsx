@@ -38,13 +38,15 @@ const SearchModal = ({
   visible,
   onClose,
   onSearch,
-  initialValue,
+  initialValue = '',
   products = [],
   isLoading = false,
   onLoadMore,
   hasMore = false
 }: SearchModalProps) => {
-  const [searchText, setSearchText] = useState(initialValue || '')
+  const [searchText, setSearchText] = useState('')
+  console.log('checking searchText', searchText)
+
   const { t } = useTranslation()
   const debouncedSearchText = useDebounce(searchText, 500) || '' // 500ms debounce
   const inputRef = useRef<TextInput>(null)
@@ -62,7 +64,7 @@ const SearchModal = ({
   // Only update searchText from initialValue when the modal becomes visible
   useEffect(() => {
     if (visible) {
-      setSearchText(initialValue || '')
+      setSearchText('')
     }
   }, [initialValue, visible])
 
@@ -72,7 +74,7 @@ const SearchModal = ({
     if (debouncedSearchText !== prevDebouncedText.current) {
       prevDebouncedText.current = debouncedSearchText
 
-      if (debouncedSearchText.trim().length > 2) {
+      if (debouncedSearchText.trim()?.length > 2) {
         onSearch(debouncedSearchText)
       } else if (debouncedSearchText === '') {
         onSearch('')
@@ -118,7 +120,7 @@ const SearchModal = ({
       id: item.id,
       name: item.name,
       tag: productTag,
-      price: productClassification?.price ?? -1,
+      price: productClassification?.price ?? 0,
       currentPrice,
       images: item.images,
       deal: hasDiscount ? productClassification?.productDiscount?.discount : 0,
@@ -188,7 +190,7 @@ const SearchModal = ({
               autoCapitalize='none'
               autoCorrect={false}
             />
-            {searchText.length > 0 && (
+            {searchText?.length > 0 && (
               <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
                 <Feather name='x' size={18} color='#999' />
               </TouchableOpacity>
@@ -209,7 +211,7 @@ const SearchModal = ({
                 <ActivityIndicator size='large' color={myTheme.primary} />
               ) : (
                 <Text style={styles.emptyText}>
-                  {searchText.length > 0 ? `No results found for "${searchText}"` : 'Start typing to search products'}
+                  {searchText?.length > 0 ? `No results found for "${searchText}"` : 'Start typing to search products'}
                 </Text>
               )}
             </View>
