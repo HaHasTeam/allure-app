@@ -139,7 +139,7 @@ export default function TabLayout() {
           title: 'Profile',
           header: () => (
             <ImageBackground
-              source={require('@/assets/images/profile-background.jpg')}
+              source={require('@/assets/images/profile-background.png')}
               resizeMode='cover'
               borderBottomLeftRadius={40}
               borderBottomRightRadius={40}

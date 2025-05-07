@@ -42,7 +42,9 @@ export enum ProductTagEnum {
   HOT = 'HOT',
   NEW = 'NEW',
   PRICE_ASC = 'PRICE_ASC',
-  PRICE_DESC = 'PRICE_DESC'
+  PRICE_DESC = 'PRICE_DESC',
+  CREATED_ASC = 'CREATED_ASC',
+  CREATED_DESC = 'CREATED_DESC'
 }
 
 export enum FileEnum {

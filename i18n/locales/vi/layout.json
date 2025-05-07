@@ -62,6 +62,7 @@
   },
   "productCard": {
     "outOfStock": "Hết hàng",
+    "inStock": "Còn hàng {{quantity}}",
     "currentPrice": "{{price, currency}}",
     "price": "{{price, currency}}",
     "soldFlashSale": "Đã bán {{amount}}",
@@ -104,6 +105,7 @@
   },
   "flashSale": {
     "title": "Flash Sale",
+    "endsIn": "Kết thúc trong {{val, MM/DD/YYYY}}",
     "waiting": "Flash Sale sẽ diễn ra vào ngày {{val, MM/DD/YYYY HH:mm:ss}}"
   },
   "footer": {

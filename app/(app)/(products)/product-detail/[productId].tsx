@@ -749,8 +749,8 @@ const ProductDetailScreen = ({ initProductId, isInGroupBuying = false }: Product
 
               <View style={styles.reviewSummary}>
                 <View style={styles.ratingBig}>
-                  <Text style={styles.ratingBigNumber}>{reviewData.averageRating}</Text>
-                  <Text style={styles.ratingBigText}>out of 5</Text>
+                  <Text style={styles.ratingBigNumber}>{reviewData.averageRating || 0}</Text>
+                  <Text style={styles.ratingBigText}>{reviewData.averageRating || 0} out of 5</Text>
                 </View>
                 <View style={styles.ratingBars}>
                   {[5, 4, 3, 2, 1].map((star) => (
@@ -802,7 +802,7 @@ const ProductDetailScreen = ({ initProductId, isInGroupBuying = false }: Product
           <Text style={styles.priceLabel}>Total Price</Text>
           <Text style={styles.price}>
             {t('productCard.price', {
-              price: selectedSize?.price || cheapestClassification?.price || product.price
+              price: currentPrice
             })}
           </Text>
         </View>

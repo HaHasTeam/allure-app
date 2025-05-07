@@ -31,7 +31,7 @@ const SearchScreen = () => {
       case 'bestSelling':
         return ProductTagEnum.BEST_SELLER
       case 'newest':
-        return ProductTagEnum.NEW
+        return ProductTagEnum.CREATED_ASC
       case 'hot':
         return ProductTagEnum.HOT
       default:

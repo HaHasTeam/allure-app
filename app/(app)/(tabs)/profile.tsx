@@ -70,21 +70,21 @@ const ProfileScreen = () => {
   }
 
   const settingMenu = [
-    {
-      icon: <FontAwesome5 style={style.icon} name='user-cog' size={24} color={myTheme.primary} />,
-      onPress: () => router.push('/(app)/(profile)/editprofile'),
-      title: 'Cập nhật tài khoản'
-    },
-    {
-      icon: <Feather style={style.icon} name='lock' size={24} color={myTheme.primary} />,
-      onPress: () => router.push('/(app)/(profile)/updatepassword'),
-      title: 'Đổi mật khẩu'
-    },
-    {
-      icon: <MaterialIcons name='language' style={style.icon} size={24} color={myTheme.primary} />,
-      onPress: () => router.push('/(app)/(language)/languageswitcher'),
-      title: t('language.title')
-    },
+    // {
+    //   icon: <FontAwesome5 style={style.icon} name='user-cog' size={24} color={myTheme.primary} />,
+    //   onPress: () => router.push('/(app)/(profile)/editprofile'),
+    //   title: 'Cập nhật tài khoản'
+    // },
+    // {
+    //   icon: <Feather style={style.icon} name='lock' size={24} color={myTheme.primary} />,
+    //   onPress: () => router.push('/(app)/(profile)/updatepassword'),
+    //   title: 'Đổi mật khẩu'
+    // },
+    // {
+    //   icon: <MaterialIcons name='language' style={style.icon} size={24} color={myTheme.primary} />,
+    //   onPress: () => router.push('/(app)/(language)/languageswitcher'),
+    //   title: t('language.title')
+    // },
     {
       icon: <Feather name='package' style={style.icon} size={24} color={myTheme.primary} />,
       onPress: () => router.push('/(app)/(profile)/orders/orderhistory'),

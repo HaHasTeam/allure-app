@@ -55,6 +55,7 @@
   },
   "productCard": {
     "outOfStock": "Out of Stock",
+    "inStock": "Còn hàng {{quantity}}",
 
     "currentPrice": "{{price, currency}}",
     "price": "{{price, currency}}",
@@ -106,6 +107,7 @@
   },
   "flashSale": {
     "title": "Flash Sale",
+    "endsIn": "Ends In {{val, MM/DD/YYYY}}",
     "waiting": "Flash Sale will take place on {{val, MM/DD/YYYY HH:mm:ss}}"
   },
   "footer": {

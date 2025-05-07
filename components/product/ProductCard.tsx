@@ -51,11 +51,11 @@ const ProductCard = ({ product, isProductDiscount = false, isInGroupBuying = fal
           <ImageWithFallback source={{ uri: product?.images[0]?.fileUrl }} style={styles.image} resizeMode='cover' />
         </View>
         <View style={styles.contentContainer}>
-          <Text>
+          {/* <Text>
             {isProductDiscount && product?.deal && product?.deal > 0 && (
               <ProductTag tag='DealPercent' text={`-${(product?.deal * 100).toFixed(0)}%`} />
             )}
-          </Text>
+          </Text> */}
           <Text numberOfLines={2} style={styles.productName}>
             {product?.name}
           </Text>

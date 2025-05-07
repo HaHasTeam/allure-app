@@ -175,13 +175,13 @@ const ProductClassificationBottomSheet = ({
                   )}
                 </>
               )}
-              {selectedVariant && (
+              {/* {selectedVariant && (
                 <Text style={styles.stockInfo}>
                   {t('productCard.inStock', {
                     quantity: selectedVariant.quantity
                   })}
                 </Text>
-              )}
+              )} */}
             </View>
           </View>
 
